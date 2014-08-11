@@ -11,7 +11,7 @@ GITREV_ERR=3
 RPMBUILD_ERR=4
 WORKSPACE_ERR=5
 
-build_rpm {
+function build_rpm {
     
     if [[ -e "$1" ]]
     then
