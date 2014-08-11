@@ -11,9 +11,9 @@ GITREV_ERR=3
 RPMBUILD_ERR=4
 WORKSPACE_ERR=5
 
-build_rpm () {
+build_rpm {
     
-    if [[ -e ${SPECFILE} ]]
+    if [[ -e "$1" ]]
     then
         # determine the name of the rpm from the specfile
         rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
@@ -56,7 +56,7 @@ do
     pushd $I
     # find the spec files
     SPECFILE=$(find . -name "*.spec")
-    if [[ -n ${SPECFILE} ]] then ; build_rpm() ; fi
+    if [[ -n ${SPECFILE} ]] ; then build_rpm ${SPECFILE} ; fi
     popd
 done
     
