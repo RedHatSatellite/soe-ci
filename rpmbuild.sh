@@ -32,7 +32,8 @@ function build_rpm {
 # setup RPM build environment
 rpmtop=${WORKSPACE}/rpmbuild
 mkdir -p ${rpmtop}/{SPECS,SOURCES,BUILD,BUILDROOT,RPMS,SRPMS} 
-mkdir -p ${WORKSPACE}/artefacts/rpms
+mkdir -p ${WORKSPACE}/artefacts/{rpms,srpms,debug-rpms}
+
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
@@ -60,5 +61,11 @@ do
     popd
 done
     
+# copy all created RPMs to the artefacts directory
+cd ${rpmtop}
+find . -name '*debuginfo*.rpm' -exec mv {} ${WORKSPACE}/artefacts/debug-rpms \;
+find . -name '*.src.rpm' -exec mv {} ${WORKSPACE}/artefacts/srpms \;
+find . -name '*.rpm' -exec mv {} ${WORKSPACE}/artefacts/rpms \;
+
 
 
