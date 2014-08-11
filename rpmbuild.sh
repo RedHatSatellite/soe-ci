@@ -38,7 +38,7 @@ do
     pushd $I
     # find the spec files
     SPECFILE=$(find . -name "*.spec")
-    if [[ -n ${SPECFILE} ]] ; then build_rpm() ; fi
+    if [[ -n ${SPECFILE} ]] then ; build_rpm() ; fi
     popd
 done
     

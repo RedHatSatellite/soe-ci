@@ -1,2 +1,7 @@
 Continuous Integration scripts for SOE CI
 
+- rpmbuild.sh - build RPMs
+- puppetbuild.sh - build Puppet modules
+- kickstartbuild.sh - build kickstart files (currently a no-op)
+
+
