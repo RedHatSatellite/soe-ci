@@ -15,16 +15,23 @@ function build_rpm {
     
     if [[ -e "$1" ]]
     then
-        # determine the name of the rpm from the specfile
-        rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
-        cp ${SPECFILE} ${rpmtop}/SPECS
-        cp -a * ${rpmtop}/SOURCES
-        rpmbuild --define "_topdir ${rpmtop}" -bb ${rpmtop}/SPECS/$(basename ${SPECFILE})
-        RETVAL=$?
-        if [[ ${RETVAL} != 0 ]]
+        git_commit=$(git log --format="%H" -1  $(pwd))
+        if [[ ! ${git_commit} -eq $(cat .rpmbuild-hash) ]]
         then
-            echo "Could not build RPM ${rpmname} using the specfile ${SPECFILE}"
-            exit ${RPMBUILD_ERR}
+            echo ${git_commit} > .rpmbuild-hash
+            # determine the name of the rpm from the specfile
+            rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})   
+            cp ${SPECFILE} ${rpmtop}/SPECS
+            cp -a * ${rpmtop}/SOURCES
+            rpmbuild --define "_topdir ${rpmtop}" -ba ${rpmtop}/SPECS/$(basename ${SPECFILE})
+            RETVAL=$?
+            if [[ ${RETVAL} != 0 ]]
+            then
+                echo "Could not build RPM ${rpmname} using the specfile ${SPECFILE}"
+                exit ${RPMBUILD_ERR}
+            fi
+        else
+            echo "No changes since last build - skipping ${SPECFILE}"
         fi
     fi
 }    
