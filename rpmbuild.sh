@@ -18,7 +18,7 @@ function build_rpm {
         # determine the name of the rpm from the specfile
         rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
         cp ${SPECFILE} ${rpmtop}/SPECS
-        tar cvzf ${rpmtop}/SOURCES/${rpmname}.tgz --exclude $rpmtop --exclude dist .
+        cp -a * ${rpmtop}/SOURCES
         rpmbuild --define "_topdir ${rpmtop}" -bb ${rpmtop}/SPECS/$(basename ${SPECFILE})
         RETVAL=$?
         if [[ ${RETVAL} != 0 ]]
