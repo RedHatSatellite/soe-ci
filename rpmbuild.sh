@@ -11,6 +11,24 @@ GITREV_ERR=3
 RPMBUILD_ERR=4
 WORKSPACE_ERR=5
 
+build_rpm () {
+    
+    if [[ -e ${SPECFILE} ]]
+    then
+        # determine the name of the rpm from the specfile
+        rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
+        cp ${SPECFILE} ${rpmtop}/SPECS
+        tar cvzf ${rpmtop}/SOURCES/${rpmname}.tgz --exclude $rpmtop --exclude dist .
+        rpmbuild --define "_topdir ${rpmtop}" -bb ${rpmtop}/SPECS/$(basename ${SPECFILE})
+        RETVAL=$?
+        if [[ ${RETVAL} != 0 ]]
+        then
+            echo "Could not build RPM ${rpmname} using the specfile ${SPECFILE}"
+            exit ${RPMBUILD_ERR}
+        fi
+    fi
+}    
+
 # setup RPM build environment
 rpmtop=${WORKSPACE}/rpmbuild
 mkdir -p ${rpmtop}/{SPECS,SOURCES,BUILD,BUILDROOT,RPMS,SRPMS} 
@@ -42,23 +60,5 @@ do
     popd
 done
     
-
-build_rpm () {
-    
-    if [[ -e ${SPECFILE} ]]
-    then
-        # determine the name of the rpm from the specfile
-        rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
-        cp ${SPECFILE} ${rpmtop}/SPECS
-        tar cvzf ${rpmtop}/SOURCES/${rpmname}.tgz --exclude $rpmtop --exclude dist .
-        rpmbuild --define "_topdir ${rpmtop}" -bb ${rpmtop}/SPECS/$(basename ${SPECFILE})
-        RETVAL=$?
-        if [[ ${RETVAL} != 0 ]]
-        then
-            echo "Could not build RPM ${rpmname} using the specfile ${SPECFILE}"
-            exit ${RPMBUILD_ERR}
-        fi
-    fi
-}    
 
 
