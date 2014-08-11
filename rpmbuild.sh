@@ -16,7 +16,7 @@ function build_rpm {
     if [[ -e "$1" ]]
     then
         git_commit=$(git log --format="%H" -1  $(pwd))
-        if ! [[ ${git_commit} -eq $(cat .rpmbuild-hash) ]]
+        if ! [[ ${git_commit} == $(cat .rpmbuild-hash) ]]
         then
             echo ${git_commit} > .rpmbuild-hash
             # determine the name of the rpm from the specfile
