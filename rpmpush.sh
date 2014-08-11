@@ -20,7 +20,7 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-rsync -e "ssh -l ${PUSH_USER} -i ~/.ssh/id_rsa" -va \
-    ${workdir}/{debug-rpms,rpms,srpms} ${PUSH_USER}@${SATELLITE}:
+rsync -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
+    ${workdir}/{debug-rpms,rpms,srpms} ${SATELLITE}:
 
 
