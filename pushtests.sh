@@ -63,7 +63,7 @@ do
     sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
     setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
     echo "copying tests to test server $I"
-    rsync -va -e "ssh -i ${RSA_ID}" ${WORKSPACE}/artefacts/tests \
+    rsync -va -e "ssh -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
         root@$I:
 done
 
