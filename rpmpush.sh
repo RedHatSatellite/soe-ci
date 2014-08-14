@@ -25,7 +25,6 @@ rsync -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
     
 # use hammer on the satellite to push the RPMs into the repo
 # the ID of the ACME Test repository is 16
-REPO_ID=16
 ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} \
     "hammer repository upload-content --id ${REPO_ID} --path ./rpms"
 
