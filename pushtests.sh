@@ -17,7 +17,7 @@ testvm=$1
 # get our test machines
 J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        'hammer host list --search ${testvm} | tail -3 | head -n -1 | cut -f3 -d " "')
+        "hammer host list --search ${testvm} | tail -3 | head -n -1 | cut -f3 -d ' '")
 do
   vm[$J]=$I
   ((J++))
