@@ -18,7 +18,7 @@ testvm=$1
 
 # rebuild test VMs
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    'hammer host list --search ${testvm} | tail -3 | head -n -1 | cut -f1 -d " "')
+    "hammer host list --search ${testvm} | tail -n +4 | head -n -1 | cut -f1 -d ' '")
 do
     echo "Rebuilding VM ID $I"
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
