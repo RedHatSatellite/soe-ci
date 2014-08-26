@@ -68,14 +68,14 @@ do
 done
 
 # execute the tests - this should be parallelised
-mkdir -p test_results
+mkdir -p ${WORKSPACE}/test_results
 for I in ${vm[@]}
 do
     echo "Installing BATS on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats"
     echo "Running TAPS tests on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
-        'cd tests ; bats -t *.bats' > test_results/$I.tap
+        'cd tests ; bats -t *.bats' > ${WORKSPACE}/test_results/$I.tap
 done
 
     
