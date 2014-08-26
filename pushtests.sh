@@ -45,9 +45,9 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
             echo "Not yet"
         fi
     done
-    if [[ ${WAIT} -gt 300 ]]
+    if [[ ${WAIT} -gt 600 ]]
     then
-        echo "Test servers still not rebuilt after 300 seconds. Exiting."
+        echo "Test servers still not rebuilt after 600 seconds. Exiting."
         exit 1
     fi
 done
@@ -57,13 +57,14 @@ sleep 30
 
 # copy our tests to the test servers
 export SSH_ASKPASS=${WORKSPACE}/scripts/askpass.sh
+export DISPLAY=nodisplay
 for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
     sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
-    setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    setsid -w ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
     echo "copying tests to test server $I"
-    rsync -va -e "ssh -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
+    rsync -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
         root@$I:
 done
 
