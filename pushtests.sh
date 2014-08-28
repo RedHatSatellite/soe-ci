@@ -53,7 +53,7 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
 done
 
 # Wait another 30s to be on the safe side
-sleep 30
+sleep 60
 
 # copy our tests to the test servers
 export SSH_ASKPASS=${WORKSPACE}/scripts/askpass.sh
