@@ -4,8 +4,7 @@
 #
 # e.g. ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/soe/artefacts/
 #
-NOARGS=1
-WORKSPACE_ERR=5
+./common.sh
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
@@ -20,8 +19,9 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-rsync -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
-    ${workdir}/{debug-rpms,rpms,srpms} ${SATELLITE}:
+# We delete extraneous RPMs on the satellite so that we don't keep pushing the same RPMs into the repo
+rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
+    ${workdir}/{rpms,srpms} ${SATELLITE}:
     
 # use hammer on the satellite to push the RPMs into the repo
 # the ID of the ACME Test repository is 16

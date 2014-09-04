@@ -5,13 +5,9 @@
 # e.g. ${WORKSPACE}/scripts/rpmbuilder.sh ${WORKSPACE}/soe/rpms/ 
 #
 
-NOARGS=1
-GITVER_ERR=2
-GITREV_ERR=3
-RPMBUILD_ERR=4
-WORKSPACE_ERR=5
+./common.sh
 
-function build_rpm {
+function build_srpm {
     
     if [[ -e "$1" ]]
     then
@@ -21,14 +17,12 @@ function build_rpm {
             echo ${git_commit} > .rpmbuild-hash
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})   
-            cp ${SPECFILE} ${rpmtop}/SPECS
-            cp -a * ${rpmtop}/SOURCES
-            rpmbuild --define "_topdir ${rpmtop}" -ba ${rpmtop}/SPECS/$(basename ${SPECFILE})
+            mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/srpms
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
-                echo "Could not build RPM ${rpmname} using the specfile ${SPECFILE}"
-                exit ${RPMBUILD_ERR}
+                echo "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
+                exit ${SRPMBUILD_ERR}
             fi
         else
             echo "No changes since last build - skipping ${SPECFILE}"
@@ -36,15 +30,15 @@ function build_rpm {
     fi
 }    
 
-# setup RPM build environment
-rpmtop=${WORKSPACE}/rpmbuild
-mkdir -p ${rpmtop}/{SPECS,SOURCES,BUILD,BUILDROOT,RPMS,SRPMS} 
-mkdir -p ${WORKSPACE}/artefacts/{rpms,srpms,debug-rpms}
+# setup artefacts environment - we clear this out every time so we don't end up
+# repeatedly pushing unchanged RPMs into satellite
+rm -rf ${WORKSPACE}/artefacts/{rpms,srpms}
+mkdir -p ${WORKSPACE}/artefacts/{rpms,srpms}
 
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
-    echo "Usage: $0 <directory containing RPM sources>"
+    echo "Usage: $0 <directory containing RPM source directories>"
     exit ${NOARGS}
 fi
 workdir=$1
@@ -56,7 +50,7 @@ then
 fi
 
 
-# Traverse directories looking for spec files
+# Traverse directories looking for spec files and build SRPMs
 cd ${workdir}
 for I in $( ls -d */ )
 do
@@ -64,15 +58,17 @@ do
     pushd $I
     # find the spec files
     SPECFILE=$(find . -name "*.spec")
-    if [[ -n ${SPECFILE} ]] ; then build_rpm ${SPECFILE} ; fi
+    if [[ -n ${SPECFILE} ]] ; then build_srpm ${SPECFILE} ; fi
     popd
 done
     
-# copy all created RPMs to the artefacts directory
-cd ${rpmtop}
-find . -name '*debuginfo*.rpm' -exec mv {} ${WORKSPACE}/artefacts/debug-rpms \;
-find . -name '*.src.rpm' -exec mv {} ${WORKSPACE}/artefacts/srpms \;
-find . -name '*.rpm' -exec mv {} ${WORKSPACE}/artefacts/rpms \;
-
+# Build the RPMs
+mock --rebuild ${WORKSPACE}/artefacts/srpms/*.src.rpm --resultdir ${WORKSPACE}/artefacts/rpms
+RETVAL=$?
+if [[ ${RETVAL} != 0 ]]
+then
+    echo "Could not build RPMS"
+    exit ${RPMBUILD_ERR}
+fi
 
 

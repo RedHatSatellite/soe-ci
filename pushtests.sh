@@ -4,8 +4,8 @@
 #
 # e.g ${WORKSPACE}/scripts/pushtests.sh 'test'
 #
+./common.sh
 
-NOARGS=1
 
 if [[ -z "$1" ]]
 then
@@ -52,7 +52,7 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
     fi
 done
 
-# Wait another 30s to be on the safe side
+# Wait another 60s to be on the safe side
 sleep 60
 
 # copy our tests to the test servers
@@ -63,20 +63,21 @@ do
     echo "Setting up ssh keys for test server $I"
     sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
     setsid -w ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    echo "Installing bats on test server $I"
+    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats"    
     echo "copying tests to test server $I"
-    rsync -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
+    rsync --delete -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
         root@$I:
 done
 
-# execute the tests - this should be parallelised
+# execute the tests in parallel on all test servers
 mkdir -p ${WORKSPACE}/test_results
 for I in ${vm[@]}
 do
-    echo "Installing BATS on test server $I"
-    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats"
-    echo "Running TAPS tests on test server $I"
+    echo "Starting TAPS tests on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
-        'cd tests ; bats -t *.bats' > ${WORKSPACE}/test_results/$I.tap
+        'cd tests ; bats -t *.bats' > ${WORKSPACE}/test_results/$I.tap &
 done
 
-    
+# wait until all backgrounded processes have exited
+wait

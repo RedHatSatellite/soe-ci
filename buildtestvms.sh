@@ -7,7 +7,7 @@
 # this will tell Foreman to rebuild all test* machines
 
 #
-NOARGS=1
+./common.sh
 
 if [[ -z "$1" ]]
 then
