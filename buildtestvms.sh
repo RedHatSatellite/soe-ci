@@ -7,7 +7,7 @@
 # this will tell Foreman to rebuild all test* machines
 
 #
-./common.sh
+${WORKSPACE}/scripts/common.sh
 
 if [[ -z "$1" ]]
 then

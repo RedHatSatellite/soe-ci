@@ -4,7 +4,7 @@
 #
 # e.g ${WORKSPACE}/scripts/pushtests.sh 'test'
 #
-./common.sh
+${WORKSPACE}/scripts/common.sh
 
 
 if [[ -z "$1" ]]

@@ -5,7 +5,7 @@
 # e.g. ${WORKSPACE}/scripts/rpmbuilder.sh ${WORKSPACE}/soe/rpms/ 
 #
 
-./common.sh
+${WORKSPACE}/scripts/common.sh
 
 function build_srpm {
     
