@@ -26,6 +26,7 @@ function build_srpm {
                 exit ${SRPMBUILD_ERR}
             fi
             srpmname=${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
+            rm -f ${WORKSPACE}/artefacts/rpms/${rpmname}-*.{noarch,i386,x86_64}.rpm
             mock --offline --rebuild ${srpmname} --resultdir ${WORKSPACE}/artefacts/rpms
             if [[ ${RETVAL} != 0 ]]
             then
@@ -38,10 +39,11 @@ function build_srpm {
     fi
 }    
 
-# setup artefacts environment - we clear this out every time so we don't end up
-# repeatedly pushing unchanged RPMs into satellite
-rm -rf ${WORKSPACE}/artefacts/{rpms,srpms}
+# setup artefacts environment 
+
 mkdir -p ${WORKSPACE}/artefacts/{rpms,srpms}
+chgrp mock ${WORKSPACE}/artefacts/{rpms,srpms}
+chmod 775 ${WORKSPACE}/artefacts/{rpms,srpms}
 
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
