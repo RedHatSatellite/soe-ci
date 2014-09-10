@@ -16,13 +16,21 @@ function build_srpm {
         then
             echo ${git_commit} > .rpmbuild-hash
             # determine the name of the rpm from the specfile
-            rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})   
+            rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
+            rm -f ${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
             mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/srpms
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
                 exit ${SRPMBUILD_ERR}
+            fi
+            srpmname=${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
+            mock --rebuild ${srpmname} --resultdir ${WORKSPACE}/artefacts/rpms
+            if [[ ${RETVAL} != 0 ]]
+            then
+                echo "Could not build RPM ${rpmname} from ${srpmname}"
+                exit ${RPMBUILD_ERR}
             fi
         else
             echo "No changes since last build - skipping ${SPECFILE}"
@@ -62,13 +70,6 @@ do
     popd
 done
     
-# Build the RPMs
-mock --rebuild ${WORKSPACE}/artefacts/srpms/*.src.rpm --resultdir ${WORKSPACE}/artefacts/rpms
-RETVAL=$?
-if [[ ${RETVAL} != 0 ]]
-then
-    echo "Could not build RPMS"
-    exit ${RPMBUILD_ERR}
-fi
+
 
 
