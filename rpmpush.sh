@@ -4,7 +4,7 @@
 #
 # e.g. ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/soe/artefacts/
 #
-${WORKSPACE}/scripts/common.sh
+. ${WORKSPACE}/scripts/common.sh
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
