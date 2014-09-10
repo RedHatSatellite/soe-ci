@@ -14,7 +14,6 @@ function build_srpm {
         git_commit=$(git log --format="%H" -1  $(pwd))
         if ! [[ ${git_commit} == $(cat .rpmbuild-hash) ]]
         then
-            echo ${git_commit} > .rpmbuild-hash
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
             rm -f ${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
@@ -33,6 +32,7 @@ function build_srpm {
                 echo "Could not build RPM ${rpmname} from ${srpmname}"
                 exit ${RPMBUILD_ERR}
             fi
+            echo ${git_commit} > .rpmbuild-hash
         else
             echo "No changes since last build - skipping ${SPECFILE}"
         fi
