@@ -18,7 +18,7 @@ function build_srpm {
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
             rm -f ${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
-            strace mock -v --offline --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/srpms
+            /usr/sbin/mock --offline --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/srpms
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
@@ -27,7 +27,7 @@ function build_srpm {
             fi
             srpmname=${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
             rm -f ${WORKSPACE}/artefacts/rpms/${rpmname}-*.{noarch,i386,x86_64}.rpm
-            mock -v --offline --rebuild ${srpmname} --resultdir ${WORKSPACE}/artefacts/rpms
+            /usr/sbin/mock --offline --rebuild ${srpmname} --resultdir ${WORKSPACE}/artefacts/rpms
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build RPM ${rpmname} from ${srpmname}"
