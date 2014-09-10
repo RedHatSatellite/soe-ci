@@ -18,7 +18,7 @@ function build_srpm {
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
             rm -f ${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
-            mock -v --offline --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/srpms
+            strace mock -v --offline --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/srpms
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
