@@ -7,17 +7,10 @@
 . ${WORKSPACE}/scripts/common.sh
 
 
-if [[ -z "$1" ]]
-then
-    echo "Usage: $0 <VM name pattern>"
-    exit ${NOARGS}
-fi
-testvm=$1
-
 # get our test machines
 J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host list --search ${testvm} | tail -n +4 | head -n -1 | cut -f3 -d ' '")
+        "hammer host list --search ${TESTVM_PATTERN} | tail -n +4 | head -n -1 | cut -f3 -d ' '")
 do
   vm[$J]=$I
   ((J++))
