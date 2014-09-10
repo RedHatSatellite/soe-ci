@@ -9,12 +9,6 @@
 #
 . ${WORKSPACE}/scripts/common.sh
 
-if [[ -z "$1" ]]
-then
-    echo "Usage: $0 <VM name pattern>"
-    exit ${NOARGS}
-fi
-testvm=$1
 
 # rebuild test VMs
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
