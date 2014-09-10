@@ -11,7 +11,7 @@ WORKSPACE_ERR=5
 SRPMBUILD_ERR=6
 
 PUSH_USER=jenkins
-SATELLITE=satellite6.faa.redhat.common
+SATELLITE=satellite6.faa.redhat.com
 REPO_ID=16
 RSA_ID=/var/lib/jenkins/.ssh/id_rsa
 KNOWN_HOSTS=/var/lib/jenkins/.ssh/known_hosts
