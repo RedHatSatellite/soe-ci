@@ -51,6 +51,7 @@ sleep 60
 # copy our tests to the test servers
 export SSH_ASKPASS=${WORKSPACE}/scripts/askpass.sh
 export DISPLAY=nodisplay
+export TEST_ROOT
 for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
