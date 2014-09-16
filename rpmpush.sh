@@ -19,9 +19,12 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
+# remove any non-rpm files, as they will confuse hammer if we try to sync them
+find . -type f -a ! -name '*.rpm' -exec rm {} \;
+
 # We delete extraneous RPMs on the satellite so that we don't keep pushing the same RPMs into the repo
 rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
-    ${workdir}/rpms/*.rpm ${SATELLITE}:rpms
+    ${workdir}/rpms/ ${SATELLITE}:rpms
     
 # use hammer on the satellite to push the RPMs into the repo
 # the ID of the ACME Test repository is 16
