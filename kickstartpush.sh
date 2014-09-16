@@ -30,7 +30,7 @@ do
     name=$(sed -n 's/^name:\s*\(.*\)/\1/p' ${I})
     id=0
     id=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "/usr/bin/hammer --csv template list --per-page 9999" | grep "${name}" cut -d, -f1)
+            "/usr/bin/hammer --csv template list --per-page 9999" | grep "${name}" | cut -d, -f1)
     if [[ ${id} -ne 0 ]]
     then
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} /usr/bin/hammer template update --id ${id} kickstarts/${I}
