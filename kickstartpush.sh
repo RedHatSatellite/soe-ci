@@ -2,7 +2,7 @@
 
 # Push Templates to satellite
 #
-# e.g. ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/soe/kickstarts/
+# e.g. ${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts/kickstarts/
 #
 . ${WORKSPACE}/scripts/common.sh
 
