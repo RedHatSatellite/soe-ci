@@ -24,21 +24,22 @@ rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va 
     ${workdir}/kickstarts/ ${SATELLITE}:kickstarts
     
 # either update or create each kickstart in turn
-ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} <<EOF
-cd kickstarts
+cd ${workdir}/kickstarts
 for I in *.erb
 do
-name=$(sed -n 's/^name:\s*\(.*\)/\1/p' ${I})
-id=0
-id=$(/usr/bin/hammer --csv template list --per-page 9999 | grep "${name}" cut -d, -f1)
-if [[ ${id} -ne 0 ]]
-then
-/usr/bin/hammer template update --id ${id} ${I}
-else
-type=$(sed -n 's/^kind:\s*\(.*\)/\1/p' ${I})
-/usr/bin/hammer template create --file ${I} --name "${name}" --type ${kind}
-fi
+    name=$(sed -n 's/^name:\s*\(.*\)/\1/p' ${I})
+    id=0
+    id=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "/usr/bin/hammer --csv template list --per-page 9999" | grep "${name}" cut -d, -f1)
+    if [[ ${id} -ne 0 ]]
+    then
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} /usr/bin/hammer template update --id ${id} kickstarts/${I}
+    else
+        type=$(sed -n 's/^kind:\s*\(.*\)/\1/p' ${I})
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            /usr/bin/hammer template create --file kickstarts/${I} --name "${name}" --type ${kind}
+    fi
 done
-EOF
+
 
 
