@@ -30,13 +30,13 @@ for I in *.erb
 do
 name=$(sed -n 's/^name:\s*\(.*\)/\1/p' ${I})
 id=0
-id=$(hammer --csv template list --per-page 9999 | grep "${name}" cut -d, -f1)
+id=$(/usr/bin/hammer --csv template list --per-page 9999 | grep "${name}" cut -d, -f1)
 if [[ ${id} -ne 0 ]]
 then
-hammer template update --id ${id} ${I}
+/usr/bin/hammer template update --id ${id} ${I}
 else
 type=$(sed -n 's/^kind:\s*\(.*\)/\1/p' ${I})
-hammer template create --file ${I} --name "${name}" --type ${kind}
+/usr/bin/hammer template create --file ${I} --name "${name}" --type ${kind}
 fi
 done
 EOF
