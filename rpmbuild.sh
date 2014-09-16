@@ -40,7 +40,8 @@ function build_srpm {
 }    
 
 # setup artefacts environment 
-rm -rf ${WORKSPACE}/artefacts/{rpms,srpms}
+rm -f ${WORKSPACE}/artefacts/rpms/*.rpm
+rm -f ${WORKSPACE}/artefacts/srpms/*.src.rpm
 mkdir -p ${WORKSPACE}/artefacts/{rpms,srpms}
 
 

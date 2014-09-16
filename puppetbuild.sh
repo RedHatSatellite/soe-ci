@@ -37,7 +37,7 @@ function build_puppetmodule {
 
 # setup artefacts environment 
 ARTEFACTS=${WORKSPACE}/artefacts/puppet
-rm -rf ${ARTEFACTS}
+rm -f ${ARTEFACTS}/*.tar.gz
 mkdir -p ${ARTEFACTS}
 
 
