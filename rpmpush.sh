@@ -20,7 +20,7 @@ then
 fi
 
 # remove any non-rpm files, as they will confuse hammer if we try to sync them
-find . -type f -a ! -name '*.rpm' -exec rm {} \;
+find ${workdir}/rpms -type f -a ! -name '*.rpm' -exec rm {} \;
 
 # We delete extraneous RPMs on the satellite so that we don't keep pushing the same RPMs into the repo
 rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
