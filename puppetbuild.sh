@@ -37,6 +37,7 @@ function build_puppetmodule {
 
 # setup artefacts environment 
 ARTEFACTS=${WORKSPACE}/artefacts/puppet
+rm -rf ${ARTEFACTS}
 mkdir -p ${ARTEFACTS}
 
 

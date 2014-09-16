@@ -40,10 +40,9 @@ function build_srpm {
 }    
 
 # setup artefacts environment 
-
+rm -rf ${WORKSPACE}/artefacts/{rpms,srpms}
 mkdir -p ${WORKSPACE}/artefacts/{rpms,srpms}
-chgrp mock ${WORKSPACE}/artefacts/{rpms,srpms}
-chmod 775 ${WORKSPACE}/artefacts/{rpms,srpms}
+
 
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
@@ -65,7 +64,7 @@ cd ${workdir}
 for I in $( ls -d */ )
 do
     SPECFILE=""
-    pushd $I
+    pushd ${I}
     # find the spec files
     SPECFILE=$(find . -name "*.spec")
     if [[ -n ${SPECFILE} ]] ; then build_srpm ${SPECFILE} ; fi
