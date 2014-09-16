@@ -25,13 +25,13 @@ rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va 
     
 # either update or create each kickstart in turn
 ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} <<EOF
-cd kickstart
+cd kickstarts
 for I in *.erb
 do
 name=$(sed -n 's/^name:\s*\(.*\)/\1/p' ${I})
 id=0
 id=$(hammer --csv template list --per-page 9999 | grep "${name}" cut -d, -f1)
-if [[ ${id} != 0 ]]
+if [[ ${id} -ne 0 ]]
 then
 hammer template update --id ${id} ${I}
 else
