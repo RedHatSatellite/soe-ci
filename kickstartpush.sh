@@ -37,7 +37,7 @@ do
     else
         type=$(sed -n 's/^kind:\s*\(.*\)/\1/p' ${I})
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            /usr/bin/hammer template create --file kickstarts/${I} --name "${name}" --type ${type}
+            "/usr/bin/hammer template create --file kickstarts/${I} --name \"${name}\" --type ${type}"
     fi
 done
 
