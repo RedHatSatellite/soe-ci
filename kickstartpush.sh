@@ -33,7 +33,7 @@ do
             "/usr/bin/hammer --csv template list --per-page 9999" | grep "${name}" | cut -d, -f1)
     if [[ ${id} -ne 0 ]]
     then
-        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} /usr/bin/hammer template update --id ${id} kickstarts/${I}
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} /usr/bin/hammer template update --id ${id} --file kickstarts/${I}
     else
         type=$(sed -n 's/^kind:\s*\(.*\)/\1/p' ${I})
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
