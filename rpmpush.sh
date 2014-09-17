@@ -19,6 +19,9 @@ then
     exit ${WORKSPACE_ERR}
 fi
     
+# refresh the upstream yum repo
+createrepo ${YUM_REPO}
+    
 # use hammer on the satellite to push the RPMs into the repo
 # the ID of the ACME Test repository is 16
 ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} \

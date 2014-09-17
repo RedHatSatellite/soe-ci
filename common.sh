@@ -20,4 +20,6 @@ TESTVM_PATTERN=test1
 TEST_ROOT=r3dhat00
 MODAUTHOR=DBr
 YUM_REPO=/var/www/html/pub/soe-repo
+PUPPET_REPO=/var/www/html/pub/soe-puppet
+
 

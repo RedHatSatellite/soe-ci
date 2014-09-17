@@ -27,19 +27,13 @@ function build_puppetmodule {
                 echo "Could not build puppet module ${modname} using the Modulefile ${MODULEFILE}"
                 exit ${MODBUILD_ERR}
             fi
-            mv ${MODULEDIR}/pkg/${modarchive} ${ARTEFACTS}
+            mv ${MODULEDIR}/pkg/${modarchive} ${PUPPET_REPO}
             echo ${git_commit} > .puppetbuild-hash
         else
             echo "No changes since last build - skipping ${MODULEFILE}"
         fi
     fi
 }    
-
-# setup artefacts environment 
-ARTEFACTS=${WORKSPACE}/artefacts/puppet
-rm -f ${ARTEFACTS}/*.tar.gz
-mkdir -p ${ARTEFACTS}
-
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then

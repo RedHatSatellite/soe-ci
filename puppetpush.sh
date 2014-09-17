@@ -2,16 +2,12 @@
 
 # Push Puppet Modules to satellite
 #
-# e.g. ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/soe/artefacts/
+# e.g. ${WORKSPACE}/scripts/puppetpush.sh 
 #
-. ${WORKSPACE}/scripts/common.sh
+# this should eventually be refactored to use Puppet Force and a repo synch on the satellite
+# as rpmpush.sh does
 
-if [[ -z "$1" ]] || [[ ! -d "$1" ]]
-then
-    echo "Usage: $0 <artefacts directory>"
-    exit ${NOARGS}
-fi
-workdir=$1
+. ${WORKSPACE}/scripts/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
@@ -19,11 +15,10 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-# We delete extraneous modules on the satellite so that we don't keep pushing the same modules into the repo
-rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
-    ${workdir}/puppet/ ${SATELLITE}:puppet
+rsync -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
+    ${PUPPET_REPO} ${SATELLITE}:puppet
     
-# use hammer on the satellite to push the RPMs into the repo
+# use hammer on the satellite to push the modules into the repo
 # the ID of the ACME Test repository is 16
 ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} \
     "hammer repository upload-content --id ${PUPPET_REPO_ID} --path ./puppet"

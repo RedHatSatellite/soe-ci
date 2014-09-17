@@ -16,15 +16,15 @@ function build_srpm {
         then
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
-            rm -f ${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/SRPMS
+            rm -f ${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
+            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/tmp/srpms
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
                 exit ${SRPMBUILD_ERR}
             fi
-            srpmname=${WORKSPACE}/artefacts/SRPMS/${rpmname}-*.src.rpm
+            srpmname=${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
             /usr/bin/mock --rebuild ${srpmname} --resultdir ${YUM_REPO}
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
@@ -32,7 +32,6 @@ function build_srpm {
                 echo "Could not build RPM ${rpmname} from ${srpmname}"
                 exit ${RPMBUILD_ERR}
             fi
-            createrepo ${YUM_REPO}
             echo ${git_commit} > .rpmbuild-hash
         else
             echo "No changes since last build - skipping ${SPECFILE}"
@@ -53,7 +52,7 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-mkdir -p ${WORKSPACE}/artefacts/SRPMS
+mkdir -p ${WORKSPACE}/tmp/srpms
 
 # Traverse directories looking for spec files and build SRPMs
 cd ${workdir}
