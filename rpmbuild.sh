@@ -17,15 +17,14 @@ function build_srpm {
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
             rm -f ${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${YUM_REPO}
+            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/artefacts/SRPMS
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
                 exit ${SRPMBUILD_ERR}
             fi
-            srpmname=${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
-            rm -f ${WORKSPACE}/artefacts/rpms/${rpmname}-*.{noarch,i386,x86_64}.rpm
+            srpmname=${WORKSPACE}/artefacts/SRPMS/${rpmname}-*.src.rpm
             /usr/bin/mock --rebuild ${srpmname} --resultdir ${YUM_REPO}
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
@@ -54,6 +53,7 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
+mkdir -p ${WORKSPACE}/artefacts/SRPMS
 
 # Traverse directories looking for spec files and build SRPMs
 cd ${workdir}
