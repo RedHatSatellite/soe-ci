@@ -16,7 +16,7 @@ then
 fi
 
 rsync -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
-    ${PUPPET_REPO} ${SATELLITE}:puppet
+    ${PUPPET_REPO}/ ${SATELLITE}:puppet
     
 # use hammer on the satellite to push the modules into the repo
 # the ID of the ACME Test repository is 16
