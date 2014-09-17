@@ -27,6 +27,7 @@ function build_srpm {
             srpmname=${WORKSPACE}/artefacts/srpms/${rpmname}-*.src.rpm
             rm -f ${WORKSPACE}/artefacts/rpms/${rpmname}-*.{noarch,i386,x86_64}.rpm
             /usr/bin/mock --rebuild ${srpmname} --resultdir ${WORKSPACE}/artefacts/rpms
+            RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build RPM ${rpmname} from ${srpmname}"
