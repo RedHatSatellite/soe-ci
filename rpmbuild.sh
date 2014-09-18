@@ -25,7 +25,7 @@ function build_srpm {
                 exit ${SRPMBUILD_ERR}
             fi
             srpmname=${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --rebuild ${srpmname} --resultdir ${YUM_REPO}
+            /usr/bin/mock --rebuild ${srpmname} -D "%debug_package %{nil}" --resultdir ${YUM_REPO}
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
