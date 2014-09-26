@@ -49,7 +49,7 @@ done
 # we always add by modulename and author as this ensures that we get the latest version
 # of the module when we republish the CV
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer --csv puppet-module list --repository-id ${PUPPET_REPO_ID}" | tail -n +2 | awk -F, '{printf "%s@%s\n",$2,$4}')
+    "hammer --csv puppet-module list --repository-id ${PUPPET_REPO_ID}" | tail -n +2 | awk -F, '{printf "%s@%s\n",$2,$3}')
 do
     mod_name=${I%%@*}
     mod_auth=${I##*@}
