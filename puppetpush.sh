@@ -42,7 +42,7 @@ for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
     "hammer --csv content-view puppet-module list --content-view=\"${CV}\" --organization=\"${ORG}\"" | tail -n +2 | awk -F, '{printf "%s@%s\n",$3,$4}')
 do
     cv_mods[$n]=$I
-    ((n++))
+    ((n+=1))
 done
 
 # iterate over all modules in the repository and add ones that are missing to the CV

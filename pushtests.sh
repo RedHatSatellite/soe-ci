@@ -13,7 +13,7 @@ for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host list --search ${TESTVM_PATTERN} | tail -n +4 | head -n -1 | cut -f3 -d ' '")
 do
   vm[$J]=$I
-  ((J++))
+  ((J+=1))
 done
 
 # we need to wait until all the test machines have been rebuilt by foreman
@@ -33,7 +33,7 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
         if [[ ${status} == 3 ]]
         then
             echo "Success!"
-            ((REBUILT++))
+            ((REBUILT+=1))
         else
             echo "Not yet"
         fi
