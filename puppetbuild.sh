@@ -16,7 +16,7 @@ function build_puppetmodule {
         then
             MODULEDIR=$(dirname ${METADATA})
             if [[ $(basename ${METADATA}) = 'metadata.json' ]] ; then
-              modname=$(IGNORECASE=1 awk -F \" '/name/ {print $4;exit;}' ${METADATA} | awk -F \- '{print $2}')
+              modname=$(IGNORECASE=1 awk -F \" '/name/ {print $4;exit;}' ${METADATA})
               modversion=$(IGNORECASE=1 awk -F \" '/version/ {print $4;exit;}' ${METADATA})
             elif [[ $(basename ${METADATA}) = 'Modulefile' ]] ; then
               modname=$(IGNORECASE=1 awk -F \' '/^name/ {print $2}' ${METADATA})
