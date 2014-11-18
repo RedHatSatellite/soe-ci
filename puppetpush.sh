@@ -1,11 +1,9 @@
 #!/bin/bash 
 
-# Push Puppet Modules to satellite
+# Push Puppet Modules to satellite via a Pulp repo
 #
 # e.g. ${WORKSPACE}/scripts/puppetpush.sh 
 #
-# this should eventually be refactored to use a Pulp repo sync on the satellite
-# as rpmpush.sh does
 
 . ${WORKSPACE}/scripts/common.sh
 

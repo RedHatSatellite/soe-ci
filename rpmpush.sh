@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-# Push RPMs to satellite
+# Push RPMs to satellite via a yum repo
 #
 # e.g. ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/soe/artefacts/
 #

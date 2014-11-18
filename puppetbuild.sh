@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Search for Puppet module directories
+# Search for Puppet module directories and build any modules found
 #
 # e.g. ${WORKSPACE}/scripts/puppetbuilder.sh ${WORKSPACE}/soe/puppet/
 #

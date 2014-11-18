@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-# common stuff
+# common stuff - much of this could go into a parameterised job in Jenkins
 
 # Error states
 NOARGS=1
@@ -17,6 +17,7 @@ PUPPET_REPO_ID=17
 RSA_ID=/var/lib/jenkins/.ssh/id_rsa
 KNOWN_HOSTS=/var/lib/jenkins/.ssh/known_hosts
 TESTVM_HOSTGROUP="Test Servers"
+TESTVM_ENV="Crash"
 TEST_ROOT=r3dhat00
 MODAUTHOR=acme
 YUM_REPO=/var/www/html/pub/soe-repo

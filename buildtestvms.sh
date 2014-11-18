@@ -4,7 +4,7 @@
 #
 # e.g ${WORKSPACE}/scripts/buildtestvms.sh 'test'
 #
-# this will tell Foreman to rebuild all test* machines
+# this will tell Foreman to rebuild all machines in hostgroup TESTVM_HOSTGROUP
 
 #
 . ${WORKSPACE}/scripts/common.sh
