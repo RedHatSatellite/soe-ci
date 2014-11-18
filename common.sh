@@ -21,7 +21,7 @@ TEST_ROOT=r3dhat00
 MODAUTHOR=acme
 YUM_REPO=/var/www/html/pub/soe-repo
 PUPPET_REPO=/var/www/html/pub/soe-puppet
-CV=acme-7_0_0
+CV=acme-7.0.0
 ORG=Default_Organization
 
 
