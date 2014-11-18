@@ -12,7 +12,7 @@ function build_srpm {
     if [[ -e "$1" ]]
     then
         git_commit=$(git log --format="%H" -1  $(pwd))
-        if ! [[ ${git_commit} == $(cat .rpmbuild-hash) ]]
+        if  [[ ! -e .rpmbuild-hash ]] || [[ ${git_commit} != $(cat .rpmbuild-hash) ]]
         then
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
@@ -65,7 +65,8 @@ do
     if [[ -n ${SPECFILE} ]] ; then build_srpm ${SPECFILE} ; fi
     popd
 done
-    
+wait
+
 
 
 

@@ -12,7 +12,7 @@ function build_puppetmodule {
     if [[ -e "$1" ]]
     then
         git_commit=$(git log --format="%H" -1  $(pwd))
-        if ! [[ ${git_commit} == $(cat .puppetbuild-hash) ]] 
+        if [[ ! -e .puppetbuild-hash ]] || [[ ! ${git_commit} == $(cat .puppetbuild-hash) ]] 
         then
             MODULEDIR=$(dirname ${METADATA})
             if [[ $(basename ${METADATA}) = 'metadata.json' ]] ; then
