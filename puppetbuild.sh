@@ -66,7 +66,13 @@ do
     METADATA=$(find $(pwd) -maxdepth 1 -name 'metadata.json')
     # look for deprecated Modulefile if there is no metadata.json
     if [[ -z ${METADATA} ]] ; then METADATA=$(find $(pwd) -maxdepth 1 -name 'Modulefile') ; fi
-    if [[ -n ${METADATA} ]] ; then build_puppetmodule ${METADATA} ; fi
+    if [[ -n ${METADATA} ]]
+    then
+        build_puppetmodule ${METADATA}
+    else
+        echo "Could not find puppet metadata file for puppet module ${I}"
+        exit 1
+    fi
     popd
 done
 
