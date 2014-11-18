@@ -10,7 +10,8 @@
 # get our test machines
 J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host list --search ${TESTVM_PATTERN} | tail -n +4 | head -n -1 | cut -f3 -d ' '")
+        "hammer host list --search 'hostgroup = \"${TESTVM_HOSTGROUP}\"' | grep \"${TESTVM_HOSTGROUP}\" | 
+        cut -f2 -d \"|\" | tr -d ' ' ")
 do
   vm[$J]=$I
   ((J+=1))
@@ -38,9 +39,9 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
             echo "Not yet"
         fi
     done
-    if [[ ${WAIT} -gt 600 ]]
+    if [[ ${WAIT} -gt 6000 ]]
     then
-        echo "Test servers still not rebuilt after 600 seconds. Exiting."
+        echo "Test servers still not rebuilt after 6000 seconds. Exiting."
         exit 1
     fi
 done
