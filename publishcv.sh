@@ -14,7 +14,7 @@ then
     "hammer content-view info --name \"${CV}\" --organization \"${ORG}\" \
     | grep \"Version:\" | tail -1 | tr -d ' ' | cut -f2 -d ':'")
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer content-view promote --content-view \"${CV}\" --organization \"${ORG}\" \
+    "hammer environment promote --content-view \"${CV}\" --organization \"${ORG}\" \
     --lifecycle-environment \"${TESTVM_ENV}\" --id ${VER}"
 fi
 
