@@ -58,7 +58,7 @@ do
     echo "Setting up ssh keys for test server $I"
     sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
     setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
-    echo "Installing bats on test server $I"
+    echo "Installing bats and rsync on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats rsync"    
     echo "copying tests to test server $I"
     rsync --delete -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
