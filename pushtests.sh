@@ -57,7 +57,7 @@ for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
     sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
-    setsid -w ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
     echo "Installing bats on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats"    
     echo "copying tests to test server $I"
