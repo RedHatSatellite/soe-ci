@@ -3,7 +3,85 @@
   <actions/>
   <description>Generic plan to create Red Hat Enterprise Linux builds</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PUSH_USER</name>
+          <description>The username to use when pushing artefacts to the satellite. The build job will need to be able to ssh to the satellite as this user so you need to have keys set up.</description>
+          <defaultValue>jenkins</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SATELLITE</name>
+          <description>The FQDN of the Red Hat Satellite.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>REPO_ID</name>
+          <description>The numeric ID of the RPM repository on the Red Hat Satellite that you want to use for your custom RPMs.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PUPPET_REPO_ID</name>
+          <description>The numeric ID of the puppet module repository on the Red Hat Satellite that you want to use for your custom puppet modules.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>RSA_ID</name>
+          <description>RSA ID of the Jenkins user.</description>
+          <defaultValue>/var/lib/jenkins/.ssh/id_rsa</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>KNOWN_HOSTS</name>
+          <description>Known hosts file of the Jenkins user.</description>
+          <defaultValue>/var/lib/jenkins/.ssh/known_hosts</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TESTVM_HOSTGROUP</name>
+          <description>The name of the Foreman hostgroup containing your test machines.</description>
+          <defaultValue>Test Servers</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TESTVM_ENV</name>
+          <description>The numeric ID of the environment you want to promote CI builds to. This will typically be a &apos;Crash&apos; or &apos;EngTest&apos; environment.
+
+You can find the IDs of your environments using:
+hammer lifecycle-environment list --organization &quot;Default_Organization&quot;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TEST_ROOT</name>
+          <description>This is the root password of your test machines, as set in your hostgroup definition.</description>
+          <defaultValue>redhat</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MODAUTHOR</name>
+          <description>This is the authorname for your puppet modules.</description>
+          <defaultValue>acme</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>YUM_REPO</name>
+          <description>This is the location of the Yum repository on the Jenkins server used to export RPMs to the satellite server.</description>
+          <defaultValue>/var/www/html/pub/soe-repo</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PUPPET_REPO</name>
+          <description>This is the location of the puppet repository on the Jenkins server used to export puppet modules to the satellite server.</description>
+          <defaultValue>/var/www/html/pub/soe-puppet</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CV</name>
+          <description>This is the name of the Content View on the satellite that you want to publish your build into.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ORG</name>
+          <description>This is the name of the organisation you are using on the Red Hat Satellite.</description>
+          <defaultValue>Default_Organization</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.3">
     <scms>
       <hudson.plugins.git.GitSCM plugin="git@2.2.7">
