@@ -17,7 +17,7 @@ function build_srpm {
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
             rm -f ${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/tmp/srpms
+            /usr/bin/mock --offline --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/tmp/srpms
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
@@ -25,7 +25,7 @@ function build_srpm {
                 exit ${SRPMBUILD_ERR}
             fi
             srpmname=${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --rebuild ${srpmname} -D "%debug_package %{nil}" --resultdir ${YUM_REPO}
+            /usr/bin/mock --offline --rebuild ${srpmname} -D "%debug_package %{nil}" --resultdir ${YUM_REPO}
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
