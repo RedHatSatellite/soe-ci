@@ -18,11 +18,7 @@ then
     echo "PUSH_USER or SATELLITE not set or not found"
     exit ${WORKSPACE_ERR}
 fi
-    
-# scrub the srpms and mock build logs as they confuse satellite6
-rm -f ${YUM_REPO}/*.src.rpm
-rm -f ${YUM_REPO}/*.log
-    
+
 # refresh the upstream yum repo
 createrepo ${YUM_REPO}
     
