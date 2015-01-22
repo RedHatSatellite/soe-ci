@@ -27,16 +27,24 @@ function build_puppetmodule {
             fi
             modarchive=${modname}-${modversion}.tar.gz
 
-            # build the archive
-            puppet module build ${MODULEDIR}
-            RETVAL=$?
-            if [[ ${RETVAL} != 0 ]]
+            if [ -f "${PUPPET_REPO}/${modarchive}" ]
             then
-                echo "Could not build puppet module ${modname} using ${METADATA}"
-                exit ${MODBUILD_ERR}
+                echo "WARNING: Puppet module '${modarchive}' already in repository," >&2
+                echo "         You might have forgotten to increase the version" >&2
+                echo "         after doing changes. Skipping ${MODULEFILE}" >&2
+            else
+
+                # build the archive
+                puppet module build ${MODULEDIR}
+                RETVAL=$?
+                if [[ ${RETVAL} != 0 ]]
+                then
+                    echo "Could not build puppet module ${modname} using ${METADATA}"
+                    exit ${MODBUILD_ERR}
+                fi
+                mv -nv ${MODULEDIR}/pkg/${modarchive} ${PUPPET_REPO} # don't overwrite
+                echo ${git_commit} > .puppetbuild-hash
             fi
-            mv ${MODULEDIR}/pkg/${modarchive} ${PUPPET_REPO}
-            echo ${git_commit} > .puppetbuild-hash
         else
             echo "No changes since last build - skipping ${METADATA}"
         fi
