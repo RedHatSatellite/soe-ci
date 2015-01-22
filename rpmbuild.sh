@@ -16,28 +16,36 @@ function build_srpm {
         then
             # determine the name of the rpm from the specfile
             rpmname=$(IGNORECASE=1 awk '/^Name:/ {print $2}' ${SPECFILE})
-            rm -f ${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${WORKSPACE}/tmp/srpms
+            rm -f ${SRPMS_DIR}/${rpmname}-*.src.rpm
+            /usr/bin/mock --buildsrpm --spec ${SPECFILE} --sources $(pwd) --resultdir ${SRPMS_DIR}
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
                 exit ${SRPMBUILD_ERR}
             fi
-            srpmname=${WORKSPACE}/tmp/srpms/${rpmname}-*.src.rpm
-            /usr/bin/mock --rebuild ${srpmname} -D "%debug_package %{nil}" --resultdir ${YUM_REPO}
+            srpmname=${SRPMS_DIR}/${rpmname}-*.src.rpm
+            /usr/bin/mock --rebuild ${srpmname} -D "%debug_package %{nil}" --resultdir ${RPMS_DIR}
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
                 echo "Could not build RPM ${rpmname} from ${srpmname}"
                 exit ${RPMBUILD_ERR}
             fi
-            echo ${git_commit} > .rpmbuild-hash
+            mv -nv ${RPMS_DIR}/*.rpm ${YUM_REPO} # don't overwrite RPMs
+            if [ "$(echo ${RPMS_DIR}/*.rpm)" != "${RPMS_DIR}/*.rpm" ]
+            then # not all RPM files could be moved, some are remaining
+	        echo "WARNING: RPM package '${rpmname}' already in repository," >&2
+                echo "         You might have forgotten to increase the version" >&2
+                echo "         after doing changes. Skipping ${SPECFILE}" >&2
+            else
+                echo ${git_commit} > .rpmbuild-hash
+            fi
         else
             echo "No changes since last build - skipping ${SPECFILE}"
         fi
     fi
-}    
+}
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
@@ -52,7 +60,9 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-mkdir -p ${WORKSPACE}/tmp/srpms
+SRPMS_DIR=${WORKSPACE}/tmp/srpms
+RPMS_DIR=${WORKSPACE}/tmp/rpms
+mkdir -p ${SRPMS_DIR} ${RPMS_DIR}
 
 # Traverse directories looking for spec files and build SRPMs
 cd ${workdir}
@@ -65,8 +75,5 @@ do
     if [[ -n ${SPECFILE} ]] ; then build_srpm ${SPECFILE} ; fi
     popd
 done
-wait
-
-
-
+wait # TODO: add comment to explain why this?
 
