@@ -7,7 +7,8 @@
 
 ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
     "hammer content-view publish --name \"${CV}\" --organization \"${ORG}\""
-
+# sleep 30s after publishing content view to give change for locks to get cleared up
+sleep 30
 if [[ -n ${TESTVM_ENV} ]]
 then
 # get the latest version of the CV and promote it
