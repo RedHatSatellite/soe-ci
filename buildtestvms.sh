@@ -6,8 +6,8 @@
 #
 # this will tell Foreman to rebuild all machines in hostgroup TESTVM_HOSTGROUP
 
-#
-. ${WORKSPACE}/scripts/common.sh
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
 
 
 # rebuild test VMs

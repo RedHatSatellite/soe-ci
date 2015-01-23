@@ -4,8 +4,9 @@
 #
 # e.g ${WORKSPACE}/scripts/pushtests.sh 'test'
 #
-. ${WORKSPACE}/scripts/common.sh
 
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
 
 # get our test machines
 J=0
