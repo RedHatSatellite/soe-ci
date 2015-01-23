@@ -5,7 +5,8 @@
 # e.g. ${WORKSPACE}/scripts/puppetbuilder.sh ${WORKSPACE}/soe/puppet/
 #
 
-. ${WORKSPACE}/scripts/common.sh
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
 
 function build_puppetmodule {
 

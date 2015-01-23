@@ -2,7 +2,8 @@
 
 # Publish the content view and promote if necessary
 
-. ${WORKSPACE}/scripts/common.sh
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
 
 ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
     "hammer content-view publish --name \"${CV}\" --organization \"${ORG}\""

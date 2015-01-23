@@ -4,7 +4,9 @@
 #
 # e.g. ${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts/kickstarts/
 #
-. ${WORKSPACE}/scripts/common.sh
+
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then

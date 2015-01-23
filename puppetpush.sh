@@ -5,7 +5,8 @@
 # e.g. ${WORKSPACE}/scripts/puppetpush.sh 
 #
 
-. ${WORKSPACE}/scripts/common.sh
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
