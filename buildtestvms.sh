@@ -12,8 +12,8 @@
 
 # rebuild test VMs
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host list --search 'hostgroup = \"${TESTVM_HOSTGROUP}\"' | grep \"${TESTVM_HOSTGROUP}\" | 
-        cut -f2 -d \"|\" | tr -d ' ' ")
+        "hammer content-host list --organization \"${ORG}\" --host-collection \"$TESTVM_HOSTCOLLECTION\" \
+            | tail -n +4 | cut -f2 -d \"|\" | head -n 1")
 do
     echo "Rebuilding VM ID $I"
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
