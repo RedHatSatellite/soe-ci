@@ -44,8 +44,8 @@ function build_puppetmodule {
                     exit ${MODBUILD_ERR}
                 fi
                 mv -nv ${MODULEDIR}/pkg/${modarchive} ${PUPPET_REPO} # don't overwrite
-                echo ${git_commit} > .puppetbuild-hash
             fi
+            echo ${git_commit} > .puppetbuild-hash
         else
             echo "No changes since last build - skipping ${METADATA}"
         fi

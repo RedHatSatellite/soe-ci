@@ -39,9 +39,8 @@ function build_srpm {
 	        echo "WARNING: RPM package '${rpmname}' already in repository," >&2
                 echo "         You might have forgotten to increase the version" >&2
                 echo "         after doing changes. Skipping ${SPECFILE}" >&2
-            else
-                echo ${git_commit} > .rpmbuild-hash
             fi
+            echo ${git_commit} > .rpmbuild-hash
         else
             echo "No changes since last build - skipping ${SPECFILE}"
         fi
