@@ -18,8 +18,20 @@ do
     echo "Rebuilding VM ID $I"
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host update --id $I --build yes"
-    ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host reboot --id $I"
+
+    _STATUS=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
+    if [[ ${_STATUS} == 'running' ]]
+    then
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "hammer host reboot --id $I"
+    elif [[ ${_STATUS} == 'shutoff' ]]
+    then
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "hammer host start --id $I"
+    else
+        echo "Host $I is neither running nor shutoff. No action possible!"
+        exit 1
+    fi
 done
 
 
