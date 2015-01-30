@@ -11,8 +11,8 @@
 # get our test machines
 J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host list --search 'hostgroup = \"${TESTVM_HOSTGROUP}\"' | grep \"${TESTVM_HOSTGROUP}\" | 
-        cut -f2 -d \"|\" | tr -d ' ' ")
+        "hammer content-host list --organization \"${ORG}\" --host-collection \"$TESTVM_HOSTCOLLECTION\" \
+            | tail -n +4 | cut -f2 -d \"|\" | head -n 1")
 do
   vm[$J]=$I
   ((J+=1))
