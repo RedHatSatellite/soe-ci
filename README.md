@@ -37,17 +37,17 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 
 * Install a standard RHEL 7 server with a minimum of 4GB RAM and 50GB availabile in `/var/lib/jenkins`. It's fine to use a VM for this.
 * Register the server to RHN RHEL7 base and RHEL7 common repos. You need the RHEL 7 Common repos for puppet.
-* Configure the server for access to the [EPEL](http://mirrors.coreix.net/fedora-epel/7/x86_64/repoview/epel-release.html) and [Jenkins](http://pkg.jenkins-ci.org/redhat/) repos. 
-* Install httpd, mock, createrepo and puppet on the system. These are available from the standard RHEL repos so should just install with yum. Ensure that httpd is running.
-* Configure mock by copying [this](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
-* Install jenkins. If you have setup the Jenkins repo correctly you should be able to simply use yum.
+* Configure the server for access to the [EPEL](https://fedoraproject.org/wiki/EPEL) and [Jenkins](http://pkg.jenkins-ci.org/redhat/) repos. 
+* Install `httpd`, `mock`, `createrepo` and `puppet` on the system. These are available from the standard RHEL repos so should just install with yum. Ensure that `httpd` is running.
+* Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
+* Install `jenkins`, `tomcat` and Java. If you have setup the Jenkins repo correctly you should be able to simply use yum.
 * Start Jenkins and browse to the console at http://jenkinsserver:8080/
 * Select the 'Manage Jenkins' link, followed by 'Manage Plugins'. You will need to add the following plugins:
     * Git Plugin
     * Multiple SCMs Plugin
     * TAP Plugin
 * Restart Jenkins
-* Add the jenkins user to the mock group. This will allow Jenkins to build RPMs.
+* Add the `jenkins` user to the `mock` group. This will allow Jenkins to build RPMs.
 * Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
 * `su` to the `jenkins` user and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
 * Create a build plan in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE` and copying in the  [config.xml](https://github.com/RedHatEMEA/soe-ci/blob/master/config.xml) file
@@ -58,10 +58,10 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * https://github.com/RedHatEMEA/soe-ci   These are the scripts used to by Jenkins to drive CII
     * https://github.com/RedHatEMEA/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch on github).
-* Edit the build plan on your jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote (or your branch on github) and not to the master branch - you will need to edit both of these.
+* Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote (or your branch on github) and not to the master branch - you will need to edit both of these.
 
 ### Satellite 6
-* Install and register a Red Hat Satellite 6 as per the instructions at https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.0/html/Installation_Guide/index.html I would recommend doing this on a RHEL6 server rather than RHEL7.
+* Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.0/html/Installation_Guide/index.html). I would recommend doing this on a RHEL6 server rather than RHEL7.
 * Enable the following repos: RHEL 7 Server Kickstart 7Server, RHEL 7 Server RPMs 7Server, RHEL 7 Server - RH Common RPMs 7 Server
 * Create a sync plan that does a daily sync of the RHEL product
 * Do an initial sync
@@ -70,10 +70,9 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-ci
 * Do NOT create a sync plan for the ACME SOE product. This will be synced by Jenkins when needed.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
-* Create a Content View (I called mine 'acme-7.0.0') that contains the 3 Red Hat repos, and the two repos (Puppet and RPMs) that you created. Grab the ID of the content view using the same hover over trick as described before.
-* Configure hammer for passwordless usage by creating a /etc/hammer/cli_config.yml file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
-* Create a jenkins user on the satellite.
-* Copy over the public key of the jenkins user on the Jenkins server to the jenkins user on the satellite and ensure that jenkins on the jenkins server can do passwordless ssh to the satellite.
+* Configure hammer for passwordless usage by creating a `/etc/hammer/cli_config.yml` file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
+* Create a `jenkins` user on the satellite.
+* Copy over the public key of the `jenkins` user on the Jenkins server to the `jenkins` user on the satellite and ensure that `jenkins` on the Jenkins server can do passwordless `ssh` to the satellite.
 * Configure a Compute Resource on the satellite - I use libvirt, but most people are using VMWare. This will be used to deploy test machines.
 
 ### Bootstrapping
