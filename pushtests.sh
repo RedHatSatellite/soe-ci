@@ -58,7 +58,11 @@ for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
     sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
-    setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    if ! ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    then # RHEL 6's ssh-copy-id doesn't support -o
+        ssh-copy-id -i ${RSA_ID} root@$I
+    fi
+
     echo "Installing bats and rsync on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats rsync"    
     echo "copying tests to test server $I"
