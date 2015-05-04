@@ -57,10 +57,14 @@ export TEST_ROOT
 for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
-    sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
-    if ! ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
-    then # RHEL 6's ssh-copy-id doesn't support -o
-        ssh-copy-id -i ${RSA_ID} root@$I
+    sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the list
+    if [ $(sed -e 's/^.*release //' -e 's/\..*$//' /etc/redhat-release) >= 7 ]
+    then # Only starting with RHEL 7 does ssh-copy-id support -o
+        setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    else # RHEL 6 and before
+        setsid ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+		'mkdir -m u=rwx,go= .ssh'
+        setsid ssh-copy-id -i ${RSA_ID} root@$I
     fi
 
     echo "Installing bats and rsync on test server $I"
