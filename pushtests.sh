@@ -58,7 +58,7 @@ for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the list
-    if [ $(sed -e 's/^.*release //' -e 's/\..*$//' /etc/redhat-release) >= 7 ]
+    if [ $(sed -e 's/^.*release //' -e 's/\..*$//' /etc/redhat-release) -ge 7 ]
     then # Only starting with RHEL 7 does ssh-copy-id support -o
         setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
     else # RHEL 6 and before
