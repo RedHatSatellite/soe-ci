@@ -13,7 +13,7 @@ J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer --output base content-host list --organization \"${ORG}\" \
 		--host-collection \"$TESTVM_HOSTCOLLECTION\" \
-            | awk -F': *' '$1 == \"Name\" {print $2}'")
+            | tail -n +4 | cut -f2 -d \"|\" | head -n -1")
 do
   vm[$J]=$I
   ((J+=1))
