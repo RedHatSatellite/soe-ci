@@ -72,10 +72,17 @@ do
     fi
 
     echo "Installing bats and rsync on test server $I"
-    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats rsync"    
-    echo "copying tests to test server $I"
-    rsync --delete -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
-        root@$I:
+    if ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "yum install -y bats rsync"
+    then
+        echo "copying tests to test server $I"
+        rsync --delete -va -e \
+            "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" \
+            ${WORKSPACE}/soe/tests root@$I:
+    else
+        echo "ERROR:   Couldn't install rsync and bats on '$I'." >&2
+        exit 1
+    fi
 done
 
 # execute the tests in parallel on all test servers
