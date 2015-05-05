@@ -11,8 +11,7 @@
 # get our test machines
 J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer content-host list --organization \"${ORG}\" \
-		--host-collection \"$TESTVM_HOSTCOLLECTION\" \
+        "hammer content-host list --organization \"${ORG}\" --host-collection \"$TESTVM_HOSTCOLLECTION\" \
             | tail -n +4 | cut -f2 -d \"|\" | head -n -1")
 do
   vm[$J]=$I
@@ -33,8 +32,9 @@ do
         echo -n "Checking if test server $I has rebuilt... "
         status=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
-            grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" | wc -l")
-	# Check if status is OK, ping reacts and SSH is there, then success!
+            grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" \
+		| wc -l")
+        # Check if status is OK, ping reacts and SSH is there, then success!
         if [[ ${status} == 3 ]] && ping -c 1 -q $I && nc -w 1 $I 22
         then
             echo "Success!"
@@ -60,21 +60,29 @@ export TEST_ROOT
 for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
-    sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the list
+    sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
+
+    # Copy Jenkins' SSH key to the newly created server(s)
     if [ $(sed -e 's/^.*release //' -e 's/\..*$//' /etc/redhat-release) -ge 7 ]
-    then # Only starting with RHEL 7 does ssh-copy-id support -o
+    then # Only starting with RHEL 7 does ssh-copy-id support -o parameter
         setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
-    else # RHEL 6 and before
-        setsid ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
-		'mkdir -m u=rwx,go= .ssh'
+    else # Workaround for RHEL 6 and before
+        setsid ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I 'true'
         setsid ssh-copy-id -i ${RSA_ID} root@$I
     fi
 
     echo "Installing bats and rsync on test server $I"
-    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats rsync"    
-    echo "copying tests to test server $I"
-    rsync --delete -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
-        root@$I:
+    if ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "yum install -y bats rsync"
+    then
+        echo "copying tests to test server $I"
+        rsync --delete -va -e \
+            "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" \
+            ${WORKSPACE}/soe/tests root@$I:
+    else
+        echo "ERROR:   Couldn't install rsync and bats on '$I'." >&2
+        exit 1
+    fi
 done
 
 # execute the tests in parallel on all test servers
