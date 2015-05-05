@@ -58,7 +58,7 @@ export TEST_ROOT
 for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
-    sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
+    sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
     setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
     echo "Installing bats and rsync on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats rsync"    
