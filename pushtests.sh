@@ -11,7 +11,7 @@
 # get our test machines
 J=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer --output base content-host list --organization \"${ORG}\" \
+        "hammer content-host list --organization \"${ORG}\" \
 		--host-collection \"$TESTVM_HOSTCOLLECTION\" \
             | tail -n +4 | cut -f2 -d \"|\" | head -n -1")
 do
