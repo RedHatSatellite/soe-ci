@@ -20,16 +20,17 @@ do
 done
 
 # we need to wait until all the test machines have been rebuilt by foreman
-REBUILT=0
+declare -A vmcopy # declare an associative array
+for I in "${vm[@]}"; do vmcopy[$I]=$I; done # create a copy of our VM array
 WAIT=0
-while [[ ${REBUILT} -lt ${#vm[@]} ]]
-    do
+while [[ ${#vmcopy[@]} -gt 0 ]]
+do
     sleep 10
     ((WAIT+=10))
     echo "Waiting 10 seconds"
-    for I in ${vm[@]}
+    for I in "${vmcopy[@]}"
     do
-        echo -n "Checking if test server $I has rebuilt..."
+        echo -n "Checking if test server $I has rebuilt... "
         status=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" | wc -l")
@@ -37,7 +38,7 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
         if [[ ${status} == 3 ]] && ping -c 1 -q $I && nc -w 1 $I 22
         then
             echo "Success!"
-            ((REBUILT+=1))
+            unset vmcopy[$I]
         else
             echo "Not yet"
         fi
