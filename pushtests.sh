@@ -32,7 +32,8 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
         status=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" | wc -l")
-        if [[ ${status} == 3 ]]
+        # Check if status is OK, ping reacts and SSH is there, then success!
+        if [[ ${status} == 3 ]] && ping -c 1 -q $I && nc -w 1 $I 22
         then
             echo "Success!"
             ((REBUILT+=1))
@@ -47,8 +48,8 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
     fi
 done
 
-# Wait another 60s to be on the safe side
-sleep 60
+# Wait another 30s to be on the safe side
+sleep 30
 
 # copy our tests to the test servers
 export SSH_ASKPASS=${WORKSPACE}/scripts/askpass.sh
