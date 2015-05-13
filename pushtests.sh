@@ -19,23 +19,26 @@ do
 done
 
 # we need to wait until all the test machines have been rebuilt by foreman
-REBUILT=0
+declare -A vmcopy # declare an associative array
+for I in "${vm[@]}"; do vmcopy[$I]=$I; done # create a copy of our VM array
 WAIT=0
-while [[ ${REBUILT} -lt ${#vm[@]} ]]
-    do
+while [[ ${#vmcopy[@]} -gt 0 ]]
+do
     sleep 10
     ((WAIT+=10))
     echo "Waiting 10 seconds"
-    for I in ${vm[@]}
+    for I in "${vmcopy[@]}"
     do
-        echo -n "Checking if test server $I has rebuilt..."
+        echo -n "Checking if test server $I has rebuilt... "
         status=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
-            grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" | wc -l")
-        if [[ ${status} == 3 ]]
+            grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" \
+		| wc -l")
+        # Check if status is OK, ping reacts and SSH is there, then success!
+        if [[ ${status} == 3 ]] && ping -c 1 -q $I && nc -w 1 $I 22
         then
             echo "Success!"
-            ((REBUILT+=1))
+            unset vmcopy[$I]
         else
             echo "Not yet"
         fi
@@ -47,8 +50,8 @@ while [[ ${REBUILT} -lt ${#vm[@]} ]]
     fi
 done
 
-# Wait another 60s to be on the safe side
-sleep 60
+# Wait another 30s to be on the safe side
+sleep 30
 
 # copy our tests to the test servers
 export SSH_ASKPASS=${WORKSPACE}/scripts/askpass.sh
@@ -57,13 +60,29 @@ export TEST_ROOT
 for I in ${vm[@]}
 do
     echo "Setting up ssh keys for test server $I"
-    sed -i.bak "s/^$I.*//" ${KNOWN_HOSTS}
-    setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
+
+    # Copy Jenkins' SSH key to the newly created server(s)
+    if [ $(sed -e 's/^.*release //' -e 's/\..*$//' /etc/redhat-release) -ge 7 ]
+    then # Only starting with RHEL 7 does ssh-copy-id support -o parameter
+        setsid ssh-copy-id -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I
+    else # Workaround for RHEL 6 and before
+        setsid ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I 'true'
+        setsid ssh-copy-id -i ${RSA_ID} root@$I
+    fi
+
     echo "Installing bats and rsync on test server $I"
-    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "yum install -y bats rsync"    
-    echo "copying tests to test server $I"
-    rsync --delete -va -e "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" ${WORKSPACE}/soe/tests \
-        root@$I:
+    if ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "yum install -y bats rsync"
+    then
+        echo "copying tests to test server $I"
+        rsync --delete -va -e \
+            "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" \
+            ${WORKSPACE}/soe/tests root@$I:
+    else
+        echo "ERROR:   Couldn't install rsync and bats on '$I'." >&2
+        exit 1
+    fi
 done
 
 # execute the tests in parallel on all test servers
