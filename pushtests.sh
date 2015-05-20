@@ -26,7 +26,11 @@ while [[ ${#vmcopy[@]} -gt 0 ]]
 do
     sleep 10
     ((WAIT+=10))
+<<<<<<< HEAD
     echo "Waiting 10 seconds"
+=======
+    info "Waiting 10 seconds"
+>>>>>>> upstream/master
     for I in "${vmcopy[@]}"
     do
         echo -n "Checking if test server $I has rebuilt... "
@@ -37,15 +41,19 @@ do
         # Check if status is OK, ping reacts and SSH is there, then success!
         if [[ ${status} == 3 ]] && ping -c 1 -q $I && nc -w 1 $I 22
         then
+<<<<<<< HEAD
             echo "Success!"
+=======
+            tell "Success!"
+>>>>>>> upstream/master
             unset vmcopy[$I]
         else
-            echo "Not yet"
+            tell "Not yet."
         fi
     done
     if [[ ${WAIT} -gt 6000 ]]
     then
-        echo "Test servers still not rebuilt after 6000 seconds. Exiting."
+        err "Test servers still not rebuilt after 6000 seconds. Exiting."
         exit 1
     fi
 done
@@ -59,7 +67,7 @@ export DISPLAY=nodisplay
 export TEST_ROOT
 for I in ${vm[@]}
 do
-    echo "Setting up ssh keys for test server $I"
+    info "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
 
     # Copy Jenkins' SSH key to the newly created server(s)
@@ -71,16 +79,16 @@ do
         setsid ssh-copy-id -i ${RSA_ID} root@$I
     fi
 
-    echo "Installing bats and rsync on test server $I"
+    info "Installing bats and rsync on test server $I"
     if ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         "yum install -y bats rsync"
     then
-        echo "copying tests to test server $I"
+        info "copying tests to test server $I"
         rsync --delete -va -e \
             "ssh -o StrictHostKeyChecking=no -i ${RSA_ID}" \
             ${WORKSPACE}/soe/tests root@$I:
     else
-        echo "ERROR:   Couldn't install rsync and bats on '$I'." >&2
+        err "Couldn't install rsync and bats on '$I'."
         exit 1
     fi
 done
@@ -89,7 +97,7 @@ done
 mkdir -p ${WORKSPACE}/test_results
 for I in ${vm[@]}
 do
-    echo "Starting TAPS tests on test server $I"
+    info "Starting TAPS tests on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         'cd tests ; bats -t *.bats' > ${WORKSPACE}/test_results/$I.tap &
 done

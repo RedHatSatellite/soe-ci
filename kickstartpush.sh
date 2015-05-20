@@ -10,14 +10,14 @@
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
-    echo "Usage: $0 <kickstarts directory>"
+    usage "$0 <kickstarts directory>"
     exit ${NOARGS}
 fi
 workdir=$1
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
-    echo "PUSH_USER or SATELLITE not set or not found"
+    err "PUSH_USER or SATELLITE not set or not found"
     exit ${WORKSPACE_ERR}
 fi
 

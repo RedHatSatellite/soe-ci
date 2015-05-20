@@ -10,14 +10,14 @@
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
-    echo "Usage: $0 <directory containing puppet module directories>"
+    usage "$0 <directory containing puppet module directories>"
     exit ${NOARGS}
 fi
 workdir=$1
 
 if [[ -z ${WORKSPACE} ]] || [[ ! -w ${WORKSPACE} ]]
 then
-    echo "WORKSPACE not set or not found"
+    err "WORKSPACE not set or not found"
     exit ${WORKSPACE_ERR}
 fi
 
