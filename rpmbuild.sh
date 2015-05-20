@@ -22,7 +22,7 @@ function build_srpm {
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
-                echo "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
+                err "Could not build SRPM ${rpmname} using the specfile ${SPECFILE}"
                 exit ${SRPMBUILD_ERR}
             fi
             srpmname=${SRPMS_DIR}/${rpmname}-*.src.rpm
@@ -30,33 +30,33 @@ function build_srpm {
             RETVAL=$?
             if [[ ${RETVAL} != 0 ]]
             then
-                echo "Could not build RPM ${rpmname} from ${srpmname}"
+                err "Could not build RPM ${rpmname} from ${srpmname}"
                 exit ${RPMBUILD_ERR}
             fi
             mv -nv ${RPMS_DIR}/*.rpm ${YUM_REPO} # don't overwrite RPMs
             if [ "$(echo ${RPMS_DIR}/*.rpm)" != "${RPMS_DIR}/*.rpm" ]
             then # not all RPM files could be moved, some are remaining
-	        echo "WARNING: RPM package '${rpmname}' already in repository," >&2
-                echo "         You might have forgotten to increase the version" >&2
-                echo "         after doing changes. Skipping ${SPECFILE}" >&2
+	        warn "RPM package '${rpmname}' already in repository," \
+                     "You might have forgotten to increase the version" \
+                     "after doing changes. Skipping ${SPECFILE}"
             fi
             echo ${git_commit} > .rpmbuild-hash
         else
-            echo "No changes since last build - skipping ${SPECFILE}"
+            info "No changes since last build - skipping ${SPECFILE}"
         fi
     fi
 }
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]
 then
-    echo "Usage: $0 <directory containing RPM source directories>"
+    usage "$0 <directory containing RPM source directories>"
     exit ${NOARGS}
 fi
 workdir=$1
 
 if [[ -z ${WORKSPACE} ]] || [[ ! -w ${WORKSPACE} ]]
 then
-    echo "WORKSPACE not set or not found"
+    err "WORKSPACE not set or not found"
     exit ${WORKSPACE_ERR}
 fi
 

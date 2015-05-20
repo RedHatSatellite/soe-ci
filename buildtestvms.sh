@@ -9,13 +9,20 @@
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
+if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]  || [[ -z ${RSA_ID} ]] \
+   || [[ -z ${ORG} ]] || [[ -z ${TESTVM_HOSTCOLLECTION} ]]
+then
+    err "Environment variable PUSH_USER, SATELLITE, RSA_ID, ORG " \
+        "or TESTVM_HOSTCOLLECTION not set or not found."
+    exit ${WORKSPACE_ERR}
+fi
 
 # rebuild test VMs
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-host list --organization \"${ORG}\" --host-collection \"$TESTVM_HOSTCOLLECTION\" \
             | tail -n +4 | cut -f2 -d \"|\" | head -n -1")
 do
-    echo "Rebuilding VM ID $I"
+    info "Rebuilding VM ID $I"
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host update --id $I --build yes"
 
@@ -29,11 +36,8 @@ do
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
     else
-        echo "Host $I is neither running nor shutoff. No action possible!"
+        err "Host $I is neither running nor shutoff. No action possible!"
         exit 1
     fi
 done
-
-
-
 
