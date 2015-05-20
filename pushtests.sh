@@ -26,11 +26,7 @@ while [[ ${#vmcopy[@]} -gt 0 ]]
 do
     sleep 10
     ((WAIT+=10))
-<<<<<<< HEAD
-    echo "Waiting 10 seconds"
-=======
     info "Waiting 10 seconds"
->>>>>>> upstream/master
     for I in "${vmcopy[@]}"
     do
         echo -n "Checking if test server $I has rebuilt... "
@@ -41,11 +37,7 @@ do
         # Check if status is OK, ping reacts and SSH is there, then success!
         if [[ ${status} == 3 ]] && ping -c 1 -q $I && nc -w 1 $I 22
         then
-<<<<<<< HEAD
-            echo "Success!"
-=======
             tell "Success!"
->>>>>>> upstream/master
             unset vmcopy[$I]
         else
             tell "Not yet."
