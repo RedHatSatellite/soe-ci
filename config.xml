@@ -37,8 +37,8 @@
           <defaultValue>/var/lib/jenkins/.ssh/known_hosts</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>TESTVM_HOSTGROUP</name>
-          <description>The name of the Foreman hostgroup containing your test machines.</description>
+          <name>TESTVM_HOSTCOLLECTION</name>
+          <description>The name of the Satellite 6 host collection containing your test machines.</description>
           <defaultValue>Test Servers</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
