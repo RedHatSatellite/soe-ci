@@ -8,7 +8,7 @@
 ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
     "hammer content-view publish --name \"${CV}\" --organization \"${ORG}\""
 # sleep 30s after publishing content view to give change for locks to get cleared up
-sleep 30
+sleep 90
 if [[ -n ${TESTVM_ENV} ]]
 then
 # get the latest version of the CV and promote it
@@ -17,6 +17,6 @@ then
     | grep \"ID:\" | tail -1 | tr -d ' ' | cut -f2 -d ':'")
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
     "hammer content-view version promote --content-view \"${CV}\" --organization \"${ORG}\" \
-    --lifecycle-environment-id \"${TESTVM_ENV}\" --id ${VER}"
+    --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${VER}"
 fi
 

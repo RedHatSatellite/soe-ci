@@ -38,7 +38,7 @@ ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 # list all the packages currently in the CV
 n=0
 for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer --csv content-view puppet-module list --content-view=\"${CV}\" --organization=\"${ORG}\"" | tail -n +2 | awk -F, '{printf "%s@%s\n",$3,$4}')
+    "hammer --csv content-view puppet-module list --content-view=\"${CV}\" --organization=\"${ORG}\"" | tail -n +2 | awk -F, '{printf "%s@%s\n",$2,$3}')
 do
     cv_mods[$n]=$I
     ((n+=1))
