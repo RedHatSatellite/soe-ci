@@ -6,8 +6,9 @@
 . $(dirname "${0}")/common.sh
 
 ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer content-view publish --name \"${CV}\" --organization \"${ORG}\""
-# sleep 30s after publishing content view to give change for locks to get cleared up
+    "hammer content-view publish --name \"${CV}\" --organization \"${ORG}\" --description \"Build ${BUILD_TAG} from ${GIT_COMMIT} on ${GIT_BRANCH}\""
+
+# sleep after publishing content view to give chance for locks to get cleared up
 sleep 90
 if [[ -n ${TESTVM_ENV} ]]
 then
