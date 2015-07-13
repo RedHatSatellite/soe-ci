@@ -79,6 +79,13 @@ hammer lifecycle-environment list --organization &quot;Default_Organization&quot
           <description>This is the name of the organisation you are using on the Red Hat Satellite.</description>
           <defaultValue>Default_Organization</defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CCV_NAME_PATTERN</name>
+          <description>Enter here a name pattern if you want Composite Content Views using the given CV to be updated with the latest version and as well published and promoted.
+CCVs respecting the pattern but not containing the CV will not be touched.
+Example of pattern: &quot;ccv-test-*&quot;</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
