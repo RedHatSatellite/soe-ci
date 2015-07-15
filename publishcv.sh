@@ -1,27 +1,49 @@
 #!/bin/bash -x
 
-# Publish the content view and promote if necessary
+# Publish the content view(s) and promote if necessary
+#
+# This script can be tested /used with a command like:
+#   PUSH_USER=jenkins SATELLITE=sat6.example.com \
+#   RSA_ID=/var/lib/jenkins/.ssh/id_rsa TESTVM_ENV=2 CV="cv-acme-soe-demo" \
+#   CV_PASSIVE_LIST="cv-passive-1,cv-passive-2" ORG=Default_Organization \
+#   CCV_NAME_PATTERN="ccv-test-*" BUILD_URL=$$ ./publishcv.sh
 
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
-ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer content-view publish --name \"${CV}\" --organization \"${ORG}\" --description \"Build ${BUILD_URL}\"" || \
-	{ err "Content view '${CV}' couldn't be published."; exit 1; }
+# Create an array from all the content view names
+IFS=',' CV_LIST=( ${CV} ${CV_PASSIVE_LIST} )
+
+for cv in "${CV_LIST[@]}"
+do
+    ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+	    "hammer content-view publish --name \"${cv}\" --organization \"${ORG}\" --description \"Build ${BUILD_URL}\"" || \
+		{ err "Content view '${cv}' couldn't be published."; exit 1; }
+
+    # get the latest version of each CV, add it to the array
+    VER_ID_LIST+=( "$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+	"hammer content-view info --name \"${cv}\" --organization \"${ORG}\" \
+	| grep \"ID:\" | tail -1 | tr -d ' ' | cut -f2 -d ':'")" )
+done
 
 # sleep after publishing content view to give chance for locks to get cleared up
 sleep 90
 
-# get the latest version of the CV
-VER=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-	"hammer content-view info --name \"${CV}\" --organization \"${ORG}\" \
-	| grep \"ID:\" | tail -1 | tr -d ' ' | cut -f2 -d ':'")
-
 if [[ -n ${CCV_NAME_PATTERN} ]]
-then # we want to update and publish all CCVs containing our CV
-    # Create an array of content view version IDs
-    CV_VER_IDS=( $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer --csv content-view version list --content-view \"${CV}\" --organization \"${ORG}\"" | awk -F',' '$1 != "ID" {print $1}') )
+then # we want to update and publish all CCVs containing our CVs
+
+    # Create a sed script to replace old with new version ID
+    for (( i = 0; i < ${#CV_LIST[@]}; i++ ))
+    do
+        cv=${CV_LIST[$i]}
+        ver_id=${VER_ID_LIST[$i]}
+
+        CV_VER_SED+="$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "hammer --csv content-view version list --content-view \"${cv}\" --organization \"${ORG}\"" | awk -F',' -v ver_id="${ver_id}" '
+                $1 != "ID" && $1 != ver_id {ids="s/," $1 ",/," ver_id ",/;" ids}
+                END {print ids}')"
+    done
+
     # Create an array of composite content view IDs matching the given pattern
     CCV_TMP_IDS=( $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer --csv content-view list --organization \"${ORG}\" --search \"${CCV_NAME_PATTERN}\"" | awk -F, '$1 ~ /^[0-9]+$/ {print $1}') )
@@ -31,34 +53,26 @@ then # we want to update and publish all CCVs containing our CV
     # the currently used version of our CV, to avoid two versions of the same CV
     for ccv_id in ${CCV_TMP_IDS[@]}
     do
-	cv_used_ver_ids=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+	cv_tmp_ver_ids=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer --output yaml content-view info --id ${ccv_id} --organization \"${ORG}\"" \
-	| awk -v cv="${CV}" -v cvver="${CV_VER_IDS[*]}" -F': *' '
-	BEGIN { split(cvver,cvv," ");
-		for (ver in cvv) cv_versions[cvv[ver]]=ver}
-	$1 == "Components" {cmp = 1; next}
-	{if (!cmp) next}
-	/^[A-Z]/ {cmp = 0; next}
-	$1 ~ / *ID/ {
-		if ($2 in cv_versions) {
-			ccv = 1;
-		} else {
-			ids=$2 "," ids;
-		}
-	}
-	END {if (ccv) {print ids} else {exit 3}}')
-        rc=$?
-        if [[ ${rc} -ne 3 ]]
-        then # the CCV really uses the given CV in any version
-            CCV_IDS=( "${CCV_IDS[@]}" ${ccv_id} )
-            CV_USED_VER_IDS=( "${CV_USED_VER_IDS[@]}" "${cv_used_ver_ids}" )
+	    | awk -F': *' '
+	        $1 == "Components" {cmp = 1; next}
+	        {if (!cmp) next}
+	        /^[A-Z]/ {cmp = 0; next}
+	        $1 ~ / *ID/ { ids=$2 "," ids; }
+	        END {print "," ids}')
+        cv_used_ver_ids=$(echo "${cv_tmp_ver_ids}" | sed "${CV_VER_SED}")
+        if [[ "${cv_used_ver_ids}" != "${cv_tmp_ver_ids}" ]]
+        then # the CCV really uses one of the given CVs in any version
+            CCV_IDS+=( ${ccv_id} )
+            CV_USED_VER_IDS+=( "${cv_used_ver_ids}" )
         fi
     done
 fi
 
 # We update the found CCVs with the new version and publish them
 if [[ ${#CCV_IDS[*]} -gt 0 ]]
-then # there is at least one CCV using the given CV
+then # there is at least one CCV using the given CVs
     for (( i = 0; i < ${#CCV_IDS[@]}; i++ ))
     do
             ccv_id=${CCV_IDS[$i]}
@@ -66,8 +80,8 @@ then # there is at least one CCV using the given CV
 
             # we add back the CV under its latest version to the CCV
 	    ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-                "hammer content-view update --id ${ccv_id} --component-ids "${cv_used_ver_ids}${VER}" --organization \"${ORG}\"" || \
-	            { err "CCV '${ccv_id}' couldn't be updated with '${cv_used_ver_ids}${VER}'."; exit 1; }
+                "hammer content-view update --id ${ccv_id} --component-ids \"${cv_used_ver_ids}\" --organization \"${ORG}\"" || \
+	            { err "CCV '${ccv_id}' couldn't be updated with '${cv_used_ver_ids}'."; exit 1; }
 
             # sleep after updating CV for locks to get cleared up
             sleep 10
@@ -81,10 +95,15 @@ fi
 
 if [[ -n ${TESTVM_ENV} ]]
 then
-    # promote the latest version of the CV
-    ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer content-view version promote --content-view \"${CV}\" --organization \"${ORG}\" \
-    --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${VER}"
+    for (( i = 0; i < ${#CV_LIST[@]}; i++ ))
+    do # promote the latest version of each CV
+        cv=${CV_LIST[$i]}
+        ver_id=${VER_ID_LIST[$i]}
+
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        "hammer content-view version promote --content-view \"${cv}\" --organization \"${ORG}\" \
+        --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${ver_id}"
+    done
 
     # we also promote the latest version of each CCV
     for ccv_id in ${CCV_IDS[@]}
