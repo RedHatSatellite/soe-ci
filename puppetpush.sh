@@ -10,7 +10,7 @@
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
-    echo "PUSH_USER or SATELLITE not set or not found"
+    err "PUSH_USER or SATELLITE not set or not found"
     exit ${WORKSPACE_ERR}
 fi
 
@@ -28,10 +28,15 @@ done
     
     
 # use hammer on the satellite to push the modules into the repo
-# the ID of the ACME Test repository is 16
 ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
     "hammer repository synchronize --id ${PUPPET_REPO_ID}"
-    
+
+if [[ -z "${CV}" ]]
+then
+    info "Variable 'CV' empty, no need to attach new modules."
+    exit 0
+fi
+
 # we need to add any new modules into the CV
 # as unlike RPMs they are not picked up automatically by republishing the CV
 
@@ -67,5 +72,4 @@ do
     "hammer content-view puppet-module add --author=${mod_auth} --name=${mod_name} --organization=\"${ORG}\" --content-view=\"${CV}\""
     fi
 done
-
 

@@ -12,9 +12,24 @@
           <defaultValue>jenkins</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>RSA_ID</name>
+          <description>RSA ID of the Jenkins user.</description>
+          <defaultValue>/var/lib/jenkins/.ssh/id_rsa</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>KNOWN_HOSTS</name>
+          <description>Known hosts file of the Jenkins user.</description>
+          <defaultValue>/var/lib/jenkins/.ssh/known_hosts</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>SATELLITE</name>
           <description>The FQDN of the Red Hat Satellite.</description>
           <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ORG</name>
+          <description>This is the name of the organisation you are using on the Red Hat Satellite.</description>
+          <defaultValue>Default_Organization</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>REPO_ID</name>
@@ -25,16 +40,6 @@
           <name>PUPPET_REPO_ID</name>
           <description>The numeric ID of the puppet module repository on the Red Hat Satellite that you want to use for your custom puppet modules.</description>
           <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>RSA_ID</name>
-          <description>RSA ID of the Jenkins user.</description>
-          <defaultValue>/var/lib/jenkins/.ssh/id_rsa</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>KNOWN_HOSTS</name>
-          <description>Known hosts file of the Jenkins user.</description>
-          <defaultValue>/var/lib/jenkins/.ssh/known_hosts</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>TESTVM_HOSTCOLLECTION</name>
@@ -75,9 +80,17 @@ hammer lifecycle-environment list --organization &quot;Default_Organization&quot
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>ORG</name>
-          <description>This is the name of the organisation you are using on the Red Hat Satellite.</description>
-          <defaultValue>Default_Organization</defaultValue>
+          <name>CV_PASSIVE_LIST</name>
+          <description>A comma separated list of content view names to publish and optionally promote as part of the build.
+Those CVs won&apos;t get new Puppet Modules assigned to them, meaning you must (and are free to) assign (and unassign) them yourself directly in Satellite.</description> 
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition> 
+        <hudson.model.StringParameterDefinition>
+          <name>CCV_NAME_PATTERN</name>
+          <description>Enter here a name pattern if you want Composite Content Views using the given CV(s) to be updated with the latest version and as well published and promoted.
+CCVs respecting the pattern but not containing any CV will not be touched.
+Example of pattern: &quot;ccv-test-*&quot;</description>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
