@@ -5,11 +5,12 @@
   - yaml
 
 :yaml:
-  :datadir: '/var/lib/puppet/acme-hiera'
+  :datadir: '/var/lib/hiera/oldstables-hiera'
 
 :hierarchy:
-  - %{::kt_env}/%{::hostgroup}/%{::fqdn}
-  - %{::kt_env}/%{::hostgroup}/common
-  - %{::kt_env}/common
+  - "%{::location}/%{::kt_env}/%{::hostgroup}/%{::fqdn}"
+  - "%{::location}/%{::kt_env}/%{::hostgroup}/common"
+  - "%{::location}/%{::kt_env}/common"
+  - "%{::location}/common"
   - common
 
