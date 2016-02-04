@@ -53,7 +53,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * `su` to the `jenkins` user (`su jenkins -s /bin/bash`) and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
 * Create a build plan in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE` and copying in the  [config.xml](https://github.com/RedHatEMEA/soe-ci/blob/master/config.xml) file
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
-** you might need to reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
+    * you might need to reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 
 ### Git Repository
 * Clone the following two git repos:
