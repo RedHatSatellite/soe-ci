@@ -48,7 +48,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * Multiple SCMs Plugin
     * TAP Plugin
 * Restart Jenkins
-* Add the `jenkins` user to the `mock` group. This will allow Jenkins to build RPMs.
+* Add the `jenkins` user to the `mock` group (`usermod -a -G mock jenkins`). This will allow Jenkins to build RPMs.
 * Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
 * `su` to the `jenkins` user and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
 * Create a build plan in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE` and copying in the  [config.xml](https://github.com/RedHatEMEA/soe-ci/blob/master/config.xml) file
