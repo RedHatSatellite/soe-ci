@@ -12,8 +12,17 @@
 . $(dirname "${0}")/common.sh
 
 # Create an array from all the content view names
-IFS=',' CV_LIST=( ${CV} ${CV_PASSIVE_LIST} )
+oldIFS="${IFS}"
+i=0
+IFS=','
+for cv in ${CV} ${CV_PASSIVE_LIST}
+do
+        CV_LIST[$i]="${cv}"
+        ((i++))
+done
+IFS="${oldIFS}"
 
+# Get a list of all CV version IDs
 for cv in "${CV_LIST[@]}"
 do
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
