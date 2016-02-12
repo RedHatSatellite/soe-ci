@@ -12,8 +12,17 @@
 . $(dirname "${0}")/common.sh
 
 # Create an array from all the content view names
-IFS=',' CV_LIST=( ${CV} ${CV_PASSIVE_LIST} )
+oldIFS="${IFS}"
+i=0
+IFS=','
+for cv in ${CV} ${CV_PASSIVE_LIST}
+do
+        CV_LIST[$i]="${cv}"
+        ((i++))
+done
+IFS="${oldIFS}"
 
+# Get a list of all CV version IDs
 for cv in "${CV_LIST[@]}"
 do
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
@@ -51,7 +60,7 @@ then # we want to update and publish all CCVs containing our CVs
     # We need at the same time to find out which of the CCVs use the given CV
     # as well as keep the ID of all other used CV versions, but filter out
     # the currently used version of our CV, to avoid two versions of the same CV
-    for ccv_id in ${CCV_TMP_IDS[@]}
+    for ccv_id in "${CCV_TMP_IDS[@]}"
     do
 	cv_tmp_ver_ids=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer --output yaml content-view info --id ${ccv_id} --organization \"${ORG}\"" \
