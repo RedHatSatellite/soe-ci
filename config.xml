@@ -208,7 +208,7 @@ echo &quot;#####################################################&quot;
       <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
       <outputTapToConsole>false</outputTapToConsole>
       <enableSubtests>false</enableSubtests>
-      <discardOldReports>false</discardOldReports>
+      <discardOldReports>true</discardOldReports>
       <todoIsFailure>false</todoIsFailure>
       <includeCommentDiagnostics>false</includeCommentDiagnostics>
       <validateNumberOfTests>false</validateNumberOfTests>
