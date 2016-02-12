@@ -45,7 +45,9 @@ function build_puppetmodule {
                 fi
                 mv -nv ${MODULEDIR}/pkg/${modarchive} ${PUPPET_REPO} # don't overwrite
             fi
+            # Something has changed, track it for build and for tests
             echo ${git_commit} > .puppetbuild-hash
+            echo "#${modname}#" >> "${MODIFIED_CONTENT_FILE}"
         else
             info "No changes since last build - skipping ${METADATA}"
         fi

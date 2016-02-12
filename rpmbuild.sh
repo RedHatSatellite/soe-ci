@@ -40,7 +40,9 @@ function build_srpm {
                      "You might have forgotten to increase the version" \
                      "after doing changes. Skipping ${SPECFILE}"
             fi
+            # Something has changed, track it for build and for tests
             echo ${git_commit} > .rpmbuild-hash
+            echo "#${rpmname}#" >> "${MODIFIED_CONTENT_FILE}"
         else
             info "No changes since last build - skipping ${SPECFILE}"
         fi

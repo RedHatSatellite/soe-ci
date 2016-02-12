@@ -8,19 +8,12 @@
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
-# get our test machines
-J=0
-for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer content-host list --organization \"${ORG}\" --host-collection \"$TESTVM_HOSTCOLLECTION\" \
-            | tail -n +4 | cut -f2 -d \"|\" | head -n -1")
-do
-  vm[$J]=$I
-  ((J+=1))
-done
+get_test_vm_list # populate TEST_VM_LIST
 
 # we need to wait until all the test machines have been rebuilt by foreman
-declare -A vmcopy # declare an associative array
-for I in "${vm[@]}"; do vmcopy[$I]=$I; done # create a copy of our VM array
+declare -A vmcopy # declare an associative array to copy our VM array into
+for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
+
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
@@ -57,7 +50,7 @@ sleep 30
 export SSH_ASKPASS=${WORKSPACE}/scripts/askpass.sh
 export DISPLAY=nodisplay
 export TEST_ROOT
-for I in ${vm[@]}
+for I in ${TEST_VM_LIST[@]}
 do
     info "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
@@ -87,7 +80,7 @@ done
 
 # execute the tests in parallel on all test servers
 mkdir -p ${WORKSPACE}/test_results
-for I in ${vm[@]}
+for I in ${TEST_VM_LIST[@]}
 do
     info "Starting TAPS tests on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \

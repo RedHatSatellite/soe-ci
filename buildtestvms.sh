@@ -17,11 +17,10 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
+get_test_vm_list # populate TEST_VM_LIST
+
 # rebuild test VMs
-for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer content-host list --organization \"${ORG}\" \
-		--host-collection \"$TESTVM_HOSTCOLLECTION\" \
-            | tail -n +4 | cut -f2 -d \"|\" | head -n -1")
+for I in "${TEST_VM_LIST[@]}"
 do
     info "Rebuilding VM ID $I"
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \

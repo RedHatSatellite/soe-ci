@@ -92,6 +92,18 @@ CCVs respecting the pattern but not containing any CV will not be touched.
 Example of pattern: &quot;ccv-test-*&quot;</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>CONDITIONAL_VM_BUILD</name>
+          <description>If this parameter is true/set, only the hosts existing in Satellite with a comment matching
+the modified Puppet module, RPM package or kickstart file, each surrounded by hashes (#), will be built and tested.
+&lt;br/&gt;
+Examples: &lt;code&gt;#ssh#bats#kickstart.erb#&lt;/code&gt;
+&lt;br/&gt;
+&lt;b&gt;CAUTION:&lt;/b&gt; be aware that in this case, no host will be tested if only the scripts have been modified.
+&lt;br/&gt;
+If unset/false, all existing hosts, within the given Host Collection, will be rebuilt independent of changes done in Git.</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>

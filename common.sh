@@ -30,3 +30,23 @@ function warn() {
 function err() {
 	tell "ERROR:   ${@}" >&2
 }
+
+# Name of file where modified content artefacts are being tracked
+# This approach (and file) is only used if CONDITIONAL_VM_BUILD is 'true'
+MODIFIED_CONTENT_FILE=${WORKSPACE}/modified_content.track
+
+# get our test machines into an array variable TEST_VM_LIST
+function get_test_vm_list() {
+	local J=0
+	for I in $(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+		"hammer content-host list --organization \"${ORG}\" \
+			--host-collection \"$TESTVM_HOSTCOLLECTION\" \
+		| tail -n +4 | cut -f2 -d \"|\" | head -n -1")
+	do
+		# TODO add a test on CONDITIONAL_VM_BUILD == 'true' to only
+		#      keep VMs commented with modified #content# as listed
+		#      in "${MODIFIED_CONTENT_FILE}"
+		TEST_VM_LIST[$J]=$I
+		((J+=1))
+	done
+}
