@@ -227,6 +227,19 @@ echo &quot;#####################################################&quot;
       <planRequired>true</planRequired>
       <verbose>true</verbose>
     </org.tap4j.plugin.TapPublisher>
+    <org.jenkinsci.plugins.postbuildscript.PostBuildScript plugin="postbuildscript@0.17">
+      <buildSteps>
+        <hudson.tasks.Shell>
+          <command>echo &quot;#####################################################&quot;
+echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
+echo &quot;#####################################################&quot;
+/bin/bash -x ${WORKSPACE}/scripts/cleanup.sh</command>
+        </hudson.tasks.Shell>
+      </buildSteps>
+      <scriptOnlyIfSuccess>true</scriptOnlyIfSuccess>
+      <scriptOnlyIfFailure>false</scriptOnlyIfFailure>
+      <markBuildUnstable>false</markBuildUnstable>
+    </org.jenkinsci.plugins.postbuildscript.PostBuildScript>
   </publishers>
   <buildWrappers/>
 </project>
