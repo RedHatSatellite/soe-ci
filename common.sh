@@ -45,7 +45,10 @@ function get_test_vm_list() {
 	do
 		# If CONDITIONAL_VM_BUILD is 'true', only keep VMs commented
 		# with modified #content# as listed in $MODIFIED_CONTENT_FILE
+		# If the file is empty or doesn't exist, we test everything
+		# as it hints at a script change.
 		if [[ "${CONDITIONAL_VM_BUILD}" != 'true' ]] || \
+			[[ ! -s "${MODIFIED_CONTENT_FILE} ]] || \
 			ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 			"hammer --output yaml host info --name \"${I}\"" \
 				| grep "^Comment:" \
