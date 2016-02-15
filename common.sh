@@ -48,7 +48,7 @@ function get_test_vm_list() {
 		# If the file is empty or doesn't exist, we test everything
 		# as it hints at a script change.
 		if [[ "${CONDITIONAL_VM_BUILD}" != 'true' ]] || \
-			[[ ! -s "${MODIFIED_CONTENT_FILE} ]] || \
+			[[ ! -s "${MODIFIED_CONTENT_FILE}" ]] || \
 			ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 			"hammer --output yaml host info --name \"${I}\"" \
 				| grep "^Comment:" \
