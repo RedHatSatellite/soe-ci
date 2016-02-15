@@ -89,7 +89,7 @@ Now manually trigger a build on Jenkins. This will fail, however it will create 
 * Create an activation key that provides access to the RHEL 7 RPMs, RHEL 7 Common, RPMS, and Puppet repos. (you don't need access to the kickstart repo after installation)
 * Create a hostgroup (I called mine 'Test Servers') that deploys machines on to the Compute Resource that you configured earlier, and uses the activation key that you created. Create a default root password and make a note of it. 
 * Create a couple of initial test servers and deploy them. Ensure that they can see your private RPM and puppet repositories.
-
+    * If you plan to use the conditional VM build feature, edit the comment field of your test host(s) with the names of the Puppet modules, RPM packages and/or kickstart files surrounded by '#' if they are relevant to be tested on this specific host. E.g. if the 'ssh' module is modified, a host will only be re-built and tested if its comment field contains the string '#ssh#'. 
 
 ### Getting Started
 At this point, you should be good to go. In fact Jenkins may have already kicked off a build for you when you pushed common.sh.
