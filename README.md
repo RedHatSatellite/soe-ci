@@ -70,7 +70,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Do an initial sync
 * Create a product called 'ACME SOE'
 * Create a puppet repository called 'Puppet' with an upstream repo of http://jenkinsserver/pub/soe-puppet
-* Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-ci
+* Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-repo
 * Do NOT create a sync plan for the ACME SOE product. This will be synced by Jenkins when needed.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
 * Configure hammer for passwordless usage by creating a `/etc/hammer/cli_config.yml` file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
