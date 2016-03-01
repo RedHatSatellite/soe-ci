@@ -47,6 +47,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * Git Plugin
     * Multiple SCMs Plugin
     * TAP Plugin
+    * Post-Build Script Plug-in
 * Restart Jenkins
 * Add the `jenkins` user to the `mock` group (`usermod -a -G mock jenkins`). This will allow Jenkins to build RPMs.
 * Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
@@ -69,7 +70,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Do an initial sync
 * Create a product called 'ACME SOE'
 * Create a puppet repository called 'Puppet' with an upstream repo of http://jenkinsserver/pub/soe-puppet
-* Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-ci
+* Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-repo
 * Do NOT create a sync plan for the ACME SOE product. This will be synced by Jenkins when needed.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
 * Configure hammer for passwordless usage by creating a `/etc/hammer/cli_config.yml` file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
@@ -88,7 +89,7 @@ Now manually trigger a build on Jenkins. This will fail, however it will create 
 * Create an activation key that provides access to the RHEL 7 RPMs, RHEL 7 Common, RPMS, and Puppet repos. (you don't need access to the kickstart repo after installation)
 * Create a hostgroup (I called mine 'Test Servers') that deploys machines on to the Compute Resource that you configured earlier, and uses the activation key that you created. Create a default root password and make a note of it. 
 * Create a couple of initial test servers and deploy them. Ensure that they can see your private RPM and puppet repositories.
-
+    * If you plan to use the conditional VM build feature, edit the comment field of your test host(s) with the names of the Puppet modules, RPM packages and/or kickstart files surrounded by '#' if they are relevant to be tested on this specific host. E.g. if the 'ssh' module is modified, a host will only be re-built and tested if its comment field contains the string '#ssh#'. 
 
 ### Getting Started
 At this point, you should be good to go. In fact Jenkins may have already kicked off a build for you when you pushed common.sh.

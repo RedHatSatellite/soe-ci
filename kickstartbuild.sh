@@ -21,9 +21,10 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-# setup artefacts environment 
+# setup artefacts environment
 ARTEFACTS=${WORKSPACE}/artefacts/kickstarts
 
 # copy erb files from one directory to the next, creating directory if needed
-rsync -tdv --delete-excluded --include=*.erb --exclude=* \
-	"${workdir}/" "${ARTEFACTS}"
+rsync -td --out-format="#%n#" --delete-excluded --include=*.erb --exclude=* \
+	"${workdir}/" "${ARTEFACTS}" \
+	| grep -e '\.erb#$' | tee -a "${MODIFIED_CONTENT_FILE}"
