@@ -34,6 +34,7 @@ function build_srpm {
                 exit ${RPMBUILD_ERR}
             fi
             mv -nv ${RPMS_DIR}/*.rpm ${YUM_REPO} # don't overwrite RPMs
+            restorecon -F ${YUM_REPO}/*.rpm
             if [ "$(echo ${RPMS_DIR}/*.rpm)" != "${RPMS_DIR}/*.rpm" ]
             then # not all RPM files could be moved, some are remaining
 	        warn "RPM package '${rpmname}' already in repository," \
