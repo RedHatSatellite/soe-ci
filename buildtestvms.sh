@@ -30,7 +30,9 @@ do
     if [[ ${_STATUS} == 'running' ]]
     then
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "hammer host reboot --id $I"
+            "hammer host stop --id $I"
+        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "hammer host start --id $I"
     elif [[ ${_STATUS} == 'shutoff' ]]
     then
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
