@@ -44,6 +44,7 @@ function build_puppetmodule {
                     exit ${MODBUILD_ERR}
                 fi
                 mv -nv ${MODULEDIR}/pkg/${modarchive} ${PUPPET_REPO} # don't overwrite
+                restorecon -F ${PUPPET_REPO}/*
             fi
             # Something has changed, track it for build and for tests
             echo ${git_commit} > .puppetbuild-hash
