@@ -42,6 +42,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) and/or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
     * edit the file and replace the placeholder `YOUROWNKEY` with your key as found in the `/etc/yum.repos.d/redhat.repo` file on the Jenkins server.
     * make sure the baseurl points at your Satellite server. The easiest way to do this is to just copy the relevant repo blocks from the Jenkins server's `/etc/yum.repos.d/redhat.repo`
+    * if your Jenkins server is able to access the Red Hat CDN, then you can leave the baseurls pointing at https://cdn.redhat.com
 * Install `jenkins`, `tomcat` and Java. If you have setup the Jenkins repo correctly you should be able to simply use yum.
 * Start Jenkins and browse to the console at http://jenkinsserver:8080/
 * Select the 'Manage Jenkins' link, followed by 'Manage Plugins'. You will need to add the following plugins:
