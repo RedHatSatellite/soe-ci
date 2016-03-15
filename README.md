@@ -1,8 +1,11 @@
 Continuous Integration Scripts for Satellite 6
 ==============================================
+
 * Domain Architect: Eric Lavarde
 * Email: <elavarde@redhat.com>
-* Date: March 2016
+* Consultant: Patrick C. F. Ernzer
+* Email: <pcfe@redhat.com>
+* Date: February and March 2016
 * Revision: 0.2
 
 - - -
