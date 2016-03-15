@@ -5,6 +5,8 @@ Continuous Integration Scripts for Satellite 6
 * Date: March 2016
 * Revision: 0.2
 
+- - -
+
 * Author: Nick Strugnell
 * Email: <nstrug@redhat.com>
 * Date: 2014-11-20
