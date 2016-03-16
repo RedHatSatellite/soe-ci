@@ -23,6 +23,7 @@ fi
 
 # setup artefacts environment
 ARTEFACTS=${WORKSPACE}/artefacts/kickstarts
+mkdir -p $ARTEFACTS
 
 # copy erb files from one directory to the next, creating directory if needed
 rsync -td --out-format="#%n#" --delete-excluded --include=*.erb --exclude=* \
