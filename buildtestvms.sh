@@ -31,6 +31,7 @@ do
     then
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host stop --id $I"
+        sleep 10
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
     elif [[ ${_STATUS} == 'shutoff' ]]
