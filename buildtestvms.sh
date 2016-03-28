@@ -26,15 +26,38 @@ do
     ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host update --id $I --build yes"
 
-    _STATUS=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
-    if [[ ${_STATUS} == 'running' ]]
+    _PROBED_STATUS=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
+
+    # different hypervisors report power status with different words. parse and get a single word per status
+    # KVM uses running / shutoff
+    # VMware uses poweredOn / poweredOff
+    # add other hypervisors as you come across them and please submit to https://github.com/RedHatEMEA/soe-ci
+
+    case "${_PROBED_STATUS}" in
+      running)
+        _STATUS=On
+        ;;
+      poweredOn)
+        _STATUS=On
+        ;;
+      shutoff)
+        _STATUS=Off
+        ;;
+      poweredOff)
+        _STATUS=Off
+        ;;
+      *)
+        echo "can not parse power status, please review $0"
+    esac
+
+    if [[ ${_STATUS} == 'On' ]]
     then
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host stop --id $I"
         sleep 10
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
-    elif [[ ${_STATUS} == 'shutoff' ]]
+    elif [[ ${_STATUS} == 'Off' ]]
     then
         ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
@@ -43,4 +66,5 @@ do
         exit 1
     fi
 done
+
 
