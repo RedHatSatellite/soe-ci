@@ -40,10 +40,16 @@ do
       poweredOn)
         _STATUS=On
         ;;
+       up)
+        _STATUS=On
+        ;;
       shutoff)
         _STATUS=Off
         ;;
       poweredOff)
+        _STATUS=Off
+        ;;
+      down)
         _STATUS=Off
         ;;
       *)
