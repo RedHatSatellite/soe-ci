@@ -39,6 +39,6 @@ do
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} /usr/bin/hammer template update --id ${id} --file kickstarts/${I} --type ${ttype}
     else
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "/usr/bin/hammer template create --file kickstarts/${I} --name \"${name}\" --type ${ttype} --organizations GatwardIT"
+            "/usr/bin/hammer template create --file kickstarts/${I} --name \"${name}\" --type ${ttype} --organizations \"${ORG}\""
     fi
 done
