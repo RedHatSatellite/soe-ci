@@ -23,10 +23,10 @@ get_test_vm_list # populate TEST_VM_LIST
 for I in "${TEST_VM_LIST[@]}"
 do
     info "Rebuilding VM ID $I"
-    ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+    ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host update --id $I --build yes"
 
-    _PROBED_STATUS=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
+    _PROBED_STATUS=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
 
     # different hypervisors report power status with different words. parse and get a single word per status
     # KVM uses running / shutoff
@@ -58,19 +58,17 @@ do
 
     if [[ ${_STATUS} == 'On' ]]
     then
-        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host stop --id $I"
         sleep 10
-        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
     elif [[ ${_STATUS} == 'Off' ]]
     then
-        ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
     else
         err "Host $I is neither running nor shutoff. No action possible!"
         exit 1
     fi
 done
-
-

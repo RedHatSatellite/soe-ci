@@ -23,7 +23,7 @@ do
     for I in "${vmcopy[@]}"
     do
         echo -n "Checking if test server $I has rebuilt... "
-        status=$(ssh -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        status=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*true\" -e \"Enabled.*true\" -e \"Build.*false\" \
 		| wc -l")
