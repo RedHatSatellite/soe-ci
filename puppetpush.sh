@@ -29,7 +29,8 @@ done
 
 # use hammer on the satellite to push the modules into the repo
 ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-    "hammer repository synchronize --id ${PUPPET_REPO_ID}"
+    "hammer repository synchronize --id ${PUPPET_REPO_ID}" || \
+  { err "Repository '${PUPPET_REPO_ID}' couldn't be synchronized."; exit 1; }
 
 if [[ -z "${CV}" ]]
 then
