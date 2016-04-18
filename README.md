@@ -1,5 +1,15 @@
 Continuous Integration Scripts for Satellite 6
 ==============================================
+
+* Domain Architect: Eric Lavarde
+* Email: <elavarde@redhat.com>
+* Consultant: Patrick C. F. Ernzer
+* Email: <pcfe@redhat.com>
+* Date: February and March 2016
+* Revision: 0.2
+
+- - -
+
 * Author: Nick Strugnell
 * Email: <nstrug@redhat.com>
 * Date: 2014-11-20
@@ -74,6 +84,8 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Create a puppet repository called 'Puppet' with an upstream repo of http://jenkinsserver/pub/soe-puppet
 * Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-repo
 * Do NOT create a sync plan for the ACME SOE product. This will be synced by Jenkins when needed.
+    * keep an eye on [RHBZ #1132980](https://bugzilla.redhat.com/show_bug.cgi?id=1132980) if you use a web proxy at your site to download packages to the Satellite.
+    * see [here](https://bugzilla.redhat.com/show_bug.cgi?id=1132980#c22) or [here](https://access.redhat.com/solutions/2026163) for a workaround until this is fixed.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
 * Create a `jenkins` user on the satellite.
 * Configure hammer for passwordless usage by creating a `~jenkins/.hammer/cli_config.yml` file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
