@@ -1,5 +1,15 @@
 Continuous Integration Scripts for Satellite 6
 ==============================================
+
+* Domain Architect: Eric Lavarde
+* Email: <elavarde@redhat.com>
+* Consultant: Patrick C. F. Ernzer
+* Email: <pcfe@redhat.com>
+* Date: February and March 2016
+* Revision: 0.2
+
+- - -
+
 * Author: Nick Strugnell
 * Email: <nstrug@redhat.com>
 * Date: 2014-11-20
@@ -41,6 +51,8 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Install `httpd`, `mock`, `createrepo`, `git` and `puppet` on the system. These are available from the standard RHEL repos so should just install with yum. Ensure that `httpd` is running.
 * Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) and/or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
     * edit the file and replace the placeholder `YOUROWNKEY` with your key as found in the `/etc/yum.repos.d/redhat.repo` file on the Jenkins server.
+    * make sure the baseurl points at your Satellite server. The easiest way to do this is to just copy the relevant repo blocks from the Jenkins server's `/etc/yum.repos.d/redhat.repo`
+    * if your Jenkins server is able to access the Red Hat CDN, then you can leave the baseurls pointing at https://cdn.redhat.com
 * Install `jenkins`, `tomcat` and Java. If you have setup the Jenkins repo correctly you should be able to simply use yum.
 * Start Jenkins and browse to the console at http://jenkinsserver:8080/
 * Select the 'Manage Jenkins' link, followed by 'Manage Plugins'. You will need to add the following plugins:
@@ -72,6 +84,8 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Create a puppet repository called 'Puppet' with an upstream repo of http://jenkinsserver/pub/soe-puppet
 * Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-repo
 * Do NOT create a sync plan for the ACME SOE product. This will be synced by Jenkins when needed.
+    * keep an eye on [RHBZ #1132980](https://bugzilla.redhat.com/show_bug.cgi?id=1132980) if you use a web proxy at your site to download packages to the Satellite.
+    * see [here](https://bugzilla.redhat.com/show_bug.cgi?id=1132980#c22) or [here](https://access.redhat.com/solutions/2026163) for a workaround until this is fixed.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
 * Create a `jenkins` user on the satellite.
 * Configure hammer for passwordless usage by creating a `~jenkins/.hammer/cli_config.yml` file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
