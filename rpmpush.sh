@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # Push RPMs to satellite via a yum repo
 #
@@ -23,11 +23,9 @@ fi
 
 # refresh the upstream yum repo
 createrepo ${YUM_REPO}
-    
+
 # use hammer on the satellite to push the RPMs into the repo
 # the ID of the ACME Test repository is 16
-ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} \
-    "hammer repository synchronize --id ${REPO_ID}"
-    
-
-
+ssh -q -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa ${SATELLITE} \
+    "hammer repository synchronize --id ${REPO_ID}" || \
+  { err "Repository '${REPO_ID}' couldn't be synchronized."; exit 1; }
