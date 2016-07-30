@@ -45,7 +45,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 
 #### Installation
 
-* Install a standard RHEL 7 server with a minimum of 4GB RAM and 50GB availabile in `/var/lib/jenkins`. It's fine to use a VM for this.
+* Install a standard RHEL 7 server with a minimum of 4GB RAM, 50GB availabile in `/var/lib/jenkins` and 10GB availabile in `/var/lib/mock. It's fine to use a VM for this.
 * Register the server to RHN RHEL7 base and RHEL7 rhel-7-server-satellite-tools repos. You need the Satellite Tools repo for puppet.
 * Configure the server for access to the [EPEL](https://fedoraproject.org/wiki/EPEL) and [Jenkins](http://pkg.jenkins-ci.org/redhat/) repos.
     * note that for EPEL 7, in addition to the 'optional' repository (rhel-7-server-optional-rpms), you also need to enable the 'extras' repository (rhel-7-server-extras-rpms).
