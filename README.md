@@ -48,6 +48,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Install a standard RHEL 7 server with a minimum of 4GB RAM and 50GB availabile in `/var/lib/jenkins`. It's fine to use a VM for this.
 * Register the server to RHN RHEL7 base and RHEL7 rhel-7-server-satellite-tools repos. You need the Satellite Tools repo for puppet.
 * Configure the server for access to the [EPEL](https://fedoraproject.org/wiki/EPEL) and [Jenkins](http://pkg.jenkins-ci.org/redhat/) repos.
+    * note that for EPEL 7, in addition to the 'optional' repository (rhel-7-server-optional-rpms), you also need to enable the 'extras' repository (rhel-7-server-extras-rpms).
 * Install `httpd`, `mock`, `createrepo`, `git`, `nc` and `puppet` on the system. These are available from the standard RHEL repos so should just install with yum. Ensure that `httpd` is running.
 * Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) and/or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
     * edit the file and replace the placeholder `YOUROWNKEY` with your key as found in the `/etc/yum.repos.d/redhat.repo` file on the Jenkins server.
