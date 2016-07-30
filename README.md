@@ -51,7 +51,13 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * note that for EPEL 7, in addition to the 'optional' repository (rhel-7-server-optional-rpms), you also need to enable the 'extras' repository (rhel-7-server-extras-rpms).
 * Install `httpd`, `mock`, `createrepo`, `git`, `nc` and `puppet` on the system. All but mock are available from the standard RHEL repos so should just install with yum. mock is available from EPEL.
     * `[root@jenkins ~]# yum install httpd mock createrepo git nc puppet`
-* Ensure that `httpd` is running.
+* Ensure that `httpd` is enabled, running and reachable.
+    * `[root@jenkins ~]# systemctl enable httpd ; systemctl start httpd`
+    * `[root@jenkins ~]# firewall-cmd --get-active-zones`
+    * `[root@jenkins ~]# firewall-cmd --zone=public --add-service=http --permanent`
+    * `[root@jenkins ~]# firewall-cmd --zone=public --add-service=https --permanent`
+    * `[root@jenkins ~]# firewall-cmd  --reload`
+    * `[root@jenkins ~]# firewall-cmd --zone=public --list-all`
 * Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
     * edit the file and replace the placeholder `YOUROWNKEY` with your key as found in the `/etc/yum.repos.d/redhat.repo` file on the Jenkins server.
     * please see [this post on the Satellite blog](https://access.redhat.com/blogs/1169563/posts/2191211) for a more detailled explanation on mock with Satellite 6.
@@ -59,7 +65,12 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * if your Jenkins server is able to access the Red Hat CDN, then you can leave the baseurls pointing at https://cdn.redhat.com
 * Install `jenkins`, `tomcat` and Java. If you have setup the Jenkins repo correctly you should be able to simply use yum.
     * `[root@jenkins ~]# yum install jenkins tomcat java`
-* Start Jenkins and browse to the console at http://jenkinsserver:8080/
+* Ensure that `jenkins` is enabled, running and reachable.
+    * `[root@jenkins ~]# systemctl enable jenkins ; systemctl start jenkins`
+    * `[root@jenkins ~]# firewall-cmd --zone=public --add-port="8080/tcp" --permanent`
+    * `[root@jenkins ~]# firewall-cmd  --reload`
+    * `[root@jenkins ~]# firewall-cmd --zone=public --list-all`
+* Now that Jenkins is running, browse to it's console at http://jenkinsserver:8080/
 * Select the 'Manage Jenkins' link, followed by 'Manage Plugins'. You will need to add the following plugins:
     * Git Plugin
     * Multiple SCMs Plugin
