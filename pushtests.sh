@@ -52,6 +52,11 @@ export DISPLAY=nodisplay
 export TEST_ROOT
 for I in ${TEST_VM_LIST[@]}
 do
+    # Check the host's entitlements
+    info "Checking entitlements for test server $I"
+    ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        "hammer content-host info --name ${I} --organization \"${ORG}\""
+
     info "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
 
@@ -63,6 +68,13 @@ do
         setsid ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I 'true'
         setsid ssh-copy-id -i ${RSA_ID} root@$I
     fi
+
+    info "Probing subscription status on test server $I"
+    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "subscription-manager status"
+
+    # if the repolist does not contain whet you expect, switch off auto-attach on the used activation-key
+    info "Listing repos on test server $I"
+    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "subscription-manager repos"
 
     info "Installing bats and rsync on test server $I"
     if ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
