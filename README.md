@@ -45,22 +45,44 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 
 #### Installation
 
-* Install a standard RHEL 7 server with a minimum of 4GB RAM and 50GB availabile in `/var/lib/jenkins`. It's fine to use a VM for this.
-* Register the server to RHN RHEL7 base and RHEL7 common repos. You need the RHEL 7 Common repos for puppet.
+* Install a standard RHEL 7 server with a minimum of 4GB RAM, 50GB availabile in `/var/lib/jenkins` and 10GB availabile in `/var/lib/mock. It's fine to use a VM for this.
+* verify with `timedatectl` that your timezone is set correctly (for correct timestamps in Jenkins).
+* Register the server to RHN RHEL7 base and RHEL7 rhel-7-server-satellite-tools repos. You need the Satellite Tools repo for puppet.
 * Configure the server for access to the [EPEL](https://fedoraproject.org/wiki/EPEL) and [Jenkins](http://pkg.jenkins-ci.org/redhat/) repos.
-* Install `httpd`, `mock`, `createrepo`, `git`, `nc` and `puppet` on the system. These are available from the standard RHEL repos so should just install with yum. Ensure that `httpd` is running.
-* Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) and/or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server, and linking ensuring that the link `/etc/mock/default.cfg` point to it.
+    * note that for EPEL 7, in addition to the 'optional' repository (rhel-7-server-optional-rpms), you also need to enable the 'extras' repository (rhel-7-server-extras-rpms).
+* Install `httpd`, `mock`, `createrepo`, `git`, `nc` and `puppet` on the system. All but mock are available from the standard RHEL repos so should just install with yum. mock is available from EPEL.
+    * `[root@jenkins ~]# yum install httpd mock createrepo git nc puppet`
+* Ensure that `httpd` is enabled, running and reachable.
+```bash
+[root@jenkins ~]# systemctl enable httpd ; systemctl start httpd
+[root@jenkins ~]# firewall-cmd --get-active-zones
+[root@jenkins ~]# firewall-cmd --zone=public --add-service=http --permanent
+[root@jenkins ~]# firewall-cmd --zone=public --add-service=https --permanent
+[root@jenkins ~]# firewall-cmd  --reload
+[root@jenkins ~]# firewall-cmd --zone=public --list-all
+```
+* Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server and symlinking, ensuring that the link `/etc/mock/default.cfg` points to it.
     * edit the file and replace the placeholder `YOUROWNKEY` with your key as found in the `/etc/yum.repos.d/redhat.repo` file on the Jenkins server.
     * please see [this post on the Satellite blog](https://access.redhat.com/blogs/1169563/posts/2191211) for a more detailled explanation on mock with Satellite 6.
     * make sure the baseurl points at your Satellite server. The easiest way to do this is to just copy the relevant repo blocks from the Jenkins server's `/etc/yum.repos.d/redhat.repo`
     * if your Jenkins server is able to access the Red Hat CDN, then you can leave the baseurls pointing at https://cdn.redhat.com
 * Install `jenkins`, `tomcat` and Java. If you have setup the Jenkins repo correctly you should be able to simply use yum.
-* Start Jenkins and browse to the console at http://jenkinsserver:8080/
+    * `[root@jenkins ~]# yum install jenkins tomcat java`
+* Ensure that `jenkins` is enabled, running and reachable.
+```bash
+[root@jenkins ~]# systemctl enable jenkins ; systemctl start jenkins
+[root@jenkins ~]# firewall-cmd --zone=public --add-port="8080/tcp" --permanent
+[root@jenkins ~]# firewall-cmd  --reload
+[root@jenkins ~]# firewall-cmd --zone=public --list-all
+```
+* Now that Jenkins is running, browse to it's console at http://jenkinsserver:8080/
 * Select the 'Manage Jenkins' link, followed by 'Manage Plugins'. You will need to add the following plugins:
     * Git Plugin
     * Multiple SCMs Plugin
     * TAP Plugin
     * Post-Build Script Plug-in
+* Select 'Configure System'
+    * Enable 'Environment variables' in the Global properties section and click save (there is no need to Add any). Failing to enable this property leads to https://github.com/RedHatSatellite/soe-ci/issues/48
 * Restart Jenkins
 * Add the `jenkins` user to the `mock` group (`usermod -a -G mock jenkins`). This will allow Jenkins to build RPMs.
 * Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
