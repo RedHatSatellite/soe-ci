@@ -1,4 +1,4 @@
-#!/usr/bin/python  -tt
+#!/usr/bin/python -tt
 # Search for RPM source directories and package
 #
 # e.g. ${WORKSPACE}/scripts/rpmbuilder.py ${WORKSPACE}/soe/rpms/ 
