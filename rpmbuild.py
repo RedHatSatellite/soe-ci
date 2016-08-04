@@ -90,6 +90,13 @@ class RPM:
         h.truncate()
         h.close()
         
+def publishrepo():
+    try:
+        subprocess.call('restorecon -F %s' % soeci.YUM_REPO, shell=True)
+        subprocess.call('createrepo %s' % soeci.YUM_REPO, shell=True)
+    except:
+        soeci.stopbuild("Could not create yum repo %s" & soeci.YUM_REPO)
+        
 def main(argv):
 
     srpms = []
@@ -112,6 +119,8 @@ def main(argv):
         r.build()
         r.publish()
         r.updatehash()
+        
+    publishrepo()
 
 
 if __name__ == "__main__":
