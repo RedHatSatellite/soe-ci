@@ -19,5 +19,4 @@ for e in ['WORKSPACE', 'YUM_REPO']:
     if eval(e) == None:
         stopbuild("Environment variable %s is not set" % e)
 
-
     
