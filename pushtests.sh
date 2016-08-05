@@ -64,6 +64,14 @@ do
         setsid ssh-copy-id -i ${RSA_ID} root@$I
     fi
 
+    # copy puppet-done-test.sh to SUT
+    scp -o StrictHostKeyChecking=no -i ${RSA_ID} \
+        ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
+
+    # wait for puppet to finish
+    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "/root/puppet-done-test.sh"
+
     info "Installing bats and rsync on test server $I"
     if ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         "yum install -y bats rsync"
