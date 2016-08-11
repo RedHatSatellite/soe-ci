@@ -1,4 +1,4 @@
-#!/usr/bin/python -t
+#!/usr/bin/python -tt
 # Utility functions for SOE CI build scripts
 
 import sys
