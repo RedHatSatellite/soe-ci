@@ -11,30 +11,29 @@ import glob
 import shutil
 import soeci
 
-ARTEFACTDIR = soeci.WORKSPACE + '/artefacts/kickstarts'
-
 class Template:
     
-    def __init__(self, path, file):
+    def __init__(self, path, file, artefact_dir):
         self.path = path
         self.file = file
+        self.artefact_dir = artefact_dir
 
     def publish(self):
         try:
-            shutil.copy(self.path + '/' + self.file, ARTEFACTDIR)
+            shutil.copy(self.path + '/' + self.file, self.artefact_dir)
         except:
-            soeci.stopbuild("Could not copy %s into %s" % (self.file, ARTEFACTDIR))
+            soeci.stopbuild("Could not copy %s into %s" % (self.file, self.artefact_dir))
   
                 
 
-def initartefactdir():
-    if not os.path.exists(ARTEFACTDIR):
+def initartefactdir(artefact_dir):
+    if not os.path.exists(artefact_dir):
         try:
-            os.makedirs(ARTEFACTDIR)
+            os.makedirs(artefact_dir)
         except:
-            soeci.stopbuild("Could not create artefacts directory %s" % ARTEFACTDIR)
+            soeci.stopbuild("Could not create artefacts directory %s" % artefact_dir)
 
-    for f in glob.glob(ARTEFACTDIR + '/' + '*'):
+    for f in glob.glob(artefact_dir + '/' + '*'):
         try:
             os.remove(f)
         except:
@@ -44,16 +43,20 @@ def main(argv):
 
     templates = []
 
+    soeci.config()
+    artefact_dir = soeci.WORKSPACE + '/artefacts/kickstarts'
+
+
     if (len(argv) != 1) or not os.path.isdir(argv[0]):
         soeci.usage("kickstartbuild.py <directory containing template files>")
 
-    initartefactdir()
+    initartefactdir(artefact_dir)
 
     try:
         for root, dirs, files in os.walk(argv[0]):
             for file in files:
                 if file.endswith('.erb'):
-                    templates.append(Template(root,file))
+                    templates.append(Template(root,file,artefact_dir))
     except:
         soeci.stopbuild("Could not read template directory %s" % argv[0])
 

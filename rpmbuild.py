@@ -102,6 +102,8 @@ def main(argv):
     srpms = []
     rpms = []
 
+    soeci.config()
+
     try:
         for root, dirs, files in os.walk(argv[0]):
             for file in files:

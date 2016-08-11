@@ -3,20 +3,72 @@
 
 import sys
 import os
+from nailgun.config import ServerConfig
+from nailgun.entities import Organization
+from pprint import pprint
+import requests
 
-WORKSPACE = os.environ.get('WORKSPACE')
-YUM_REPO = os.environ.get('YUM_REPO')
+WORKSPACE = None
+YUM_REPO = None
+REPO_ID = None
+SATELLITE = None
+SATELLITE_USER = None
+SATELLITE_PASSWORD = None
+ORG = None
+ORG_ID = None
 
-def stopbuild(reason):
-    print('BUILD STOPPED: %s' % reason)
-    sys.exit(1)
+def auth_satellite():
+    serverconfig = ServerConfig(
+        auth = (SATELLITE_USER, SATELLITE_PASSWORD),
+        url = ('https://%s' % SATELLITE),
+        verify=False)
+    serverconfig.save()
+    
 
-def usage(message):
-    print('USAGE: %s' % message)
-    sys.exit(1)
+def get_org_id():
+    try:
+        org = Organization().search(query={'search':'name="%s"' % ORG})
+    except requests.exceptions.HTTPError as e:
+        stopbuild("Could not authenticate to satellite: %s" % e)
+    
+    if org == []:
+        stopbuild("Org %s does not exist" % ORG)
 
-for e in ['WORKSPACE', 'YUM_REPO']:
-    if eval(e) == None:
-        stopbuild("Environment variable %s is not set" % e)
+    org_id = org[0].get_values()["id"]
+        
+    return org_id
 
     
+
+def stopbuild(reason):
+        print('BUILD STOPPED: %s' % reason)
+        sys.exit(1)
+
+def usage(message):
+        print('USAGE: %s' % message)
+        sys.exit(1)
+
+def config():
+    global WORKSPACE
+    global YUM_REPO
+    global REPO_ID
+    global SATELLITE
+    global SATELLITE_USER
+    global SATELLITE_PASSWORD
+    global ORG
+    global ORG_ID
+    
+    WORKSPACE = os.environ.get('WORKSPACE')
+    YUM_REPO = os.environ.get('YUM_REPO')
+    REPO_ID = os.environ.get('REPO_ID')
+    SATELLITE = os.environ.get('SATELLITE')
+    SATELLITE_USER = os.environ.get('SATELLITE_USER')
+    SATELLITE_PASSWORD = os.environ.get('SATELLITE_PASSWORD')
+    ORG = os.environ.get('ORG')
+        
+    for e in ['WORKSPACE','YUM_REPO','REPO_ID','SATELLITE','SATELLITE_USER','SATELLITE_PASSWORD','ORG']:
+        if eval(e) == None:
+            stopbuild("Environment variable %s is not set" % e)
+
+    auth_satellite() 
+    ORG_ID = get_org_id()
