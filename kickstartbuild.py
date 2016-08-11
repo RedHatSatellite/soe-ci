@@ -10,53 +10,53 @@ import os
 import glob
 import shutil
 import soeci
+import re
+from nailgun.entities import ConfigTemplate
+
 
 class Template:
     
-    def __init__(self, path, file, artefact_dir):
+    def __init__(self, path, file):
         self.path = path
         self.file = file
-        self.artefact_dir = artefact_dir
+        self.name = None
 
     def publish(self):
-        try:
-            shutil.copy(self.path + '/' + self.file, self.artefact_dir)
-        except:
-            soeci.stopbuild("Could not copy %s into %s" % (self.file, self.artefact_dir))
-  
-                
+        with open('%s/%s' % (self.path, self.file), 'r') as t:
+            content = t.read()
+            
+        s = re.search('^name:\s*(.*)', content, re.MULTILINE)
+        if s:
+            self.name = s.group(1)
+        else:
+            soeci.stopbuild("Template %s does not contain a name definition" % self.file)
+        
+        with open('%s/%s' % (self.path, self.file), 'r') as t:
+            content = t.read()
 
-def initartefactdir(artefact_dir):
-    if not os.path.exists(artefact_dir):
-        try:
-            os.makedirs(artefact_dir)
-        except:
-            soeci.stopbuild("Could not create artefacts directory %s" % artefact_dir)
-
-    for f in glob.glob(artefact_dir + '/' + '*'):
-        try:
-            os.remove(f)
-        except:
-            soeci.stopbuild("Could not delete file %s" % f)
+        templates = ConfigTemplate().search(query={'search':'name="%s"' % self.name})
+        if templates:
+            templates[0].template = content
+            templates[0].update()
+        else:
+            template = ConfigTemplate(name=self.name, template=content)
+            template.create_missing()
+            template.create()
 
 def main(argv):
 
     templates = []
-
     soeci.config()
-    artefact_dir = soeci.WORKSPACE + '/artefacts/kickstarts'
 
 
     if (len(argv) != 1) or not os.path.isdir(argv[0]):
         soeci.usage("kickstartbuild.py <directory containing template files>")
 
-    initartefactdir(artefact_dir)
-
     try:
         for root, dirs, files in os.walk(argv[0]):
             for file in files:
                 if file.endswith('.erb'):
-                    templates.append(Template(root,file,artefact_dir))
+                    templates.append(Template(root,file))
     except:
         soeci.stopbuild("Could not read template directory %s" % argv[0])
 
