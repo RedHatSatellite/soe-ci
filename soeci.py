@@ -74,6 +74,8 @@ def config():
     SATELLITE_PASSWORD = os.environ.get('SATELLITE_PASSWORD')
     ORG = os.environ.get('ORG')
     TESTVM_HOSTCOLLECTION = os.environ.get('TESTVM_HOSTCOLLECTION')
+    TESTVM_ENV = os.environ.get('TESTVM_ENV')
+    CV = os.environ.get('CV')
         
     for e in ['WORKSPACE','YUM_REPO','REPO_ID','SATELLITE','SATELLITE_USER','SATELLITE_PASSWORD','ORG', 'CV', 'TESTVM_ENV', 'TESTVM_HOSTCOLLECTION']:
         if eval(e) == None:
