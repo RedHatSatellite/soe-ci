@@ -17,6 +17,9 @@ SATELLITE_PASSWORD = None
 ORG = None
 ORG_ID = None
 TESTVM_HOSTCOLLECTION = None
+CV = None
+TESTVM_ENV = None
+
 
 def auth_satellite():
     serverconfig = ServerConfig(
@@ -59,6 +62,9 @@ def config():
     global ORG
     global ORG_ID
     global TESTVM_HOSTCOLLECTION
+    global CV
+    global TESTVM_ENV
+
     
     WORKSPACE = os.environ.get('WORKSPACE')
     YUM_REPO = os.environ.get('YUM_REPO')
@@ -69,7 +75,7 @@ def config():
     ORG = os.environ.get('ORG')
     TESTVM_HOSTCOLLECTION = os.environ.get('TESTVM_HOSTCOLLECTION')
         
-    for e in ['WORKSPACE','YUM_REPO','REPO_ID','SATELLITE','SATELLITE_USER','SATELLITE_PASSWORD','ORG', 'TESTVM_HOSTCOLLECTION']:
+    for e in ['WORKSPACE','YUM_REPO','REPO_ID','SATELLITE','SATELLITE_USER','SATELLITE_PASSWORD','ORG', 'CV', 'TESTVM_ENV', 'TESTVM_HOSTCOLLECTION']:
         if eval(e) == None:
             stopbuild("Environment variable %s is not set" % e)
 

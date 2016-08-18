@@ -1,0 +1,14 @@
+export WORKSPACE=/tmp/soe
+mkdir $WORKSPACE
+export YUM_REPO=/tmp/yum 
+mkdir $YUM_REPO
+export REPO_ID=17
+export SATELLITE=sat62.oldstables
+export SATELLITE_USER=admin
+export SATELLITE_PASSWORD=r3dhat00
+export ORG="Default Organization"
+export CV="rhel7.2-devel"
+export TESTVM_HOSTCOLLECTION='Engineering-Test'
+export TESTVM_ENV=2
+
+
