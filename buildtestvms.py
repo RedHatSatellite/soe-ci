@@ -14,6 +14,7 @@ import re
 from nailgun.entities import HostCollection
 from nailgun.entities import Organization
 from nailgun.entities import HostGroup
+from nailgun.entities import Host
 
 from pprint import pprint
 
@@ -33,9 +34,21 @@ def main(argv):
     #hostcollection = HostCollection().search(query={'search':'name="%s"' % soeci.TESTVM_HOSTCOLLECTION})
     
     #hostcollections = HostCollection().search()
-    hostcollections = HostCollection().search()
-    pprint(hostcollections)
-                                                    
+    #hostcollections = HostCollection().search()
+    hostcollection = HostCollection(id=1)
+    hostcollection = hostcollection.read()
+    #pprint(hostcollection.get_values())
+    hg = HostCollection(id=1)
+    hg = hg.read()
+    pprint(hg.get_fields())
+    pprint(hg.get_values())
+    #pprint(hg.host)
+    #hosts = Host().search(query={'search':'hostcollection = "Engineering-Test"'})
+  #  hosts = HostCollection(id=1)
+  #  hosts = 
+  #  for i in hosts:
+  #      pprint(i.get_values())
+                                                        
                                                     
 
 

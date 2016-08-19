@@ -62,6 +62,7 @@ def config():
     global ORG
     global ORG_ID
     global TESTVM_HOSTCOLLECTION
+    global TESTVM_HOSTCOLLECTION_ID
     global CV
     global TESTVM_ENV
 
@@ -75,9 +76,11 @@ def config():
     ORG = os.environ.get('ORG')
     TESTVM_HOSTCOLLECTION = os.environ.get('TESTVM_HOSTCOLLECTION')
     TESTVM_ENV = os.environ.get('TESTVM_ENV')
+    TESTVM_HOSTCOLLECTION_ID = os.environ.get('TESTVM_HOSTCOLLECTION_ID')
+
     CV = os.environ.get('CV')
         
-    for e in ['WORKSPACE','YUM_REPO','REPO_ID','SATELLITE','SATELLITE_USER','SATELLITE_PASSWORD','ORG', 'CV', 'TESTVM_ENV', 'TESTVM_HOSTCOLLECTION']:
+    for e in ['WORKSPACE','YUM_REPO','REPO_ID','SATELLITE','SATELLITE_USER','SATELLITE_PASSWORD','ORG', 'CV', 'TESTVM_ENV', 'TESTVM_HOSTCOLLECTION','TESTVM_HOSTCOLLECTION_ID']:
         if eval(e) == None:
             stopbuild("Environment variable %s is not set" % e)
 

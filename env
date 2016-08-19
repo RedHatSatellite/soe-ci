@@ -9,6 +9,7 @@ export SATELLITE_PASSWORD=r3dhat00
 export ORG="Default Organization"
 export CV="rhel7.2-devel"
 export TESTVM_HOSTCOLLECTION='Engineering-Test'
+export TESTVM_HOSTCOLLECTION_ID=1
 export TESTVM_ENV=2
 
 
