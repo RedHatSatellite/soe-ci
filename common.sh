@@ -35,6 +35,11 @@ function err() {
 # This approach (and file) is only used if CONDITIONAL_VM_BUILD is 'true'
 MODIFIED_CONTENT_FILE=${WORKSPACE}/modified_content.track
 
+# as the above tracks RPMs and puppet modules in the same file,
+# introduce 2 more tracking files
+MODIFIED_RPMS_FILE=${WORKSPACE}/modified_rpms.track
+MODIFIED_PUPPET_FILE=${WORKSPACE}/modified_puppet.track
+
 # get our test machines into an array variable TEST_VM_LIST
 function get_test_vm_list() {
 	local J=0

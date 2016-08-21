@@ -19,4 +19,6 @@ fi
 # If a build is unstable, the failed test(s) should at least tell us which
 # content needs amendment.
 rm -fv "${MODIFIED_CONTENT_FILE}"
+rm -fv "${MODIFIED_RPMS_FILE}"
+rm -fv "${MODIFIED_PUPPET_FILE}"
 
