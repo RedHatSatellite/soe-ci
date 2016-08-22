@@ -36,6 +36,7 @@ do
     # different hypervisors report power status with different words. parse and get a single word per status
     # KVM uses running / shutoff
     # VMware uses poweredOn / poweredOff
+    # libvirt uses running / off
     # add other hypervisors as you come across them and please submit to https://github.com/RedHatEMEA/soe-ci
 
     case "${_PROBED_STATUS}" in
@@ -45,7 +46,7 @@ do
       poweredOn)
         _STATUS=On
         ;;
-       up)
+      up)
         _STATUS=On
         ;;
       shutoff)
@@ -55,6 +56,9 @@ do
         _STATUS=Off
         ;;
       down)
+        _STATUS=Off
+        ;;
+      off)
         _STATUS=Off
         ;;
       *)
