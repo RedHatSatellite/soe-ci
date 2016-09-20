@@ -69,7 +69,6 @@ do
         ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
 
     # wait for puppet to finish
-    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         "/root/puppet-done-test.sh"
 
