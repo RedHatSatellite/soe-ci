@@ -5,8 +5,9 @@ Continuous Integration Scripts for Satellite 6
 * Email: <elavarde@redhat.com>
 * Consultant: Patrick C. F. Ernzer
 * Email: <pcfe@redhat.com>
-* Date: February and March 2016
-* Revision: 0.2
+* Date: February to November 2016
+* Revision: 0.3
+* Satellite 6.2 is now a minimum requirement, 6.1 will not work.
 
 - - -
 
