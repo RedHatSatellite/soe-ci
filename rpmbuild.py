@@ -45,7 +45,8 @@ class SRPM:
             for file in glob.glob(self.srpms_dir + '/' + rpm_name + '-*.src.rpm'):
                 os.remove(file)
             try:
-                m = subprocess.check_output('/usr/bin/mock --offline --buildsrpm --spec %s --sources %s --resultdir %s' % (self.specfile, self.sources, self.srpms_dir), shell=True)
+                print("/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" % (self.specfile, self.sources, self.srpms_dir))
+                m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % (self.specfile, self.sources, self.srpms_dir), shell=True)
             except:
                 soeci.stopbuild("Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
