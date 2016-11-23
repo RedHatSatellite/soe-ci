@@ -104,6 +104,13 @@ Examples: &lt;code&gt;#ssh#bats#kickstart.erb#&lt;/code&gt;
 If unset/false, all existing hosts, within the given Host Collection, will be rebuilt independent of changes done in Git.</description>
           <defaultValue>false</defaultValue>
         </hudson.model.BooleanParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MOCK_CONFIG</name>
+          <description>This will be passed to mock --root
+e.g. mock --root rhel-6-x86_64
+needed to ensure we can build RPMs against more then just the default mock chroot.</description>
+          <defaultValue>rhel-6-x86_64</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>

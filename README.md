@@ -61,7 +61,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 [root@jenkins ~]# firewall-cmd  --reload
 [root@jenkins ~]# firewall-cmd --zone=public --list-all
 ```
-* Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server and symlinking, ensuring that the link `/etc/mock/default.cfg` points to it.
+* Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server and setting MOCK_CONFIG for the relevant Jenkins job.
     * edit the file and replace the placeholder `YOUROWNKEY` with your key as found in the `/etc/yum.repos.d/redhat.repo` file on the Jenkins server.
     * please see [this post on the Satellite blog](https://access.redhat.com/blogs/1169563/posts/2191211) for a more detailled explanation on mock with Satellite 6.
     * make sure the baseurl points at your Satellite server. The easiest way to do this is to just copy the relevant repo blocks from the Jenkins server's `/etc/yum.repos.d/redhat.repo`
@@ -87,7 +87,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Add the `jenkins` user to the `mock` group (`usermod -a -G mock jenkins`). This will allow Jenkins to build RPMs.
 * Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
 * `su` to the `jenkins` user (`su jenkins -s /bin/bash`) and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
-* Create a build plan in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE` and copying in the  [config.xml] file
+* Create one build plan per release you want to build for in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE-<release> (e.g. SOE-el7)` and copying in the  [config.xml] file
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
     * you might need to reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 
