@@ -4,6 +4,7 @@
 # e.g. ${WORKSPACE}/scripts/rpmbuilder.py ${WORKSPACE}/soe/rpms/ 
 #
 # We need to be able to specify a mock configuration
+# We need to run mock with script, as it does not write to stdout if there is no controlling terminal
 
 import os
 import sys
@@ -47,7 +48,7 @@ class SRPM:
                 os.remove(file)
             try:
                 print("***** Building SRPM with specfile %s" % self.specfile)
-                m = subprocess.check_output('script -fe -c "/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" /dev/null' % (self.specfile, self.sources, self.srpms_dir), shell=True)
+                m = subprocess.check_output('script -qfec "/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" /dev/null' % (self.specfile, self.sources, self.srpms_dir), shell=True)
             except:
                 print("***** MOCK OUTPUT: %s" % repr(m))
                 soeci.stopbuild("***** Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
@@ -75,7 +76,7 @@ class RPM:
     def build(self):
         try:
             print("***** Building RPM from SRPM %s" % self.srpm_path)
-            m = subprocess.check_output('/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir), shell=True)
+            m = subprocess.check_output('script -qfec "/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s" /dev/null' % (self.srpm_path, self.rpms_dir), shell=True)
             s = re.findall('^Wrote: .*/(.*\.rpm$)',m, re.MULTILINE)
             self.rpm_path = self.rpms_dir + '/' + s[1]
             print("***** Wrote %s" % s[1])
