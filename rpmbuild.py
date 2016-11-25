@@ -49,9 +49,9 @@ class SRPM:
                 print("***** Building SRPM with specfile %s" % self.specfile)
                 m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % (self.specfile, self.sources, self.srpms_dir), shell=True)
             except:
-                print("***** MOCK OUTPUT: %s" % expr(m))
+                print("***** MOCK OUTPUT: %s" % repr(m))
                 soeci.stopbuild("***** Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
-            print("***** MOCK OUTPUT: %s" % expr(m))
+            print("***** MOCK OUTPUT: %s" % repr(m))
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
             print("***** %s" % s.group(0))
@@ -80,7 +80,7 @@ class RPM:
             self.rpm_path = self.rpms_dir + '/' + s[1]
             print("***** Wrote %s" % s[1])
         except:
-            print("***** MOCK OUTPUT: %s" % expr(m))
+            print("***** MOCK OUTPUT: %s" % repr(m))
             soeci.stopbuild("***** Mock RPM build of %s failed" % self.srpm_path)
     
     def publish(self):
