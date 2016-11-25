@@ -47,7 +47,7 @@ class SRPM:
                 os.remove(file)
             try:
                 print("***** Building SRPM with specfile %s" % self.specfile)
-                m = subprocess.check_output('script --return -c "/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" /dev/null' % (self.specfile, self.sources, self.srpms_dir), shell=True)
+                m = subprocess.check_output('script -fe -c "/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" /dev/null' % (self.specfile, self.sources, self.srpms_dir), shell=True)
             except:
                 print("***** MOCK OUTPUT: %s" % repr(m))
                 soeci.stopbuild("***** Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
