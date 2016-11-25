@@ -51,6 +51,7 @@ class SRPM:
             except:
                 print("***** MOCK OUTPUT: %s" % expr(m))
                 soeci.stopbuild("***** Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
+            print("***** MOCK OUTPUT: %s" % expr(m))
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
             print("***** %s" % s.group(0))
