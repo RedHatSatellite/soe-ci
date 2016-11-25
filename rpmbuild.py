@@ -33,8 +33,8 @@ class SRPM:
         c = h.read()
         h.close()
         if c == self.commit:
-            #return False
-            return True
+            return False
+            #return True
         else:
             return True
 
@@ -52,7 +52,7 @@ class SRPM:
                 soeci.stopbuild("Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
-            print("self.srpm_path is %s" % self.srpm_path)
+            #print("self.srpm_path is %s" % self.srpm_path)
         else:
             print("NO CHANGES SINCE LAST BUILD, SKIPPING %s" % self.specfile)
     
