@@ -39,7 +39,7 @@ do
     # get the latest version of each CV, add it to the array
     VER_ID_LIST+=( "$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 	"hammer content-view info --name \"${cv}\" --organization \"${ORG}\" \
-	| grep \"ID:\" | tail -1 | tr -d ' ' | cut -f2 -d ':'")" )
+	| sed -n "/Versions:/,/Components:/p" | grep \"ID:\" | tr -d ' ' | cut -f2 -d ':' | sort -n | tail -n 1")" )
 done
 
 # sleep after publishing content view to give chance for locks to get cleared up
