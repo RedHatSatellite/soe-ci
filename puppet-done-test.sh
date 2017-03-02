@@ -35,7 +35,7 @@ look_for_finished()
   while [[ ${NOTFINISHED} -ne 0 ]]
   do
     echo "Checking if puppet is done"
-    grep "Finished catalog run" /var/lib/puppet/state/last_run_report.yaml
+    grep 'Finished catalog run\|Failed to apply catalog' /var/lib/puppet/state/last_run_report.yaml
     NOTFINISHED=$?
     sleep 10
   done
