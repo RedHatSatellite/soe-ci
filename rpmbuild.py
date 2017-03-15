@@ -51,6 +51,10 @@ class SRPM:
                 m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % (self.specfile, self.sources, self.srpms_dir), shell=True)
             except:
                 soeci.stopbuild("Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
+            print "===================="
+            print m
+            print "===================="
+            sys.exit(1)
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
             # print "self.srpm_path: %s" % self.srpm_path
