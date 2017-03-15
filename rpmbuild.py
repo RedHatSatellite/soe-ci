@@ -4,7 +4,6 @@
 # e.g. ${WORKSPACE}/scripts/rpmbuilder.py ${WORKSPACE}/soe/rpms/ 
 #
 # We need to be able to specify a mock configuration
-# We need to run mock with script, as it does not write to stdout if there is no controlling terminal
 
 import os
 import sys
@@ -18,24 +17,25 @@ class SRPM:
 
     def __init__(self,sources,specfile):
         self.sources = sources
-        self.specfile = specfile
+        self.specfile = os.path.join(self.sources, specfile)
         self.srpm_path = None 
         self.commit = None
         self.hashfile = self.sources + '/' + '.rpmbuild-hash'
         self.srpms_dir = soeci.WORKSPACE + '/tmp/srpms'
         if not os.path.exists(self.srpms_dir):
             os.makedirs(self.srpms_dir)
+        # print self.hashfile;
 
     def __codechanged__(self):
         # create the hashfile if it does not already exist
         self.commit = subprocess.check_output('git log --format=%%H -1 %s' % self.sources, shell=True)
+        # print self.commit
         open(self.hashfile,'a').close()
         h = open('.rpmbuild-hash', 'r')
         c = h.read()
         h.close()
         if c == self.commit:
             return False
-            #return True
         else:
             return True
 
@@ -47,17 +47,15 @@ class SRPM:
             for file in glob.glob(self.srpms_dir + '/' + rpm_name + '-*.src.rpm'):
                 os.remove(file)
             try:
-                print("***** Building SRPM with specfile %s" % self.specfile)
-                m = subprocess.check_output('script -qfec "/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" /dev/null' % (self.specfile, self.sources, self.srpms_dir), shell=True)
+                # print "Executing: /usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" % (self.specfile, self.sources, self.srpms_dir)
+                m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % (self.specfile, self.sources, self.srpms_dir), shell=True)
             except:
-                print("***** MOCK OUTPUT: %s" % repr(m))
-                soeci.stopbuild("***** Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
-            print("***** MOCK OUTPUT: %s" % repr(m))
+                soeci.stopbuild("Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
-            print("***** %s" % s.group(0))
+            # print "self.srpm_path: %s" % self.srpm_path
         else:
-            print("***** NO CHANGES SINCE LAST BUILD, SKIPPING %s" % self.specfile)
+            print("NO CHANGES SINCE LAST BUILD, SKIPPING %s" % self.specfile)
     
     
     
@@ -75,24 +73,22 @@ class RPM:
 
     def build(self):
         try:
-            print("***** Building RPM from SRPM %s" % self.srpm_path)
-            m = subprocess.check_output('script -qfec "/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s" /dev/null' % (self.srpm_path, self.rpms_dir), shell=True)
+            # print 'Running: /usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir)
+            m = subprocess.check_output('/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir), shell=True)
             s = re.findall('^Wrote: .*/(.*\.rpm$)',m, re.MULTILINE)
             self.rpm_path = self.rpms_dir + '/' + s[1]
-            print("***** Wrote %s" % s[1])
         except:
-            print("***** MOCK OUTPUT: %s" % repr(m))
-            soeci.stopbuild("***** Mock RPM build of %s failed" % self.srpm_path)
+            soeci.stopbuild("Mock RPM build of %s failed" % self.srpm_path)
     
     def publish(self):
         try:
             shutil.move(self.rpm_path, soeci.YUM_REPO)
         except shutil.Error as e:
-            soeci.stopbuild("***** Could not publish %s into %s: %s" % (self.rpm_path, soeci.YUM_REPO, e))
+            soeci.stopbuild("Could not publish %s into %s: %s" % (self.rpm_path, soeci.YUM_REPO, e))
     
     def updatehash(self):
         os.chdir(os.path.dirname(self.srpm_path))
-        print(os.path.dirname(self.srpm_path))
+        # print(os.path.dirname(self.srpm_path))
         h = open(self.hashfile, 'w')
         h.seek(0)
         h.write(self.commit)
@@ -119,7 +115,7 @@ def main(argv):
                 if file.endswith('.spec'):
                     srpms.append(SRPM(root,file))
     except:
-        soeci.stopbuild("***** Could not read input directory")
+        soeci.stopbuild("Could not read input directory")
 
     for s in srpms:
         s.build()
