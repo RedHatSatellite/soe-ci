@@ -12,6 +12,7 @@ import subprocess
 import re
 import shutil
 import soeci
+import pty
 
 class SRPM:
 
@@ -47,21 +48,28 @@ class SRPM:
             for file in glob.glob(self.srpms_dir + '/' + rpm_name + '-*.src.rpm'):
                 os.remove(file)
             try:
+                (master, slave) = pty.openpty()
                 # print "Executing: /usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" % (self.specfile, self.sources, self.srpms_dir)
-                m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % (self.specfile, self.sources, self.srpms_dir), shell=True)
+                m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % 
+                    (self.specfile, self.sources, self.srpms_dir), stderr = slave, shell=True)
+                # subprocess.check_call('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % 
+                #    (self.specfile, self.sources, self.srpms_dir), stderr = subprocess.STDOUT, shell=True)
+ 
             except:
                 soeci.stopbuild("Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
-            print "===================="
+            print "================"
             print m
-            print "===================="
+            print "================"    
             sys.exit(1)
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
-            # print "self.srpm_path: %s" % self.srpm_path
+            #self.srpm_path = self.__getrpmname_()
+            print "self.srpm_path: %s" % self.srpm_path
         else:
             print("NO CHANGES SINCE LAST BUILD, SKIPPING %s" % self.specfile)
     
-    
+    #def __getrpmname__(self):
+        
     
         
 class RPM:
@@ -78,7 +86,8 @@ class RPM:
     def build(self):
         try:
             # print 'Running: /usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir)
-            m = subprocess.check_output('/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir), shell=True)
+            m = subprocess.check_output('/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir), 
+                stderr=subprocess.STDOUT, shell=True)
             s = re.findall('^Wrote: .*/(.*\.rpm$)',m, re.MULTILINE)
             self.rpm_path = self.rpms_dir + '/' + s[1]
         except:
