@@ -48,29 +48,18 @@ class SRPM:
             for file in glob.glob(self.srpms_dir + '/' + rpm_name + '-*.src.rpm'):
                 os.remove(file)
             try:
+                # we need to fake a tty for mock to get stdout from rpmbuild
                 (master, slave) = pty.openpty()
-                # print "Executing: /usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s" % (self.specfile, self.sources, self.srpms_dir)
                 m = subprocess.check_output('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % 
                     (self.specfile, self.sources, self.srpms_dir), stderr = slave, shell=True)
-                # subprocess.check_call('/usr/bin/mock --buildsrpm --spec %s --sources %s --resultdir %s' % 
-                #    (self.specfile, self.sources, self.srpms_dir), stderr = subprocess.STDOUT, shell=True)
- 
             except:
                 soeci.stopbuild("Mock SRPM build of %s failed" % (self.root + '/' + self.specfile))
-            print "================"
             print m
-            print "================"    
-            sys.exit(1)
             s = re.search('^Wrote: .*/(.*\.src.rpm)$', m, re.MULTILINE)
             self.srpm_path = self.srpms_dir + '/' + s.group(1)
-            #self.srpm_path = self.__getrpmname_()
-            print "self.srpm_path: %s" % self.srpm_path
         else:
             print("NO CHANGES SINCE LAST BUILD, SKIPPING %s" % self.specfile)
-    
-    #def __getrpmname__(self):
         
-    
         
 class RPM:
     
@@ -85,9 +74,11 @@ class RPM:
 
     def build(self):
         try:
-            # print 'Running: /usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir)
+            # we need to fake a tty for mock to get stdout from rpmbuild
+            (master, slave) = pty.openpty()
             m = subprocess.check_output('/usr/bin/mock --rebuild %s -D "%%debug_package %%{nil}" --resultdir %s' % (self.srpm_path, self.rpms_dir), 
-                stderr=subprocess.STDOUT, shell=True)
+                stderr=slave, shell=True)
+            print m
             s = re.findall('^Wrote: .*/(.*\.rpm$)',m, re.MULTILINE)
             self.rpm_path = self.rpms_dir + '/' + s[1]
         except:
@@ -101,7 +92,6 @@ class RPM:
     
     def updatehash(self):
         os.chdir(os.path.dirname(self.srpm_path))
-        # print(os.path.dirname(self.srpm_path))
         h = open(self.hashfile, 'w')
         h.seek(0)
         h.write(self.commit)
