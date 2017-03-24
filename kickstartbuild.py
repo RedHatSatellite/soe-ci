@@ -22,6 +22,7 @@ class Template:
         self.name = None
 
     def publish(self):
+        print "Publishing %s" % self.file
         with open('%s/%s' % (self.path, self.file), 'r') as t:
             content = t.read()
             
@@ -36,12 +37,18 @@ class Template:
 
         templates = ConfigTemplate().search(query={'search':'name="%s"' % self.name})
         if templates:
+            print "updating template: %s" % self.name 
             templates[0].template = content
             templates[0].update()
+            # move the template into the current organisation
+            print templates[0].get_values()["template_kind"]
+            sys.exit()
         else:
+            print "creating template: %s" % self.name 
             template = ConfigTemplate(name=self.name, template=content)
             template.create_missing()
             template.create()
+            # move the template into the current organisation
 
 def main(argv):
 

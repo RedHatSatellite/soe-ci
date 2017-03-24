@@ -35,9 +35,10 @@ def get_org_id():
     
     if org == []:
         stopbuild("Org %s does not exist" % ORG)
-
+    
+    print org[0].get_values()
+    sys.exit()
     org_id = org[0].get_values()["id"]
-        
     return org_id
 
     
