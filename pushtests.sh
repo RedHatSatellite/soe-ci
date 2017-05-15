@@ -17,9 +17,6 @@ for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
-    sleep 10
-    ((WAIT+=10))
-    info "Waiting 10 seconds"
     for I in "${vmcopy[@]}"
     do
         info "Checking if test server $I has rebuilt... (Sat 6.2 style)"
@@ -33,7 +30,9 @@ do
             tell "Success!"
             unset vmcopy[$I]
         else
-            tell "Not yet."
+            tell "Not yet. Sleeping 30 seconds."
+            sleep 30
+            ((WAIT+=30))
         fi
     done
     if [[ ${WAIT} -gt 6000 ]]
