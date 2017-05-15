@@ -11,7 +11,7 @@
 # has anything changed? If yes, then MODIFIED_CONTENT_FILE is not 0 bytes 
 if [[ ! -s "${MODIFIED_CONTENT_FILE}" ]]
 then
-    echo "No entries in ${MODIFIED_CONTENT_FILE} no need to continue with $0"
+    info "No entries in ${MODIFIED_CONTENT_FILE} no need to continue with $0"
     exit 0
 fi
 
