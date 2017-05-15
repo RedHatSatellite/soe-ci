@@ -82,7 +82,7 @@ do
 
     # wait for puppet to finish
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
-        "/root/puppet-done-test.sh"
+        "/root/puppet-done-test.sh -s ${PUPPET_DONE_SLEEP}"
 
     info "Installing bats and rsync on test server $I"
     if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
