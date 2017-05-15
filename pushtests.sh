@@ -80,6 +80,10 @@ do
     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} \
         ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
 
+    # run puppet once, this will skip if puppet already running, so no need for if clause
+    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "puppet agent -t"
+
     # wait for puppet to finish
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         "/root/puppet-done-test.sh -s ${PUPPET_DONE_SLEEP}"
