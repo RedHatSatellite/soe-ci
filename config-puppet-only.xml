@@ -109,6 +109,12 @@ e.g. mock --root rhel-6-x86_64
 needed to ensure we can build RPMs against more then just the default mock chroot.</description>
           <defaultValue>rhel-7-x86_64</defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PUPPET_DONE_SLEEP</name>
+          <description>Number of seconds to wait in puppet-done-test.sh
+if you set up things with puppet that take a while to settle (e.g. NTP), you may want to wait a bit (e.g. 75 seconds is good for ntp to settle)</description>
+          <defaultValue>0</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -187,13 +193,10 @@ echo &quot;#####################################################&quot;
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>echo &quot;#####################################################&quot;
-echo &quot;#             NOT  REBUILDING TEST VMS              #&quot;
+echo &quot;#        MAKING SURE TEST VMs ARE ON                #&quot;
 echo &quot;#####################################################&quot;
 
-###
-### do a puppety apply though
-###
-#/bin/bash -x ${WORKSPACE}/scripts/buildtestvms.sh 
+/bin/bash ${WORKSPACE}/scripts/starttestvms.sh
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -224,6 +227,12 @@ echo &quot;#####################################################&quot;
     </org.tap4j.plugin.TapPublisher>
     <org.jenkinsci.plugins.postbuildscript.PostBuildScript plugin="postbuildscript@0.17">
       <buildSteps>
+        <hudson.tasks.Shell>
+          <command>echo &quot;#####################################################&quot;
+echo &quot;#               POWER OFF TEST VMs                  #&quot;
+echo &quot;#####################################################&quot;
+/bin/bash ${WORKSPACE}/scripts/powerofftestvms.sh</command>
+        </hudson.tasks.Shell>
         <hudson.tasks.Shell>
           <command>echo &quot;#####################################################&quot;
 echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
