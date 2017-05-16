@@ -180,10 +180,6 @@ if you set up things with puppet that take a while to settle (e.g. NTP), you may
     <hudson.triggers.TimerTrigger>
       <spec>H H(3-5)  * * *</spec>
     </hudson.triggers.TimerTrigger>
-    <hudson.triggers.SCMTrigger>
-      <spec>* * * * *</spec>
-      <ignorePostCommitHooks>false</ignorePostCommitHooks>
-    </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
