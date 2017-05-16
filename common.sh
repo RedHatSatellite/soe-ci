@@ -39,8 +39,8 @@ MODIFIED_CONTENT_FILE=${WORKSPACE}/modified_content.track
 function get_test_vm_list() {
 	local J=0
 	for I in $(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-		"hammer content-host list --organization \"${ORG}\" \
-			--host-collection \"$TESTVM_HOSTCOLLECTION\" \
+		"hammer host-collection hosts --organization \"${ORG}\" \
+			--name \"$TESTVM_HOSTCOLLECTION\" \
 		| tail -n +4 | cut -f2 -d \"|\" | head -n -1")
 	do
 		# If CONDITIONAL_VM_BUILD is 'true', only keep VMs commented
