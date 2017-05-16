@@ -44,6 +44,7 @@ function build_srpm {
             # Something has changed, track it for build and for tests
             echo ${git_commit} > .rpmbuild-hash
             echo "#${rpmname}#" >> "${MODIFIED_CONTENT_FILE}"
+            echo "${rpmname}"  >> "${MODIFIED_RPMS_FILE}"
         else
             info "No changes since last build - skipping ${SPECFILE}"
         fi
