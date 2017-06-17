@@ -81,7 +81,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * Git Plugin
     * Multiple SCMs Plugin
     * TAP Plugin
-    * Post-Build Script Plug-in
+    * Conditional BuildStep Plugin
 * Select 'Configure System'
     * Enable 'Environment variables' in the Global properties section and click save (there is no need to Add any). Failing to enable this property leads to https://github.com/RedHatSatellite/soe-ci/issues/48
 * Restart Jenkins
