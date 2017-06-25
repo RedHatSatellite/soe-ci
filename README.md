@@ -1,6 +1,15 @@
 Continuous Integration Scripts for Satellite 6
 ==============================================
 
+- - -
+
+* Author: Patrick C. F. Ernzer
+* Email: <pcfe@redhat.com>                                                      
+* Revision: 0.4
+* Add puppet-only workflow
+
+- - -
+
 * Domain Architect: Eric Lavarde
 * Email: <elavarde@redhat.com>
 * Consultant: Patrick C. F. Ernzer
