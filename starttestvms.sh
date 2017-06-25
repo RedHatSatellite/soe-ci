@@ -67,7 +67,7 @@ do
         info "Host $I is already on."
     elif [[ ${_STATUS} == 'Off' ]]
     then
-        info "Host $I is already off, switching it on."
+        info "Host $I is off, switching it on."
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
     else
