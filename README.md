@@ -42,7 +42,7 @@ The following steps should help you get started with CII.
 
 ### Jenkins Server
 
-NB I have SELinux disabled on the Jenkins server as I ran into too many problems with it enabled and didn't have the time to fix them.
+NB SELinux in _Enforcing_ mode with the RHEL7 _Targeted_ policy works just fine,
 
 #### Installation
 
