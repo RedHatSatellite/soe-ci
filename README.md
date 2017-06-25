@@ -35,7 +35,7 @@ The CII system consists of the following components:
 * Red Hat Satellite 6. This acts as the repository for Red Hat-provided and 3rd party packages, kickstarts and puppet modules. The Foreman module is also used to deploy test clients.
 * A virtualisation infrastructure to run test clients. I have used KVM/Libvirt, VMware and RHEV in different engagements.
 
-The architecture is shown in [this YeD diagram](https://github.com/RedHatEMEA/soe-ci/blob/master/Engineering%20Platform.graphml).
+The architecture is shown in [this YeD diagram](https://github.com/RedHatEMEA/soe-ci/blob/master/Engineering%20Platform.graphml). View it with [yEd](http://www.yworks.com/downloads#yEdLive).
 
 ## Setup
 The following steps should help you get started with CII.
