@@ -49,7 +49,7 @@ function build_puppetmodule {
             # Something has changed, track it for build and for tests
             echo ${git_commit} > .puppetbuild-hash
             echo "#${modname}#" >> "${MODIFIED_CONTENT_FILE}"
-            echo "${modname}" » "${MODIFIED_PUPPET_FILE}"
+            echo "${modname}" >> "${MODIFIED_PUPPET_FILE}"
         else
             info "No changes since last build - skipping ${METADATA}"
         fi
