@@ -67,8 +67,11 @@ do
 
     if [[ ${_STATUS} == 'On' ]]
     then
+        # forcefully poweroff the SUT
+	# note that until Bug 1417976 is fixed this resets on vmware
+	# and thus the start command will throw an error
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "hammer host stop --id $I"
+            "hammer host stop --force --id $I"
         sleep 10
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
