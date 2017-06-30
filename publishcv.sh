@@ -33,7 +33,7 @@ IFS="${oldIFS}"
 for cv in "${CV_LIST[@]}"
 do
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-	    "hammer content-view publish --name \"${cv}\" --organization \"${ORG}\" --description \"Build ${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL} ${GIT_COMMIT} on ${GIT_BRANCH} at ${GIT_URL}\"" || \
+	    "hammer content-view publish --name \"${cv}\" --organization \"${ORG}\" --description \"Build ${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL}\"" || \
 		{ err "Content view '${cv}' couldn't be published."; exit 1; }
 
     # get the latest version of each CV, add it to the array
@@ -104,7 +104,7 @@ then # there is at least one CCV using the given CVs
 
             # And then we publish the updated CCV
             ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-                "hammer content-view publish --id \"${ccv_id}\" --organization \"${ORG}\" --description \"Build \${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL} ${GIT_COMMIT} on ${GIT_BRANCH} at ${GIT_URL}\"" || \
+                "hammer content-view publish --id \"${ccv_id}\" --organization \"${ORG}\" --description \"Build \${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL}\"" || \
 	            { err "CCV '${ccv_id}' couldn't be published."; exit 1; }
     done
 fi
