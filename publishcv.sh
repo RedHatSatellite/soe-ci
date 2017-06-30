@@ -32,21 +32,25 @@ IFS="${oldIFS}"
 # Get a list of all CV version IDs
 for cv in "${CV_LIST[@]}"
 do
+    info "Publish CV ${cv}"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 	    "hammer content-view publish --name \"${cv}\" --organization \"${ORG}\" --description \"Build ${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL}\"" || \
 		{ err "Content view '${cv}' couldn't be published."; exit 1; }
 
     # get the latest version of each CV, add it to the array
+    info "Get the latest version of CV ${cv}"
     VER_ID_LIST+=( "$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 	"hammer content-view info --name \"${cv}\" --organization \"${ORG}\" \
 	| sed -n \"/Versions:/,/Components:/p\" | grep \"ID:\" | tr -d ' ' | cut -f2 -d ':' | sort -n | tail -n 1")" )
 done
 
 # sleep after publishing content view to give chance for locks to get cleared up
+info "Give Satelllite 90 seconds to settle WRT Content View locks"
 sleep 90
 
 if [[ -n ${CCV_NAME_PATTERN} ]]
 then # we want to update and publish all CCVs containing our CVs
+info "Analysing CCVs"
 
     # Create a sed script to replace old with new version ID
     for (( i = 0; i < ${#CV_LIST[@]}; i++ ))
@@ -95,14 +99,17 @@ then # there is at least one CCV using the given CVs
             cv_used_ver_ids=${CV_USED_VER_IDS[$i]}
 
             # we add back the CV under its latest version to the CCV
+            info "Update component IDs of CCV ${ccv_id}"
 	    ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
                 "hammer content-view update --id ${ccv_id} --component-ids \"${cv_used_ver_ids}\" --organization \"${ORG}\"" || \
 	            { err "CCV '${ccv_id}' couldn't be updated with '${cv_used_ver_ids}'."; exit 1; }
 
             # sleep after updating CV for locks to get cleared up
+            info "Give Satelllite 10 seconds to settle WRT Content View locks"
             sleep 10
 
             # And then we publish the updated CCV
+            info "Publish CCV ${ccv_id}"
             ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
                 "hammer content-view publish --id \"${ccv_id}\" --organization \"${ORG}\" --description \"Build \${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL}\"" || \
 	            { err "CCV '${ccv_id}' couldn't be published."; exit 1; }
@@ -116,6 +123,7 @@ then
         cv=${CV_LIST[$i]}
         ver_id=${VER_ID_LIST[$i]}
 
+        info "Promoting version ${ver_id} of ${cv} to LCE ${TESTVM_ENV}"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-view version promote --content-view \"${cv}\" --organization \"${ORG}\" \
         --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${ver_id}"
@@ -126,6 +134,7 @@ then
     do
         ccv_ver=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer --csv content-view version list --content-view-id ${ccv_id} --organization \"${ORG}\"" | awk -F',' '$1 ~ /^[0-9]+$/ {if ($3 > maxver) {maxver = $3; maxid = $1} } END {print maxid}')
+        info "Promoting version ${ccv_ver} of CCV ID ${ccv_id} to LCE ${TESTVM_ENV}"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-view version promote --content-view-id \"${ccv_id}\" --organization \"${ORG}\" \
         --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${ccv_ver}"
