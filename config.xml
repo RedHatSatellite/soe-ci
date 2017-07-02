@@ -90,9 +90,9 @@ hammer lifecycle-environment list --organization &quot;Default_Organization&quot
         <hudson.model.StringParameterDefinition>
           <name>CV_PASSIVE_LIST</name>
           <description>A comma separated list of content view names to publish and optionally promote as part of the build.
-Those CVs won&apos;t get new Puppet Modules assigned to them, meaning you must (and are free to) assign (and unassign) them yourself directly in Satellite.</description> 
+Those CVs won&apos;t get new Puppet Modules assigned to them, meaning you must (and are free to) assign (and unassign) them yourself directly in Satellite.</description>
           <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition> 
+        </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>CCV_NAME_PATTERN</name>
           <description>Enter here a name pattern if you want Composite Content Views using the given CV(s) to be updated with the latest version and as well published and promoted.
@@ -204,11 +204,11 @@ echo &quot;#####################################################&quot;
       <command>echo &quot;#####################################################&quot;
 echo &quot;#                PUSH RPMS TO SATELLITE             #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/artefacts 
+/bin/bash -x ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/artefacts
 echo &quot;#####################################################&quot;
 echo &quot;#         PUSH PUPPET MODULES TO SATELLITE          #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/artefacts 
+/bin/bash -x ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/artefacts
 echo &quot;#####################################################&quot;
 echo &quot;#           PUSH KICKSTARTS TO SATELLITE            #&quot;
 echo &quot;#####################################################&quot;
@@ -222,16 +222,40 @@ echo &quot;#####################################################&quot;
       <command>echo &quot;#####################################################&quot;
 echo &quot;#                REBUILDING TEST VMS                #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/buildtestvms.sh 
+/bin/bash -x ${WORKSPACE}/scripts/buildtestvms.sh
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>echo &quot;#####################################################&quot;
 echo &quot;#            PUSHING TESTS to TEST VMS              #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/pushtests.sh 
+/bin/bash -x ${WORKSPACE}/scripts/pushtests.sh
 </command>
     </hudson.tasks.Shell>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.3.6">
+      <condition class="org.jenkins_ci.plugins.run_condition.core.StatusCondition" plugin="run-condition@1.0">
+        <worstResult>
+          <name>SUCCESS</name>
+          <ordinal>0</ordinal>
+          <color>BLUE</color>
+          <completeBuild>true</completeBuild>
+        </worstResult>
+        <bestResult>
+          <name>SUCCESS</name>
+          <ordinal>0</ordinal>
+          <color>BLUE</color>
+          <completeBuild>true</completeBuild>
+        </bestResult>
+      </condition>
+      <buildStep class="hudson.tasks.Shell">
+        <command>echo &quot;#####################################################&quot;
+  echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
+  echo &quot;#####################################################&quot;
+  /bin/bash -x ${WORKSPACE}/scripts/cleanup.sh
+  </command>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
   </builders>
   <publishers>
     <org.tap4j.plugin.TapPublisher plugin="tap@1.20">
@@ -272,6 +296,7 @@ echo &quot;#####################################################&quot;
       <scriptOnlyIfFailure>false</scriptOnlyIfFailure>
       <markBuildUnstable>false</markBuildUnstable>
     </org.jenkinsci.plugins.postbuildscript.PostBuildScript>
+
   </publishers>
   <buildWrappers/>
 </project>
