@@ -45,7 +45,7 @@ do
 done
 
 # sleep after publishing content view to give chance for locks to get cleared up
-info "Give Satelllite 90 seconds to settle WRT Content View locks"
+info "Give Satellite 90 seconds to settle WRT Content View locks"
 sleep 90
 
 if [[ -n ${CCV_NAME_PATTERN} ]]
@@ -105,7 +105,7 @@ then # there is at least one CCV using the given CVs
 	            { err "CCV '${ccv_id}' couldn't be updated with '${cv_used_ver_ids}'."; exit 1; }
 
             # sleep after updating CV for locks to get cleared up
-            info "Give Satelllite 10 seconds to settle WRT Content View locks"
+            info "Give Satellite 10 seconds to settle WRT Content View locks"
             sleep 10
 
             # And then we publish the updated CCV
