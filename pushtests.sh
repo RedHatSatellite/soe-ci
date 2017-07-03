@@ -19,7 +19,7 @@ while [[ ${#vmcopy[@]} -gt 0 ]]
 do
     for I in "${vmcopy[@]}"
     do
-        info "Checking if test server $I has rebuilt... (Sat 6.2 style)"
+        info "Checking if test server $I has rebooted into OS so that tests can be run"
         status=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*yes\" -e \"Enabled.*yes\" -e \"Build.*no\" \
