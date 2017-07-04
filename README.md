@@ -16,6 +16,12 @@ Continuous Integration Scripts for Satellite 6
 * Date: 2014-11-20
 * Revision: 0.1
 
+## Standard Operating Environment Overview
+It is extremely helpful if you read the following blog posts, that explain the concepts behind this repo, before trying to implement.
+
+* [Part I: Concepts and Structures](http://www.opensourcearchitects.org/index.php/2016/10/31/standard-operating-environment-part-i-concepts-and-structures/)
+* [Part II: Workflows in Detail](http://www.opensourcearchitects.org/index.php/2016/11/22/standard-operating-environment-part-ii-workflows-in-detail/)
+* [Part III: A Reference Implementation](http://www.opensourcearchitects.org/index.php/2017/06/01/standard-operating-environment-part-iii-a-reference-implementation/)
 
 ## Introduction
 Continuous Integration for Infrastructure (CII) is a process by which the Operating System build ("build") component of a Standard Operating Environment (SOE) can be rapidly developed, tested and deployed.
