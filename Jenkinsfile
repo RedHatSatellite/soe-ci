@@ -13,7 +13,7 @@ node {
 
   try {
     if (params.CLEAN_WORKSPACE == true) {
-      cleanWs()
+      deleteDir()
     }
 
     stage('Checkout from SCM') {
