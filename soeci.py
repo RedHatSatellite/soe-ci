@@ -25,7 +25,7 @@ def auth_satellite():
         url = ('https://%s' % SATELLITE),
         verify=False)
     serverconfig.save()
-    
+
 
 def get_org_id():
     try:
@@ -36,13 +36,9 @@ def get_org_id():
     if org == []:
         stopbuild("Org %s does not exist" % ORG)
     
-    print org[0].get_values()
-    sys.exit()
     org_id = org[0].get_values()["id"]
     return org_id
-
     
-
 def stopbuild(reason):
         print('BUILD STOPPED: %s' % reason)
         sys.exit(1)
@@ -77,5 +73,5 @@ def config():
         if eval(e) == None:
             stopbuild("Environment variable %s is not set" % e)
 
-    auth_satellite() 
+    auth_satellite()
     ORG_ID = get_org_id()
