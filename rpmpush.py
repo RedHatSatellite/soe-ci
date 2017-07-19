@@ -16,5 +16,5 @@ if __name__ == "__main__":
     try:
         repo.sync()
     except requests.exceptions.HTTPError as e:
-        soeci.stopbuild("Could not syn repository %s. Error: %s" % (soeci.REPO_ID, e))
+        soeci.stopbuild("Could not sync repository %s. Error: %s" % (soeci.REPO_ID, e))
 
