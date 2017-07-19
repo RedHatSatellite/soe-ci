@@ -11,7 +11,7 @@
 import sys
 import soeci
 import time
-from nailgun.entities import ContentView
+from nailgun.entities import ContentView, ForemanTask
 
 class SOECV():
     
@@ -23,18 +23,28 @@ class SOECV():
             soeci.stopbuild("Could not find Content View named %s to promote" % self.cv_name)
         
     def publish(self):        
-        self.cv.publish()
+        r = self.cv.publish(synchronous=False)
+        task_id = r['id']
+        task = ForemanTask().search(query={'search':'id="%s"' % task_id})[0]
+        try:
+            foo = task.poll(timeout=600)
+        except:
+            soeci.stopbuild("Content View %s failed to publish" % self.cv_name)
+        
         
     def promote(self, environment_id):
         # find the most recent content view version
         self.cv = self.cv.read()
         ver = self.cv.version[-1]
 
-        try:
-            ver.promote(data={'environment_id':environment_id, 'force':True})
-        except:
-            soeci.stopbuild("Could not promote Content View Version %s to Environment %s" % (ver.id, environment_id))
+        r = ver.promote(synchronous=False, data={'environment_id':environment_id, 'force':True})  
 
+        task_id = r['id']
+        task = ForemanTask().search(query={'search':'id="%s"' % task_id})[0]
+        try:
+            foo = task.poll(timeout=600)
+        except:
+            soeci.stopbuild("Content View %s failed to publish" % self.cv_name)
 
 def main(argv):
 
