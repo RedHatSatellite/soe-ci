@@ -28,6 +28,11 @@ def auth_satellite():
 
 
 def get_org_id():
+
+    org_id = get_org()[0].get_values()["id"]
+    return org_id
+ 
+def get_org():
     try:
         org = Organization().search(query={'search':'name="%s"' % ORG})
     except requests.exceptions.HTTPError as e:
@@ -36,8 +41,7 @@ def get_org_id():
     if org == []:
         stopbuild("Org %s does not exist" % ORG)
     
-    org_id = org[0].get_values()["id"]
-    return org_id
+    return org
     
 def stopbuild(reason):
         print('BUILD STOPPED: %s' % reason)

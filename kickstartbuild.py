@@ -36,19 +36,20 @@ class Template:
             content = t.read()
 
         templates = ConfigTemplate().search(query={'search':'name="%s"' % self.name})
+    
         if templates:
             print "updating template: %s" % self.name 
             templates[0].template = content
+            templates[0].organization=soeci.get_org()
             templates[0].update()
-            # move the template into the current organisation
-            print templates[0].get_values()["template_kind"]
-            sys.exit()
         else:
             print "creating template: %s" % self.name 
             template = ConfigTemplate(name=self.name, template=content)
             template.create_missing()
             template.create()
-            # move the template into the current organisation
+            template.organization=soeci.get_org()
+            template.update()
+                
 
 def main(argv):
 
