@@ -22,29 +22,30 @@ class SOECV():
         except:
             soeci.stopbuild("Could not find Content View named %s to promote" % self.cv_name)
         
-    def publish(self):        
+    def publish(self):  
+        print "Publishing %s" % self.cv_name      
         r = self.cv.publish(synchronous=False)
         task_id = r['id']
         task = ForemanTask().search(query={'search':'id="%s"' % task_id})[0]
         try:
-            foo = task.poll(timeout=600)
-        except:
-            soeci.stopbuild("Content View %s failed to publish" % self.cv_name)
+            task.poll(timeout=1200)
+        except Exception as e:
+            soeci.stopbuild("Content View %s failed to publish: %s" % (self.cv_name, e))
         
         
     def promote(self, environment_id):
         # find the most recent content view version
         self.cv = self.cv.read()
         ver = self.cv.version[-1]
-
+        print "Promoting %s to %s" % (self.cv_name, environment_id)
         r = ver.promote(synchronous=False, data={'environment_id':environment_id, 'force':True})  
 
         task_id = r['id']
         task = ForemanTask().search(query={'search':'id="%s"' % task_id})[0]
         try:
-            foo = task.poll(timeout=600)
-        except:
-            soeci.stopbuild("Content View %s failed to publish" % self.cv_name)
+            task.poll(timeout=1200)
+        except Exception as e:
+            soeci.stopbuild("Content View %s failed to promote to %s: %s" % (self.cv_name, environment_id, e))
 
 def main(argv):
 
