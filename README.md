@@ -73,6 +73,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * please see [this post on the Satellite blog](https://access.redhat.com/blogs/1169563/posts/2191211) for a more detailled explanation on mock with Satellite 6.
     * make sure the baseurl points at your Satellite server. The easiest way to do this is to just copy the relevant repo blocks from the Jenkins server's `/etc/yum.repos.d/redhat.repo`
     * if your Jenkins server is able to access the Red Hat CDN, then you can leave the baseurls pointing at https://cdn.redhat.com
+    * if you are getting mock errors related to _systemd-nspawn_ then add `config_opts['use_nspawn'] = False` to your relevant mock config files.
 * Install `jenkins`, `tomcat` and Java. If you have setup the Jenkins repo correctly you should be able to simply use yum.
     * `[root@jenkins ~]# yum install jenkins tomcat java`
 * Ensure that `jenkins` is enabled, running and reachable.
