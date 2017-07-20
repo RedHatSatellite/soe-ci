@@ -29,7 +29,7 @@ class SRPM:
 
     def __codechanged__(self):
         # create the hashfile if it does not already exist
-        self.commit = subprocess.check_output('git log --format=%%H -1 %s' % self.sources, shell=True)
+        self.commit = subprocess.check_output('git log --format=%%H -1 %s' % self.sources, shell=True, cwd=os.path.dirname(self.sources))
         # print self.commit
         open(self.hashfile,'a').close()
         h = open('.rpmbuild-hash', 'r')
