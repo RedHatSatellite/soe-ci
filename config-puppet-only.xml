@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Generic plan to create Red Hat Enterprise Linux builds</description>
+  <description>Generic plan to create puppet module environments</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <jenkins.model.BuildDiscarderProperty>
       <strategy class="hudson.tasks.LogRotator">
-        <daysToKeep>60</daysToKeep>
-        <numToKeep>30</numToKeep>
+        <daysToKeep>7</daysToKeep>
+        <numToKeep>100</numToKeep>
         <artifactDaysToKeep>-1</artifactDaysToKeep>
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
@@ -32,17 +32,12 @@
         <hudson.model.StringParameterDefinition>
           <name>SATELLITE</name>
           <description>The FQDN of the Red Hat Satellite.</description>
-          <defaultValue></defaultValue>
+          <defaultValue>satellite.example.com</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>ORG</name>
           <description>This is the name of the organisation you are using on the Red Hat Satellite.</description>
           <defaultValue>Default_Organization</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>REPO_ID</name>
-          <description>The numeric ID of the RPM repository on the Red Hat Satellite that you want to use for your custom RPMs.</description>
-          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>PUPPET_REPO_ID</name>
@@ -52,7 +47,7 @@
         <hudson.model.StringParameterDefinition>
           <name>TESTVM_HOSTCOLLECTION</name>
           <description>The name of the Satellite 6 host collection containing your test machines.</description>
-          <defaultValue>Test Servers</defaultValue>
+          <defaultValue>Test Servers puppet only</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>TESTVM_ENV</name>
@@ -73,19 +68,14 @@ hammer lifecycle-environment list --organization &quot;Default_Organization&quot
           <defaultValue>acme</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>YUM_REPO</name>
-          <description>This is the location of the Yum repository on the Jenkins server used to export RPMs to the satellite server.</description>
-          <defaultValue>/var/www/html/pub/soe-repo</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>PUPPET_REPO</name>
           <description>This is the location of the puppet repository on the Jenkins server used to export puppet modules to the satellite server.</description>
-          <defaultValue>/var/www/html/pub/soe-puppet</defaultValue>
+          <defaultValue>/var/www/html/pub/soe-puppet-only</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>CV</name>
           <description>This is the name of the Content View on the satellite that you want to publish your build into.</description>
-          <defaultValue></defaultValue>
+          <defaultValue>cv-puppet-only</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>CV_PASSIVE_LIST</name>
@@ -110,12 +100,12 @@ Examples: &lt;code&gt;#ssh#bats#kickstart.erb#&lt;/code&gt;
 &lt;b&gt;CAUTION:&lt;/b&gt; be aware that in this case, no host will be tested if only the scripts have been modified.
 &lt;br/&gt;
 If unset/false, all existing hosts, within the given Host Collection, will be rebuilt independent of changes done in Git.</description>
-          <defaultValue>false</defaultValue>
+          <defaultValue>true</defaultValue>
         </hudson.model.BooleanParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>MOCK_CONFIG</name>
           <description>This will be passed to mock --root
-e.g. mock --root rhel-7-x86_64
+e.g. mock --root rhel-6-x86_64
 needed to ensure we can build RPMs against more then just the default mock chroot.</description>
           <defaultValue>rhel-7-x86_64</defaultValue>
         </hudson.model.StringParameterDefinition>
@@ -123,14 +113,14 @@ needed to ensure we can build RPMs against more then just the default mock chroo
           <name>PUPPET_DONE_SLEEP</name>
           <description>Number of seconds to wait in puppet-done-test.sh
 if you set up things with puppet that take a while to settle (e.g. NTP), you may want to wait a bit (e.g. 75 seconds is good for ntp to settle)</description>
-          <defaultValue>75</defaultValue>
+          <defaultValue>0</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.3">
+  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@2.2.7">
+      <hudson.plugins.git.GitSCM plugin="git@3.3.0">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -150,7 +140,7 @@ if you set up things with puppet that take a while to settle (e.g. NTP), you may
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@2.2.7">
+      <hudson.plugins.git.GitSCM plugin="git@3.3.0">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -177,42 +167,25 @@ if you set up things with puppet that take a while to settle (e.g. NTP), you may
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>H H(3-5)  * * *</spec>
-    </hudson.triggers.TimerTrigger>
+    <hudson.triggers.SCMTrigger>
+      <spec>* * * * * </spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
       <command>echo &quot;#####################################################&quot;
-echo &quot;#                BUILDING RPMS                      #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmbuild.sh ${WORKSPACE}/soe/rpms
-
-echo &quot;#####################################################&quot;
 echo &quot;#                BUILDING PUPPET MODULES            #&quot;
 echo &quot;#####################################################&quot;
 /bin/bash -x ${WORKSPACE}/scripts/puppetbuild.sh ${WORKSPACE}/soe/puppet
-
-echo &quot;#####################################################&quot;
-echo &quot;#                BUILDING KICKSTARTS                #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>echo &quot;#####################################################&quot;
-echo &quot;#                PUSH RPMS TO SATELLITE             #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/artefacts
-echo &quot;#####################################################&quot;
 echo &quot;#         PUSH PUPPET MODULES TO SATELLITE          #&quot;
 echo &quot;#####################################################&quot;
 /bin/bash -x ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/artefacts
-echo &quot;#####################################################&quot;
-echo &quot;#           PUSH KICKSTARTS TO SATELLITE            #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts
 echo &quot;#####################################################&quot;
 echo &quot;#           REPUBLISH CONTENT VIEW                  #&quot;
 echo &quot;#####################################################&quot;
@@ -220,9 +193,10 @@ echo &quot;#####################################################&quot;
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>echo &quot;#####################################################&quot;
-echo &quot;#                REBUILDING TEST VMS                #&quot;
+echo &quot;#        MAKING SURE TEST VMs ARE ON                #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/buildtestvms.sh
+
+/bin/bash ${WORKSPACE}/scripts/starttestvms.sh
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -249,16 +223,21 @@ echo &quot;#####################################################&quot;
       </condition>
       <buildStep class="hudson.tasks.Shell">
         <command>echo &quot;#####################################################&quot;
-  echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
-  echo &quot;#####################################################&quot;
-  /bin/bash -x ${WORKSPACE}/scripts/cleanup.sh
-  </command>
+echo &quot;#               POWER OFF TEST VMs                  #&quot;
+echo &quot;#####################################################&quot;
+/bin/bash ${WORKSPACE}/scripts/powerofftestvms.sh
+
+echo &quot;#####################################################&quot;
+echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
+echo &quot;#####################################################&quot;
+/bin/bash -x ${WORKSPACE}/scripts/cleanup.sh
+</command>
       </buildStep>
       <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
     </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
   </builders>
   <publishers>
-    <org.tap4j.plugin.TapPublisher plugin="tap@1.20">
+    <org.tap4j.plugin.TapPublisher plugin="tap@2.1">
       <testResults>test_results/*.tap</testResults>
       <failIfNoResults>false</failIfNoResults>
       <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
@@ -270,33 +249,11 @@ echo &quot;#####################################################&quot;
       <validateNumberOfTests>false</validateNumberOfTests>
       <planRequired>true</planRequired>
       <verbose>true</verbose>
+      <showOnlyFailures>false</showOnlyFailures>
+      <stripSingleParents>false</stripSingleParents>
+      <flattenTapResult>false</flattenTapResult>
+      <skipIfBuildNotOk>false</skipIfBuildNotOk>
     </org.tap4j.plugin.TapPublisher>
-    <org.jenkinsci.plugins.postbuildscript.PostBuildScript plugin="postbuildscript@0.17">
-      <buildSteps>
-        <hudson.tasks.Shell>
-          <command>echo &quot;#####################################################&quot;
-echo &quot;#               POWER OFF TEST VMs                  #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash ${WORKSPACE}/scripts/powerofftestvms.sh</command>
-        </hudson.tasks.Shell>
-        <hudson.tasks.Shell>
-          <command>echo &quot;#####################################################&quot;
-echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/cleanup.sh
-
-echo &quot;#####################################################&quot;
-echo &quot;#                  run cvmanager                    #&quot;
-echo &quot;#          on Satellite or Jenkins box?             #&quot;
-echo &quot;#####################################################&quot;
-</command>
-        </hudson.tasks.Shell>
-      </buildSteps>
-      <scriptOnlyIfSuccess>true</scriptOnlyIfSuccess>
-      <scriptOnlyIfFailure>false</scriptOnlyIfFailure>
-      <markBuildUnstable>false</markBuildUnstable>
-    </org.jenkinsci.plugins.postbuildscript.PostBuildScript>
-
   </publishers>
   <buildWrappers/>
 </project>

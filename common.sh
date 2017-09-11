@@ -12,7 +12,7 @@ SRPMBUILD_ERR=6
 MODBUILD_ERR=7
 
 function tell() {
-	echo "${@} [$(date)]" | fold -s
+	echo "${@} [$(date)]" | fold --spaces --width=240
 }
 
 function info() {

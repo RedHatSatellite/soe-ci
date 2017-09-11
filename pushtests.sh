@@ -17,9 +17,6 @@ for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
-    sleep 10
-    ((WAIT+=10))
-    info "Waiting 10 seconds"
     for I in "${vmcopy[@]}"
     do
         info "Checking if test server $I has rebooted into OS so that tests can be run"
@@ -33,7 +30,9 @@ do
             tell "Success!"
             unset vmcopy[$I]
         else
-            tell "Not yet."
+            tell "Not yet. Sleeping 30 seconds."
+            sleep 30
+            ((WAIT+=30))
         fi
     done
     if [[ ${WAIT} -gt 6000 ]]
@@ -80,9 +79,13 @@ do
     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} \
         ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
 
+    # run puppet once, this will skip if puppet already running, so no need for if clause
+    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "puppet agent -t"
+
     # wait for puppet to finish
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
-        "/root/puppet-done-test.sh"
+        "/root/puppet-done-test.sh -s ${PUPPET_DONE_SLEEP}"
 
     info "Installing bats and rsync on test server $I"
     if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
