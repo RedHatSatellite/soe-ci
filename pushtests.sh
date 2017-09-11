@@ -23,6 +23,9 @@ do
     for I in "${vmcopy[@]}"
     do
         inform "Checking if test server $I has rebooted into OS so that tests can be run"
+        inform "Checking if test server $I has rebooted into OS so that tests can be run"
+        inform "note that the Jenkins job definition may trigger a fresh installation,"
+        inform "so check the console of $I if this step is taking too long."
         status=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*yes\" -e \"Enabled.*yes\" -e \"Build.*no\" \
