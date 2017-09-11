@@ -111,7 +111,7 @@ then # there is at least one CCV using the given CVs
             # And then we publish the updated CCV
             info "Publish CCV ${ccv_id}"
             ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-                "hammer content-view publish --id \"${ccv_id}\" --organization \"${ORG}\" --description \"Build \${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL}\"" || \
+                "hammer content-view publish --id \"${ccv_id}\" --organization \"${ORG}\" --description \"Build ${BUILD_ID} of Job ${JOB_NAME} on ${JENKINS_URL}\"" || \
 	            { err "CCV '${ccv_id}' couldn't be published."; exit 1; }
     done
 fi
