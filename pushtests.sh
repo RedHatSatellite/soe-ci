@@ -17,9 +17,9 @@ for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
+    inform "Waiting 10 seconds"
     sleep 10
     ((WAIT+=10))
-    inform "Waiting 10 seconds"
     for I in "${vmcopy[@]}"
     do
         inform "Checking if test server $I has rebooted into OS so that tests can be run"
