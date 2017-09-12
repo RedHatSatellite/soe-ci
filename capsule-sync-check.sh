@@ -23,13 +23,13 @@ info "Checking if there is a Capsule Sync in progress"
 count_capsule_syncs_in_progress
 if [[ ${_CAPSULE_SYNC_COUNT} -gt 0 ]]
 then
-  _CHEKING_SINCE=$(date)
+  _CHECKING_SINCE=$(date)
   warn "${_CAPSULE_SYNC_COUNT} sync jobs to capsules in progress"
   while [[ ${_CAPSULE_SYNC_COUNT} -gt 0 ]]
   do
-    info "Will check again in 1 minute (at $(date --date "1 minute"))"
-    info "We have been checking since      ${_CHEKING_SINCE}"
-    sleep 60
+    inform "Will check again in 5 minutes"
+    inform "We have been checking since      ${_CHECKING_SINCE}"
+    sleep 300
     count_capsule_syncs_in_progress
     warn "${_CAPSULE_SYNC_COUNT} sync jobs to capsules still running"
   done
