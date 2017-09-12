@@ -65,7 +65,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 [root@jenkins ~]# firewall-cmd --get-active-zones
 [root@jenkins ~]# firewall-cmd --zone=public --add-service=http --permanent
 [root@jenkins ~]# firewall-cmd --zone=public --add-service=https --permanent
-[root@jenkins ~]# firewall-cmd  --reload
+[root@jenkins ~]# firewall-cmd --reload
 [root@jenkins ~]# firewall-cmd --zone=public --list-all
 ```
 * Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server and setting MOCK_CONFIG for the relevant Jenkins job.
@@ -80,7 +80,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 ```bash
 [root@jenkins ~]# systemctl enable jenkins ; systemctl start jenkins
 [root@jenkins ~]# firewall-cmd --zone=public --add-port="8080/tcp" --permanent
-[root@jenkins ~]# firewall-cmd  --reload
+[root@jenkins ~]# firewall-cmd --reload
 [root@jenkins ~]# firewall-cmd --zone=public --list-all
 ```
 * Now that Jenkins is running, browse to it's console at http://jenkinsserver:8080/
@@ -95,13 +95,13 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Add the `jenkins` user to the `mock` group (`usermod -a -G mock jenkins`). This will allow Jenkins to build RPMs.
 * Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
 * `su` to the `jenkins` user (`su jenkins -s /bin/bash`) and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
-* Create one build plan per release you want to build for in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE-<release> (e.g. SOE-el7)` and copying in the  [config.xml] file
+* Create one build plan per release you want to build for in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE-<release> (e.g. SOE-el7)` and copying in the [config.xml] file
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
     * you might need to reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 
 ### Git Repository
 * Clone the following two git repos:
-    * https://github.com/RedHatEMEA/soe-ci   These are the scripts used to by Jenkins to drive CII
+    * https://github.com/RedHatEMEA/soe-ci These are the scripts used to by Jenkins to drive CII
     * https://github.com/RedHatEMEA/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
 * Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote - you will need to edit both of these.
@@ -140,7 +140,7 @@ Now manually trigger a build on Jenkins. This will fail, however it will create 
 ### Getting Started
 At this point, you should be good to go. In fact Jenkins may have already kicked off a build for you when you pushed to github.
 
-Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests  in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
+Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
 
 ## COMING SOON
 * Kickstart files (currently doesn't do anything)
