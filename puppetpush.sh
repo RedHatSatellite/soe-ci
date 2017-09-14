@@ -41,7 +41,7 @@ ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 
 if [[ -z "${CV}" ]]
 then
-    info "Variable 'CV' empty, no need to attach new modules."
+    inform "Variable 'CV' empty, no need to attach new modules."
     exit 0
 fi
 

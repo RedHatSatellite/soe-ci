@@ -27,7 +27,7 @@ fi
 # rebuild test VMs
 for I in "${TEST_VM_LIST[@]}"
 do
-    info "Rebuilding VM ID $I"
+    inform "Rebuilding VM ID $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host update --id $I --build yes"
 

@@ -15,7 +15,7 @@ function tell() {
 	echo "${@} [$(date)]" | fold -s
 }
 
-function info() {
+function inform() {
 	tell "INFO:    ${@}"
 }
 
