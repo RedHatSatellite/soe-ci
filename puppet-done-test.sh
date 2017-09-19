@@ -43,6 +43,12 @@ look_for_finished()
 
 date
 
+# Let's not wait for puppet on a host that is actually using Ansible
+if ! rpm -q puppet ; then
+  echo "puppet is not installed"
+  exit 0
+fi
+
 # waiting just over one minute for puppet to start
 # this script gets run on first boot after a system was installed
 echo "waiting 75 seconds (one minute and a bit) before checking on puppet"
