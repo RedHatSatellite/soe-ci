@@ -16,7 +16,7 @@ fi
 
 count_capsule_syncs_in_progress()
 {
-  _CAPSULE_SYNC_COUNT=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer --csv task list --search 'state = running and label =  Actions::Katello::ContentView::CapsuleGenerateAndSync'" | tail -n +2 | wc -l)
+  _CAPSULE_SYNC_COUNT=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer --csv task list --search 'state = running and label ~  CapsuleGenerateAndSync'" | tail -n +2 | wc -l)
 }
 
 info "Checking if there is a Capsule Sync in progress"
