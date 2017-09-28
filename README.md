@@ -48,7 +48,7 @@ The following steps should help you get started with CII.
 
 ### Jenkins Server
 
-NB I have SELinux enabed on the Jenkins server and it poses no problems.
+NB I have SELinux enabled on the Jenkins server and it poses no problems.
 
 #### Installation
 
