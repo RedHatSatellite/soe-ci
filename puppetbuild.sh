@@ -51,7 +51,7 @@ function build_puppetmodule {
             echo "#${modname}#" >> "${MODIFIED_CONTENT_FILE}"
             echo "${modname}" >> "${MODIFIED_PUPPET_FILE}"
         else
-            info "No changes since last build - skipping ${METADATA}"
+            inform "No changes since last build - skipping ${METADATA}"
         fi
     fi
 }

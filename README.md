@@ -87,7 +87,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 [root@jenkins ~]# firewall-cmd --get-active-zones
 [root@jenkins ~]# firewall-cmd --zone=public --add-service=http --permanent
 [root@jenkins ~]# firewall-cmd --zone=public --add-service=https --permanent
-[root@jenkins ~]# firewall-cmd  --reload
+[root@jenkins ~]# firewall-cmd --reload
 [root@jenkins ~]# firewall-cmd --zone=public --list-all
 ```
 * Configure `mock` by copying the [rhel-7-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-7-x86_64.cfg) or [rhel-6-x86_64.cfg](https://github.com/RedHatEMEA/soe-ci/blob/master/rhel-6-x86_64.cfg) file to `/etc/mock` on the jenkins server and setting MOCK_CONFIG for the relevant Jenkins job.
@@ -102,7 +102,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 ```bash
 [root@jenkins ~]# systemctl enable jenkins ; systemctl start jenkins
 [root@jenkins ~]# firewall-cmd --zone=public --add-port="8080/tcp" --permanent
-[root@jenkins ~]# firewall-cmd  --reload
+[root@jenkins ~]# firewall-cmd --reload
 [root@jenkins ~]# firewall-cmd --zone=public --list-all
 ```
 * Now that Jenkins is running, browse to it's console at http://jenkinsserver:8080/
@@ -138,7 +138,7 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 
 ### Git Repository
 * Clone the following two git repos:
-    * https://github.com/RedHatEMEA/soe-ci   These are the scripts used to by Jenkins to drive CII
+    * https://github.com/RedHatEMEA/soe-ci These are the scripts used to by Jenkins to drive CII
     * https://github.com/RedHatEMEA/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
 * Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote - you will need to edit both of these.
@@ -189,7 +189,7 @@ FIXME: add instructions on HC
 ## Getting Started
 At this point, you should be good to go. In fact Jenkins may have already kicked off a build for you when you pushed to github.
 
-Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests  in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
+Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
 
 ## COMING SOON
 * Documentation update for pipelines

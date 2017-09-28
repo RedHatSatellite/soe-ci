@@ -17,12 +17,14 @@ for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
+    inform "Waiting 10 seconds"
     sleep 10
     ((WAIT+=10))
-    info "Waiting 10 seconds"
     for I in "${vmcopy[@]}"
     do
-        info "Checking if test server $I has rebooted into OS so that tests can be run"
+        inform "Checking if test server $I has rebooted into OS so that tests can be run"
+        inform "note that the Jenkins job definition may trigger a fresh installation,"
+        inform "so check the console of $I if this step is taking too long."
         status=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*yes\" -e \"Enabled.*yes\" -e \"Build.*no\" \
@@ -53,11 +55,11 @@ export TEST_ROOT
 for I in ${TEST_VM_LIST[@]}
 do
     # Check the host's entitlements
-    info "Checking entitlements for test server $I"
+    inform "Checking entitlements for test server $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-host info --name ${I} --organization \"${ORG}\""
 
-    info "Setting up ssh keys for test server $I"
+    inform "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
 
     # Copy Jenkins' SSH key to the newly created server(s)
@@ -69,11 +71,11 @@ do
         setsid ssh-copy-id -i ${RSA_ID} root@$I
     fi
 
-    info "Probing subscription status on test server $I"
+    inform "Probing subscription status on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "subscription-manager status"
 
     # if the repolist does not contain whet you expect, switch off auto-attach on the used activation-key
-    info "Listing repos on test server $I"
+    inform "Listing repos on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "subscription-manager repos"
     
     # copy puppet-done-test.sh to SUT
@@ -88,11 +90,11 @@ do
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         "/root/puppet-done-test.sh -s ${PUPPET_DONE_SLEEP}"
 
-    info "Installing bats and rsync on test server $I"
+    inform "Installing bats and rsync on test server $I"
     if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         "yum install -y bats rsync"
     then
-        info "copying tests to test server $I"
+        inform "copying tests to test server $I"
         rsync --delete -va -e \
             "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID}" \
             ${WORKSPACE}/soe/tests root@$I:
@@ -106,7 +108,7 @@ done
 mkdir -p ${WORKSPACE}/test_results
 for I in ${TEST_VM_LIST[@]}
 do
-    info "Starting TAPS tests on test server $I"
+    inform "Starting TAPS tests on test server $I"
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
         'cd tests ; bats -t *.bats' > ${WORKSPACE}/test_results/$I.tap &
 done

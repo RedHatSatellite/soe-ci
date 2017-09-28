@@ -27,7 +27,7 @@ fi
 # shutdown test VMs
 for I in "${TEST_VM_LIST[@]}"
 do
-    info "Checking status of VM ID $I"
+    inform "Checking status of VM ID $I"
 
     _PROBED_STATUS=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
 
@@ -65,12 +65,12 @@ do
 
     if [[ ${_STATUS} == 'On' ]]
     then
-        info "Shutting down VM ID $I"
+        inform "Shutting down VM ID $I"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host stop --id $I"
     elif [[ ${_STATUS} == 'Off' ]]
     then
-        info "VM ID $I seems off already, no action done."
+        inform "VM ID $I seems off already, no action done."
     else
         err "Host $I is neither running nor shutoff. No action possible!"
         # exit 0 while testingi for issue  #50,
