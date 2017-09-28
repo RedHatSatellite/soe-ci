@@ -60,11 +60,6 @@ hammer lifecycle-environment list --organization &quot;Default_Organization&quot
           <defaultValue>redhat</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>MODAUTHOR</name>
-          <description>This is the authorname for your puppet modules.</description>
-          <defaultValue>acme</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>YUM_REPO</name>
           <description>This is the location of the Yum repository on the Jenkins server used to export RPMs to the satellite server.</description>
           <defaultValue>/var/www/html/pub/soe-repo</defaultValue>
