@@ -46,7 +46,7 @@ function build_srpm {
             echo "#${rpmname}#" >> "${MODIFIED_CONTENT_FILE}"
             echo "${rpmname}"  >> "${MODIFIED_RPMS_FILE}"
         else
-            info "No changes since last build - skipping ${SPECFILE}"
+            inform "No changes since last build - skipping ${SPECFILE}"
         fi
     fi
 }
