@@ -1,122 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Generic plan to create Red Hat Enterprise Linux builds</description>
+  <description>this polls both the soe-ci and the acme-soe repos so that we trigger a run of the pipeline job, no matter which of the two repos changed.&#xd;
+we also nail down REBUILD_VMS, PUPPET_ONLY and POWER_OFF_VMS_AFTER_BUILD</description>
   <keepDependencies>false</keepDependencies>
-  <properties>
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <hudson.model.StringParameterDefinition>
-          <name>PUSH_USER</name>
-          <description>The username to use when pushing artefacts to the satellite. The build job will need to be able to ssh to the satellite as this user so you need to have keys set up.</description>
-          <defaultValue>jenkins</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>RSA_ID</name>
-          <description>RSA ID of the Jenkins user.</description>
-          <defaultValue>/var/lib/jenkins/.ssh/id_rsa</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>KNOWN_HOSTS</name>
-          <description>Known hosts file of the Jenkins user.</description>
-          <defaultValue>/var/lib/jenkins/.ssh/known_hosts</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>SATELLITE</name>
-          <description>The FQDN of the Red Hat Satellite.</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>ORG</name>
-          <description>This is the name of the organisation you are using on the Red Hat Satellite.</description>
-          <defaultValue>Default_Organization</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>REPO_ID</name>
-          <description>The numeric ID of the RPM repository on the Red Hat Satellite that you want to use for your custom RPMs.</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>PUPPET_REPO_ID</name>
-          <description>The numeric ID of the puppet module repository on the Red Hat Satellite that you want to use for your custom puppet modules.</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>TESTVM_HOSTCOLLECTION</name>
-          <description>The name of the Satellite 6 host collection containing your test machines.</description>
-          <defaultValue>Test Servers</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>TESTVM_ENV</name>
-          <description>The numeric ID of the environment you want to promote CI builds to. This will typically be a &apos;Crash&apos; or &apos;EngTest&apos; environment.
-
-You can find the IDs of your environments using:
-hammer lifecycle-environment list --organization &quot;Default_Organization&quot;</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>TEST_ROOT</name>
-          <description>This is the root password of your test machines, as set in your hostgroup definition.</description>
-          <defaultValue>redhat</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>MODAUTHOR</name>
-          <description>This is the authorname for your puppet modules.</description>
-          <defaultValue>acme</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>YUM_REPO</name>
-          <description>This is the location of the Yum repository on the Jenkins server used to export RPMs to the satellite server.</description>
-          <defaultValue>/var/www/html/pub/soe-repo</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>PUPPET_REPO</name>
-          <description>This is the location of the puppet repository on the Jenkins server used to export puppet modules to the satellite server.</description>
-          <defaultValue>/var/www/html/pub/soe-puppet</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>CV</name>
-          <description>This is the name of the Content View on the satellite that you want to publish your build into.</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>CV_PASSIVE_LIST</name>
-          <description>A comma separated list of content view names to publish and optionally promote as part of the build.
-Those CVs won&apos;t get new Puppet Modules assigned to them, meaning you must (and are free to) assign (and unassign) them yourself directly in Satellite.</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>CCV_NAME_PATTERN</name>
-          <description>Enter here a name pattern if you want Composite Content Views using the given CV(s) to be updated with the latest version and as well published and promoted.
-CCVs respecting the pattern but not containing any CV will not be touched.
-Example of pattern: &quot;ccv-test-*&quot;</description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.BooleanParameterDefinition>
-          <name>CONDITIONAL_VM_BUILD</name>
-          <description>If this parameter is true/set, only the hosts existing in Satellite with a comment matching
-the modified Puppet module, RPM package or kickstart file, each surrounded by hashes (#), will be built and tested.
-&lt;br/&gt;
-Examples: &lt;code&gt;#ssh#bats#kickstart.erb#&lt;/code&gt;
-&lt;br/&gt;
-&lt;b&gt;CAUTION:&lt;/b&gt; be aware that in this case, no host will be tested if only the scripts have been modified.
-&lt;br/&gt;
-If unset/false, all existing hosts, within the given Host Collection, will be rebuilt independent of changes done in Git.</description>
-          <defaultValue>false</defaultValue>
-        </hudson.model.BooleanParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>MOCK_CONFIG</name>
-          <description>This will be passed to mock --root
-e.g. mock --root rhel-6-x86_64
-needed to ensure we can build RPMs against more then just the default mock chroot.</description>
-          <defaultValue>rhel-6-x86_64</defaultValue>
-        </hudson.model.StringParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
-  </properties>
-  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.3">
+  <properties/>
+  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@2.2.7">
+      <hudson.plugins.git.GitSCM plugin="git@3.3.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -130,13 +21,9 @@ needed to ensure we can build RPMs against more then just the default mock chroo
         </branches>
         <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
         <submoduleCfg class="list"/>
-        <extensions>
-          <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>scripts</relativeTargetDir>
-          </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-        </extensions>
+        <extensions/>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@2.2.7">
+      <hudson.plugins.git.GitSCM plugin="git@3.3.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -150,11 +37,7 @@ needed to ensure we can build RPMs against more then just the default mock chroo
         </branches>
         <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
         <submoduleCfg class="list"/>
-        <extensions>
-          <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>soe</relativeTargetDir>
-          </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-        </extensions>
+        <extensions/>
       </hudson.plugins.git.GitSCM>
     </scms>
   </scm>
@@ -162,102 +45,44 @@ needed to ensure we can build RPMs against more then just the default mock chroo
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.SCMTrigger>
-      <spec>* * * * * </spec>
-      <ignorePostCommitHooks>false</ignorePostCommitHooks>
-    </hudson.triggers.SCMTrigger>
-  </triggers>
-  <concurrentBuild>false</concurrentBuild>
-  <builders>
-    <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
-echo &quot;#                BUILDING RPMS                      #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmbuild.sh ${WORKSPACE}/soe/rpms
-
-echo &quot;#####################################################&quot;
-echo &quot;#                BUILDING PUPPET MODULES            #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/puppetbuild.sh ${WORKSPACE}/soe/puppet
-
-echo &quot;#####################################################&quot;
-echo &quot;#                BUILDING KICKSTARTS                #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts
-</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
-echo &quot;#                PUSH RPMS TO SATELLITE             #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/artefacts
-echo &quot;#####################################################&quot;
-echo &quot;#         PUSH PUPPET MODULES TO SATELLITE          #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/artefacts
-echo &quot;#####################################################&quot;
-echo &quot;#           PUSH KICKSTARTS TO SATELLITE            #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts
-echo &quot;#####################################################&quot;
-echo &quot;#           REPUBLISH CONTENT VIEW                  #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/publishcv.sh</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
-echo &quot;#                REBUILDING TEST VMS                #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/buildtestvms.sh
-</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
-echo &quot;#            PUSHING TESTS to TEST VMS              #&quot;
-echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/pushtests.sh
-</command>
-    </hudson.tasks.Shell>
-    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.3.6">
-      <condition class="org.jenkins_ci.plugins.run_condition.core.StatusCondition" plugin="run-condition@1.0">
-        <worstResult>
-          <name>SUCCESS</name>
-          <ordinal>0</ordinal>
-          <color>BLUE</color>
-          <completeBuild>true</completeBuild>
-        </worstResult>
-        <bestResult>
-          <name>SUCCESS</name>
-          <ordinal>0</ordinal>
-          <color>BLUE</color>
-          <completeBuild>true</completeBuild>
-        </bestResult>
-      </condition>
-      <buildStep class="hudson.tasks.Shell">
-        <command>echo &quot;#####################################################&quot;
-  echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
-  echo &quot;#####################################################&quot;
-  /bin/bash -x ${WORKSPACE}/scripts/cleanup.sh
-  </command>
-      </buildStep>
-      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
-    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
-  </builders>
-  <publishers>
-    <org.tap4j.plugin.TapPublisher plugin="tap@1.20">
-      <testResults>test_results/*.tap</testResults>
-      <failIfNoResults>false</failIfNoResults>
-      <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
-      <outputTapToConsole>false</outputTapToConsole>
-      <enableSubtests>false</enableSubtests>
-      <discardOldReports>true</discardOldReports>
-      <todoIsFailure>false</todoIsFailure>
-      <includeCommentDiagnostics>false</includeCommentDiagnostics>
-      <validateNumberOfTests>false</validateNumberOfTests>
-      <planRequired>true</planRequired>
-      <verbose>true</verbose>
-    </org.tap4j.plugin.TapPublisher>
-  </publishers>
-  <buildWrappers/>
+<triggers>
+  <hudson.triggers.SCMTrigger>
+    <spec>* * * * *</spec>
+    <ignorePostCommitHooks>false</ignorePostCommitHooks>
+  </hudson.triggers.SCMTrigger>
+</triggers>
+<concurrentBuild>false</concurrentBuild>
+<builders>
+  <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.34">
+    <configs>
+      <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+        <configs>
+          <hudson.plugins.parameterizedtrigger.BooleanParameters>
+            <configs>
+              <hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
+                <name>REBUILD_VMS</name>
+                <value>false</value>
+              </hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
+              <hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
+                <name>PUPPET_ONLY</name>
+                <value>false</value>
+              </hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
+              <hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
+                <name>POWER_OFF_VMS_AFTER_BUILD</name>
+                <value>true</value>
+              </hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
+            </configs>
+          </hudson.plugins.parameterizedtrigger.BooleanParameters>
+        </configs>
+        <projects>soe-el7</projects>
+        <condition>UNSTABLE_OR_BETTER</condition>
+        <triggerWithNoParameters>false</triggerWithNoParameters>
+        <triggerFromChildProjects>false</triggerFromChildProjects>
+        <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+      </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+    </configs>
+  </hudson.plugins.parameterizedtrigger.TriggerBuilder>
+</builders>
+<publishers/>
+<buildWrappers/>
 </project>

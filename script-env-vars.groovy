@@ -1,0 +1,5 @@
+env.PUSH_USER="jenkins"
+env.RSA_ID="/var/lib/jenkins/.ssh/id_rsa"
+env.KNOWN_HOSTS="/var/lib/jenkins/.ssh/known_hosts"
+env.SATELLITE="satellite.internal.pcfe.net"
+env.ORG="Sat Test"

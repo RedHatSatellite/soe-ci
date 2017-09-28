@@ -1,6 +1,15 @@
 Continuous Integration Scripts for Satellite 6
 ==============================================
 
+- - -
+
+* Author: Janine Eichler
+* Email: <jaeichle@redhat.com>
+* Revision: 0.4
+* Introduce proper pipeline
+
+- - -
+
 * Domain Architect: Eric Lavarde
 * Email: <elavarde@redhat.com>
 * Consultant: Patrick C. F. Ernzer
@@ -15,6 +24,19 @@ Continuous Integration Scripts for Satellite 6
 * Email: <nstrug@redhat.com>
 * Date: 2014-11-20
 * Revision: 0.1
+
+## Table of Contents
+* [Introduction](#introduction)
+* [Setup](#setup)
+  * [Jenkins Server](#jenkins-server)
+    * [Installation](#installation)
+    * [Create a Job which runs the pipeline](#create-a-job-which-runs-the-pipeline)
+    * [Create a job which polls the SCMs and then triggers the previously created job](#create-a-job-which-polls-the-scms-and-then-triggers-the-previously-created-job)
+  * [Git Repository](#git-repository)
+  * [Satellite 6](#satellite-6)
+  * [Bootstrapping](#bootstrapping)
+* [Getting Started](#getting-started)
+* [COMING SOON](#coming-soon)
 
 ## Standard Operating Environment Overview
 It is extremely helpful if you read the following blog posts, that explain the concepts behind this repo, before trying to implement.
@@ -85,19 +107,34 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 ```
 * Now that Jenkins is running, browse to it's console at http://jenkinsserver:8080/
 * Select the 'Manage Jenkins' link, followed by 'Manage Plugins'. You will need to add the following plugins:
-    * Git Plugin
-    * Multiple SCMs Plugin
-    * TAP Plugin
-    * Conditional BuildStep Plugin
+    * [Git Plugin](https://wiki.jenkins.io/display/JENKINS/Git+Plugin)
+    * [Multiple SCMs Plugin](https://wiki.jenkins.io/display/JENKINS/Multiple+SCMs+Plugin)
+    * [TAP Plugin](https://wiki.jenkins.io/display/JENKINS/TAP+Plugin)
+    * [Pipeline Plugin](https://wiki.jenkins.io/display/JENKINS/Pipeline+Plugin)
+    * [Parametrized Trigger Plugin](https://wiki.jenkins.io/display/JENKINS/Parameterized+Trigger+Plugin)
+
+
 * Select 'Configure System'
     * Enable 'Environment variables' in the Global properties section and click save (there is no need to Add any). Failing to enable this property leads to https://github.com/RedHatSatellite/soe-ci/issues/48
 * Restart Jenkins
 * Add the `jenkins` user to the `mock` group (`usermod -a -G mock jenkins`). This will allow Jenkins to build RPMs.
-* Create `/var/www/html/pub/soe-repo` and `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
+* Create `/var/www/html/pub/soe-repo`, `/var/www/html/pub/soe-puppet` and assign their ownership to the `jenkins` user. These will be used as the upstream repositories to publish artefacts to the satellite.
+    * Create `/var/www/html/pub/soe-puppet-only` for the puppet only workflow and assign its ownership to the `jenkins` user. It serves for the puppet only workflow.
+    * The pipeline handles both full builds and puppet-only via variables, so set them up both.
 * `su` to the `jenkins` user (`su jenkins -s /bin/bash`) and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
-* Create one build plan per release you want to build for in Jenkins by creating the directory `/var/lib/jenkins/jobs/SOE-<release> (e.g. SOE-el7)` and copying in the  [config.xml] file
+
+#### Create a Job which runs the pipeline
+* Create a directory /var/lib/jenkins/jobs/<job-name> (e.g. *soe-el7*) and copy in the [config-jenkinsfile.xml](config-jenkinsfile.xml) file.
+* Afterwards, rename the file to "config.xml". Make sure the jenkins user owns the directory and files.
+* Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
-    * you might need to reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
+  * Make sure that in the "Pipeline" section of the job configuration the "Lightweight checkout" is ticked and that the value for "Script Path" points to the "Jenkinsfile" in your repository.
+
+#### Create a job which polls the SCMs and then triggers the previously created job
+* Create the directory /var/lib/jenkins/jobs/<job-name> (e.g. *scm-poll-for-soe-el7*) and copy in the [config.xml](config.xml) file. Make sure the jenkins user is the owner of both.
+* Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
+* Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
+
 
 ### Git Repository
 * Clone the following two git repos:
@@ -105,6 +142,10 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
     * https://github.com/RedHatEMEA/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
 * Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote - you will need to edit both of these.
+* Make sure to set up the files `script-env-vars.groovy  script-env-vars-puppet-only.groovy  script-env-vars-rpm.groovy`
+    * be sure to have different PUPPET_REPO_ID for full build and puppet-only build.
+* Maintain your pipeline scrip `Jenkinsfile` in soe-ci.git
+* Commit and push to git
 
 ### Satellite 6
 * Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.0/html/Installation_Guide/index.html).
@@ -112,7 +153,9 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 * Create a sync plan that does a daily sync of the RHEL product
 * Do an initial sync
 * Create a product called 'ACME SOE'
-* Create a puppet repository called 'Puppet' with an upstream repo of http://jenkinsserver/pub/soe-puppet
+* Create two Puppet repos
+    * One called 'Puppet' with an upstream repo of http://jenkinsserver/pub/soe-puppet
+    * One called 'Puppet only' with an upstream repo of http://jenkinsserver/pub/soe-puppet-only
 * Create an RPM repository called 'RPMs' with an upstream repo of http://jenkinsserver/pub/soe-repo
 * Do NOT create a sync plan for the ACME SOE product. This will be synced by Jenkins when needed.
     * keep an eye on [RHBZ #1132980](https://bugzilla.redhat.com/show_bug.cgi?id=1132980) if you use a web proxy at your site to download packages to the Satellite.
@@ -126,7 +169,10 @@ NB I have SELinux disabled on the Jenkins server as I ran into too many problems
 ### Bootstrapping
 In order to create a Content View on the satellite, you need some initial content. That can be generated by Jenkins.
 
-Now manually trigger a build on Jenkins. This will fail, however it will create some content in the output directories by building the demo RPMs and Puppet modules. Check that these are available then do the following tasks:
+Now manually trigger both
+* a normal build
+* a puppet-only build
+This will fail, however it will create some content in the output directories by building the demo RPMs and Puppet modules. Check that these are available then do the following tasks:
 
 * On the satellite, do a manual sync of your ACME SOE product. Check that it syncs correctly and you have got the RPMs and puppet modules that Jenkins built for you.
 * Add the ACME SOE RPM and Puppet repos to the Content View, along with the RHEL 7 RPMs and RHEL 7 Common repos, and any third party puppet modules that are needed.
@@ -136,13 +182,14 @@ Now manually trigger a build on Jenkins. This will fail, however it will create 
 * Create a hostgroup (I called mine 'Test Servers') that deploys machines on to the Compute Resource that you configured earlier, and uses the activation key that you created. Create a default root password and make a note of it.
 * Create a couple of initial test servers and deploy them. Ensure that they can see your private RPM and puppet repositories as well as the Red Hat repositories.
     * If you plan to use the conditional VM build feature, edit the comment field of your test host(s) with the names of the Puppet modules, RPM packages and/or kickstart files surrounded by '#' if they are relevant to be tested on this specific host. E.g. if the 'ssh' module is modified, a host will only be re-built and tested if its comment field contains the string '#ssh#'.
+* CReate one or two Host Collections and configure TESTVM_HOSTCOLLECTION in `script-env-vars-puppet-only.groovy` and `script-env-vars-rpm.groovy`
 
-### Getting Started
+FIXME: add instructions on HC
+
+## Getting Started
 At this point, you should be good to go. In fact Jenkins may have already kicked off a build for you when you pushed to github.
 
 Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests  in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
 
 ## COMING SOON
-* Kickstart files (currently doesn't do anything)
-* Hiera usage
-* Selective BATS tests - currently all tests run on all test servers, irrespective of whether the puppet module that they are testing is installed
+* Documentation update for pipelines

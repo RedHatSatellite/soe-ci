@@ -1,5 +1,19 @@
 #!/bin/bash
 
+NO_ARGS=0
+OPTERROR=65
+
+usage()
+{
+  echo "Usage: $0 -s <seconds>"
+  echo "       s = number of seconds to sleep"
+  exit 1
+}
+if [ $# -eq "$NO_ARGS" ]
+then
+  usage
+fi
+
 look_for_state()
 {
   while [[ ! -d /var/lib/puppet/state ]]
@@ -49,10 +63,23 @@ if ! rpm -q puppet ; then
   exit 0
 fi
 
-# waiting just over one minute for puppet to start
-# this script gets run on first boot after a system was installed
-echo "waiting 75 seconds (one minute and a bit) before checking on puppet"
-sleep 75
+while getopts "c:n:s:h" Option
+do
+  case $Option in
+    s) SLEEP=${OPTARG}
+    ;;
+    h)
+      usage
+    ;;
+    *) echo "Non valid switch"
+    ;;
+  esac
+done
+
+# if you run puppet on boot, sleep 75 seconds (just over a minute)
+# if this is a run in the puppet only workflow, no real need to sleep
+echo "waiting ${SLEEP} seconds before checking on puppet"
+sleep ${SLEEP}
 
 # /var/lib/puppet/state gets created on first run?
 look_for_state
