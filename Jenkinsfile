@@ -40,6 +40,7 @@ node {
     }
     stage('publish and promote CV') {
       executeScript("${WORKSPACE}/scripts/publishcv.sh", false)
+      executeScript("${WORKSPACE}/scripts/capsule-sync-check.sh", false)
     }
     stage('run tests on VMs') {
       if (params.REBUILD_VMS == true) {
