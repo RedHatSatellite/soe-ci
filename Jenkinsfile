@@ -1,90 +1,107 @@
 #!/usr/bin/env groovy
 
 /**
-* Right now this is a <b>very</b> simple implementation of handling rpms and a puppet only build in the very same Jenkinsfile.</br>
-* In order to have the stages displayed properly in the Jenkins UI you should have the same stages for either way. If stages differ between job-run n-1 and n
+* This is a <b>very</b> simple implementation of handling rpms and a puppet only build in the very same Jenkinsfile.</br>
+* In order to have the stages displayed properly in the Jenkins UI you should have the same stages for either way. If stage names differ between job-run n-1 and n
 * the main page of the job will only display the current job run rather than the cool history of the last runs in the pipeline execution table.</br>
-* it's not a dynamic table, what a shame.
 */
 node {
 
-  VERBOSE_MODE = params.VERBOSE ? true : false
-  bashExec = VERBOSE_MODE ? '/bin/bash -x' : '/bin/bash'
+  SCRIPTS_DIR = "${WORKSPACE}/scripts"
+  GENERAL_CONFIG_FILE = "${SCRIPTS_DIR}/script-env-vars.groovy"
+  RHEL_VERSION_SPECIFIC_CONFIG_FILE_SUFFIX = "-script-env-vars-rpm.groovy"
+  RHEL_VERSION_SPECIFIC_PUPPEPT_ONLY_CONFIG_FILE_SUFFIX= "-script-env-vars-puppet-only.groovy"
+
+  runScriptVerbose = params.VERBOSE ? true : false
+  bashExec = runScriptVerbose ? '/bin/bash -x' : '/bin/bash'
+
+  rhelVersionSpecificConfigFile = "${SCRIPTS_DIR}/${params.RHEL_VERSION}" + RHEL_VERSION_SPECIFIC_CONFIG_FILE_SUFFIX
+  rhelVersionSpecificPuppetOnlyConfigFile = "${SCRIPTS_DIR}/${params.RHEL_VERSION}" + RHEL_VERSION_SPECIFIC_PUPPEPT_ONLY_CONFIG_FILE_SUFFIX
+  specificConfigFile = params.PUPPET_ONLY == true ? rhelVersionSpecificPuppetOnlyConfigFile : rhelVersionSpecificConfigFile
 
   try {
+
     if (params.CLEAN_WORKSPACE == true) {
       deleteDir()
     }
 
-    stage('Checkout from SCM') {
+    stage('Checkout from Git') {
       dir('scripts') {
         git credentialsId: "${params.CREDENTIALS_ID_SOE_CI_IN_JENKINS}", branch: "${params.SOE_CI_BRANCH}", poll: false, url: "${params.SOE_CI_REPO_URL}"
       }
       dir('soe') {
-        git credentialsId: "${params.CREDENTIALS_ID_ACME_SOE_IN_JENKINS}", branch:"${params.ACME_SOE_BRANCH}" ,poll: false, url: "${params.ACME_SOE_REPO_URL}"
+        git credentialsId: "${params.CREDENTIALS_ID_ACME_SOE_IN_JENKINS}", branch:"${params.ACME_SOE_BRANCH}", poll: false, url: "${params.ACME_SOE_REPO_URL}"
       }
     }
 
-    loadEnvVars()
+    stage('check that config files exist') {
+      checkThatConfigFilesExist()
+    }
+
+    environmentVariables()
 
     stage('build') {
-      executeScript("${WORKSPACE}/scripts/rpmbuild.sh ${WORKSPACE}/soe/rpms", true)
-      executeScript("${WORKSPACE}/scripts/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts", true)
-      executeScript("${WORKSPACE}/scripts/puppetbuild.sh ${WORKSPACE}/soe/puppet", false)
+      executeScript("${SCRIPTS_DIR}/rpmbuild.sh ${WORKSPACE}/soe/rpms", true)
+      executeScript("${SCRIPTS_DIR}/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts", true)
+      executeScript("${SCRIPTS_DIR}/puppetbuild.sh ${WORKSPACE}/soe/puppet", false)
     }
 
     stage('push to Satellite'){
-      executeScript("${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/artefacts", true)
-      executeScript("${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/artefacts", false)
-      executeScript("${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts", true)
+      executeScript("${SCRIPTS_DIR}/rpmpush.sh ${WORKSPACE}/artefacts", true)
+      executeScript("${SCRIPTS_DIR}/puppetpush.sh ${WORKSPACE}/artefacts", false)
+      executeScript("${SCRIPTS_DIR}/kickstartpush.sh ${WORKSPACE}/artefacts", true)
     }
     stage('publish and promote CV') {
-      executeScript("${WORKSPACE}/scripts/publishcv.sh", false)
-      executeScript("${WORKSPACE}/scripts/capsule-sync-check.sh", false)
+      executeScript("${SCRIPTS_DIR}/publishcv.sh", false)
+      executeScript("${SCRIPTS_DIR}/capsule-sync-check.sh", false)
     }
-    stage('prep VMs') {
+    stage('prepare VMs') {
       if (params.REBUILD_VMS == true) {
-        executeScript("${WORKSPACE}/scripts/buildtestvms.sh")
+        executeScript("${SCRIPTS_DIR}/buildtestvms.sh")
       } else {
-        executeScript("${WORKSPACE}/scripts/starttestvms.sh")
+        executeScript("${SCRIPTS_DIR}/starttestvms.sh")
       }
     }
     stage('run tests') {
-      executeScript("${WORKSPACE}/scripts/pushtests.sh")
+      executeScript("${SCRIPTS_DIR}/pushtests.sh")
       step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
     }
   } finally {
       stage('poweroff VMs') {
         if (params.POWER_OFF_VMS_AFTER_BUILD == true) {
-          executeScript("${WORKSPACE}/scripts/powerofftestvms.sh")
+          executeScript("${SCRIPTS_DIR}/powerofftestvms.sh")
         } else {
           println "test VMs are not shut down as per passed configuration"
         }
       }
       stage('cleanup') {
-        executeScript("${WORKSPACE}/scripts/cleanup.sh")
+        executeScript("${SCRIPTS_DIR}/cleanup.sh")
       }
   }
 }
 
 /**
-* @fileName - it is assumed the file is located in $WORKSPACE/scripts
+* depending on the chosen value of the param <code>RHEL_VERSION</code>,
+* we need to check that the config files exist rather than to wait for the pipeline
+* to reach the point where it needs those configs and then fails.
 */
-def loadEnvVarsFromFile(String fileName) {
-  try {
-    load "${WORKSPACE}/scripts/$fileName"
-  } catch (e) {
-    println "Well, this is embarassing, but we couldn't load the file $fileName"
-    throw e
+def checkThatConfigFilesExist() {
+  filesMissing = false
+  errorMessage = "The following config files are missing:"
+  [GENERAL_CONFIG_FILE, specificConfigFile].each { fileName -> 
+    if (fileExists("${fileName}") == false) {
+      filesMissing = true
+      errorMessage = errorMessage + " ${fileName}"
+    }
+  }
+  if (filesMissing) {
+    error(errorMessage)
   }
 }
 
-def loadEnvVars() {
-  loadEnvVarsFromFile("script-env-vars.groovy")
-  if (params.PUPPET_ONLY == true) {
-    loadEnvVarsFromFile("script-env-vars-puppet-only.groovy")
-  } else {
-    loadEnvVarsFromFile("script-env-vars-rpm.groovy")
+def environmentVariables() {
+  [GENERAL_CONFIG_FILE, specificConfigFile].each { fileName -> 
+    load "${fileName}"
   }
 }
 

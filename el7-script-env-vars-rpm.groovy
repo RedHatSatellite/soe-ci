@@ -2,8 +2,6 @@
 env.REPO_ID="70"
 env.PUPPET_REPO_ID="71"
 env.TESTVM_HOSTCOLLECTION="Test Servers Jenkins pipeline"
-env.TESTVM_ENV="2"
-env.TEST_ROOT="redhat geheim"
 env.YUM_REPO="/var/www/html/pub/soe-repo/rhel7"
 env.PUPPET_REPO="/var/www/html/pub/soe-puppet"
 env.CV="cv-Jenkins-SOE-el7"
