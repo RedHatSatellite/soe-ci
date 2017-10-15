@@ -90,7 +90,7 @@ done
 # this check was previously only in pushtests, but when using pipelines 
 # it's more sensible to wait here while the machines are in build mode
 # the ping and ssh checks must remain in pushtests.sh
-# as a pupet only build will not call tis script
+# as a pupet only build will not call this script
 
 declare -A vmcopy # declare an associative array to copy our VM array into
 for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
