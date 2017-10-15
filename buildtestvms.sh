@@ -98,9 +98,9 @@ for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
-    inform "Waiting 10 seconds"
-    sleep 10
-    ((WAIT+=10))
+    inform "Waiting 1 minute"
+    sleep 60
+    ((WAIT+=60))
     for I in "${vmcopy[@]}"
     do
         inform "Checking if host $I is in build mode."
