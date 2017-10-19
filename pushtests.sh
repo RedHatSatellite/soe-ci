@@ -10,21 +10,19 @@
 
 get_test_vm_list # populate TEST_VM_LIST
 
-# we need to wait until all the test machines have been rebuilt by foreman
+# we need to wait until all the test machines are up and can be ssh-ed to
 declare -A vmcopy # declare an associative array to copy our VM array into
 for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do
-    inform "Waiting 10 seconds"
-    sleep 10
-    ((WAIT+=10))
+    inform "Waiting 15 seconds"
+    sleep 15
+    ((WAIT+=15))
     for I in "${vmcopy[@]}"
     do
-        inform "Checking if test server $I has rebooted into OS so that tests can be run"
-        inform "note that the Jenkins job definition may trigger a fresh installation,"
-        inform "so check the console of $I if this step is taking too long."
+        inform "Checking if test server $I has rebooted into OS so that tests can be run."
         status=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host info --name $I | \
             grep -e \"Managed.*yes\" -e \"Enabled.*yes\" -e \"Build.*no\" \
