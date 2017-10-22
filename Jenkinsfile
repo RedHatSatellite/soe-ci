@@ -42,12 +42,14 @@ node {
       executeScript("${WORKSPACE}/scripts/publishcv.sh", false)
       executeScript("${WORKSPACE}/scripts/capsule-sync-check.sh", false)
     }
-    stage('run tests on VMs') {
+    stage('prep VMs') {
       if (params.REBUILD_VMS == true) {
         executeScript("${WORKSPACE}/scripts/buildtestvms.sh")
       } else {
         executeScript("${WORKSPACE}/scripts/starttestvms.sh")
       }
+    }
+    stage('run tests') {
       executeScript("${WORKSPACE}/scripts/pushtests.sh")
       step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
     }
