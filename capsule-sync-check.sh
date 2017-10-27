@@ -19,7 +19,7 @@ count_capsule_syncs_in_progress()
   _CAPSULE_SYNC_COUNT=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer --csv task list --search 'state = running and label ~  CapsuleGenerateAndSync'" | tail -n +2 | wc -l)
 }
 
-info "Checking if there is a Capsule Sync in progress"
+inform "Checking if there is a Capsule Sync in progress"
 count_capsule_syncs_in_progress
 if [[ ${_CAPSULE_SYNC_COUNT} -gt 0 ]]
 then
@@ -34,5 +34,5 @@ then
     warn "${_CAPSULE_SYNC_COUNT} sync jobs to capsules still running"
   done
 else
-  info "No sync jobs to capsules in progress"
+  inform "No sync jobs to capsules in progress"
 fi
