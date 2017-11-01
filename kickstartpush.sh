@@ -5,15 +5,31 @@
 # e.g. ${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts/kickstarts/
 #
 
-# Load common parameter variables
-. $(dirname "${0}")/common.sh
+#set -x
 
-if [[ -z "$1" ]] || [[ ! -d "$1" ]]
+# Load common parameter variables
+source scripts/common.sh
+
+printf -v escaped_1 %q "${1}"
+
+if [[ -z ${escaped_1} ]]
 then
     usage "$0 <kickstarts directory>"
+    warn "the test zero length failed for ${escaped_1}"
+    warn "you used $0 $@"
     exit ${NOARGS}
 fi
+
+if [[ ! -d "${1}" ]]
+then
+    usage "$0 <kickstarts directory>"
+    warn "the test directory exists failed for ${escaped_1}"
+    warn "you used $0 $@"
+    exit ${NOARGS}
+fi
+
 workdir=$1
+printf -v escaped_workdir %q "${1}"
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
@@ -23,10 +39,10 @@ fi
 
 # We delete extraneous kickstarts on the satellite so that we don't keep pushing the same kickstarts into foreman
 rsync --delete -va -e "ssh -l ${PUSH_USER} -i /var/lib/jenkins/.ssh/id_rsa" -va \
-    ${workdir}/kickstarts/ ${SATELLITE}:kickstarts
+    "${workdir}/kickstarts/" ${SATELLITE}:kickstarts
 
 # either update or create each kickstart in turn
-cd ${workdir}/kickstarts
+cd "${workdir}/kickstarts"
 for I in *.erb
 do
     name=$(sed -n 's/^name:\s*\(.*\)/\1/p' ${I})

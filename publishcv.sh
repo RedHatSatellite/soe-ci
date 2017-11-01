@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Publish the content view(s) and promote if necessary
 #
@@ -8,8 +8,10 @@
 #   CV_PASSIVE_LIST="cv-passive-1,cv-passive-2" ORG=Default_Organization \
 #   CCV_NAME_PATTERN="ccv-test-*" BUILD_URL=$$ ./publishcv.sh
 
+#set -x
+
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 # has anything changed? If yes, then MODIFIED_CONTENT_FILE is not 0 bytes 
 if [[ ! -s "${MODIFIED_CONTENT_FILE}" ]]

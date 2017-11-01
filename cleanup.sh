@@ -5,8 +5,10 @@
 # e.g. ${WORKSPACE}/scripts/cleanup.sh
 #
 
+#set -x
+
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 if [[ ! -n "${WORKSPACE}" || ! -d "${WORKSPACE}" ]]
 then

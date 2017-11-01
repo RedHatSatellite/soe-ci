@@ -6,8 +6,10 @@
 #
 # this will tell Foreman to rebuild all machines in hostgroup TESTVM_HOSTGROUP
 
+#set -x
+
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]  || [[ -z ${RSA_ID} ]] \
    || [[ -z ${ORG} ]] || [[ -z ${TESTVM_HOSTCOLLECTION} ]]
