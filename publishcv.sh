@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Publish the content view(s) and promote if necessary
 #

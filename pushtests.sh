@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Push BATS tests to test VMs
 #
