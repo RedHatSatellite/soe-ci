@@ -30,7 +30,7 @@ fi
 if [[ ! -d "${1}" ]]
 then
     usage "$0 <artefacts directory>"
-    warn "the test directory exists failed for ${escaped_1}"
+    warn "the test directory exists failed for ${1}"
     warn "you used $0 $@"
     exit ${NOARGS}
 fi
