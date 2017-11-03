@@ -6,7 +6,7 @@ Continuous Integration Scripts for Satellite 6
 * Author: Janine Eichler
 * Email: <jaeichle@redhat.com>
 * Revision: 0.4
-* Introduce proper pipeline
+* Introduce Jenkins Pipeline
 
 - - -
 
@@ -30,8 +30,13 @@ Continuous Integration Scripts for Satellite 6
 * [Setup](#setup)
   * [Jenkins Server](#jenkins-server)
     * [Installation](#installation)
-    * [Create a Job which runs the pipeline](#create-a-job-which-runs-the-pipeline)
-    * [Create a job which polls the SCMs and then triggers the previously created job](#create-a-job-which-polls-the-scms-and-then-triggers-the-previously-created-job)
+    * [Jenkins Jobs](#jenkins-jbos)
+      * [Overview](#overview)
+      * [Job Parameters and what they do](#job-parameters-and-what-they-do)
+      * [Create the Jobs](#create-the-jobs)
+      * [How do I change the Pipeline](#how-do-i-change-the-pipeline)
+      * [Create a Job which runs the pipeline](#create-a-job-which-runs-the-pipeline)
+      * [Create a job which polls the SCMs and then triggers the previously created job](#create-a-job-which-polls-the-scms-and-then-triggers-the-previously-created-job)
   * [Git Repository](#git-repository)
   * [Satellite 6](#satellite-6)
   * [Bootstrapping](#bootstrapping)
@@ -123,28 +128,65 @@ NB I have SELinux enabled on the Jenkins server and it poses no problems.
     * The pipeline handles both full builds and puppet-only via variables, so set them up both.
 * `su` to the `jenkins` user (`su jenkins -s /bin/bash`) and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
 
-#### Create a Job which runs the pipeline
+#### Jenkins Jobs
+
+##### Overview
+
+First of all, let's have a look at the bigger picture here.
+You'll create at least two jobs. One will be solely  responsible for polling your SCM. When changes are detected on the SCM, the second job will be triggered. The second job will then take care of building, pushing to Satellite, running the tests.
+It is important to notice that these steps (building the rpm's and/or puppet modules, pushing them to Satellite, running the tests etc.) will be done using a Jenkins Pipeline, so it is code written in Groovy and part of the soe-ci git repository. Documentation for the pipeline can be found [here](https://jenkins.io/doc/book/pipeline/). We use a scripted pipeline, not the declarative one.
+
+The configuration options will be explained later on.
+
+In general you might want to have multiple of these job pairs. E.g. for EL6 and EL7, building only puppet modules or the "full" build including RPMs.
+
+##### Job parameters and what they do
+
+
+Right now a couple of job parameters are used which you need to configure:
+
+| Parameter Name  | Description  |
+|---|---|
+|  SOE_CI_REPO_URL |  the git repository url of your soe-ci project |
+| SOE_CI_BRANCH | the relevant branch which contains the Jenkinsfile and config file to build the RPMs and puppet modules |
+| CREDENTIALS_ID_SOE_CI_IN_JENKINS | the credentials id of the user configured in Jenkisn to access the source code of the soe ci project in git |
+| ACME_SOE_REPO_URL | The git repoistory url to checkout the 'acme-soe' project. |
+| ACME_SOE_BRANCH | The branch to checkout of the 'acme-soe' repo. |
+| CREDENTIALS_ID_ACME_SOE_IN_JENKINS | analog to CREDENTIALS_ID_SOE_CI_IN_JENKINS, can be the same, depending on your setup |
+| RHEL_VERSION | this param indirectly configures two things: which mock config to use (the pattern ispattern /etc/mock/<RHEL_VERSION>-x86_64.cfg) and which config file the pipeline uses for environment parameters (pattern is <RHEL_VERSION>-script-env-vars-puppet-only.groovy for a PUPPET_ONLY build and <RHEL_VERSION>-script-env-vars-rpm.groovy for a rpm and puppet module build.)
+| REBUILD_VMS | Whether or not to rebuild the test VMs before running the tests |
+| POWER_OFF_VMS_AFTER_BUILD | Whether or not to power off the VMs after the build. The build result (successful / failed) is not taken into consideration. |
+| PUPPET_ONLY | Whether or not **only** puppet modules should be built and pushed. This will reduce the duration of the build significantly, however it ignores RPMs completely.
+| CLEAN_WORKSPACE | Whether or not to clean the jenkins workspace before the job execution.|
+| VERBOSE | Whether or not to run the executed scripts in a verbose mode. Basically it decides whether run 'bash -x' or just 'bash '|
+
+##### Create the jobs
+
+##### Create a Job which runs the pipeline
 * Create a directory /var/lib/jenkins/jobs/<job-name> (e.g. *soe-el7*) and copy in the [config-jenkinsfile.xml](config-jenkinsfile.xml) file.
 * Afterwards, rename the file to "config.xml". Make sure the jenkins user owns the directory and files.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
   * Make sure that in the "Pipeline" section of the job configuration the "Lightweight checkout" is ticked and that the value for "Script Path" points to the "Jenkinsfile" in your repository.
 
-#### Create a job which polls the SCMs and then triggers the previously created job
+##### Create a job which polls the SCMs and then triggers the previously created job
 * Create the directory /var/lib/jenkins/jobs/<job-name> (e.g. *scm-poll-for-soe-el7*) and copy in the [config.xml](config.xml) file. Make sure the jenkins user is the owner of both.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
 
+#### How do I change the pipeline
+It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If you want to test your changes first before pushing multiple commits to the repository, you can simply create a new job, which is a copy of your "second" job (remember, there are two jobs, one which pulls and one which builds), and change in the "Pipeline" section the "Defintion" from "Pipeline Script from SCM" to "Pipeline Script". Copy and paste your pipeline in the box (it's a groovy sandbox), and you're good to go. Remember this is for testing only. Once you're done, push your changes accordingly and delete the job you created for testing purposes.
+
 
 ### Git Repository
 * Clone the following two git repos:
-    * https://github.com/RedHatEMEA/soe-ci These are the scripts used to by Jenkins to drive CII
+    * https://github.com/RedHatEMEA/soe-ci These are the scripts used to by Jenkins to drive CI
     * https://github.com/RedHatEMEA/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
 * Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote - you will need to edit both of these.
 * Make sure to set up the files `script-env-vars.groovy  script-env-vars-puppet-only.groovy  script-env-vars-rpm.groovy`
-    * be sure to have different PUPPET_REPO_ID for full build and puppet-only build.
-* Maintain your pipeline scrip `Jenkinsfile` in soe-ci.git
+    * be sure to have different a PUPPET_REPO_ID for the full and puppet-only build.
+* Maintain your pipeline script `Jenkinsfile` in soe-ci.git
 * Commit and push to git
 
 ### Satellite 6
@@ -192,4 +234,4 @@ At this point, you should be good to go. In fact Jenkins may have already kicked
 Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
 
 ## COMING SOON
-* Documentation update for pipelines
+* Desperately missing a feature? Found a bug? Open a ticket on https://github.com/RedHatSatellite/soe-ci/issues
