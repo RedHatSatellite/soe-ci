@@ -27,8 +27,8 @@ pushd "${PUPPET_REPO}"
         if [[ ! -d "${WORKSPACE}/soe/puppet/${I}" ]]
         then
             warn "puppet module '${I}' found in '${PUPPET_REPO}' but not in git."
-            warn "In the repo we found these versions:"
-            ls -lh *-${I}-*.tar.gz
+            warn "Cleaning ${PUPPET_REPO}"
+            rm --verbose --interactive=never *-${I}-*.tar.gz
         fi
     done
 popd
