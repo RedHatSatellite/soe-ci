@@ -59,6 +59,10 @@ we also nail down REBUILD_VMS, PUPPET_ONLY and POWER_OFF_VMS_AFTER_BUILD</descri
         <configs>
           <hudson.plugins.parameterizedtrigger.BooleanParameters>
             <configs>
+              <hudson.model.StringParameterDefinition>
+                <name>RHEL_VERSION</name>
+                <value>rhel-7</value>
+              </hudson.model.StringParameterDefinition>
               <hudson.plugins.parameterizedtrigger.BooleanParameterConfig>
                 <name>REBUILD_VMS</name>
                 <value>false</value>

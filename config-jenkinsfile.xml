@@ -26,7 +26,7 @@
         <hudson.model.StringParameterDefinition>
           <name>RHEL_VERSION</name>
           <description>The RHEL version to use. Keep in mind that the config files must be prefixed with that string. See README for details.</description>
-          <defaultValue>el7</defaultValue>
+          <defaultValue>rhel-7</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>CREDENTIALS_ID_SOE_CI_IN_JENKINS</name>
