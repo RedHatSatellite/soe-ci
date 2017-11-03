@@ -30,7 +30,7 @@ Continuous Integration Scripts for Satellite 6
 * [Setup](#setup)
   * [Jenkins Server](#jenkins-server)
     * [Installation](#installation)
-    * [Jenkins Jobs](#jenkins-jbos)
+    * [Jenkins Jobs](#jenkins-jobs)
       * [Overview](#overview)
       * [Job Parameters and what they do](#job-parameters-and-what-they-do)
       * [Create the Jobs](#create-the-jobs)
