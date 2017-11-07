@@ -133,8 +133,8 @@ NB I have SELinux enabled on the Jenkins server and it poses no problems.
 ##### Overview
 
 First of all, let's have a look at the bigger picture here.
-You'll create at least two jobs. One will be solely  responsible for polling your SCM. When changes are detected on the SCM, the second job will be triggered. The second job will then take care of building, pushing to Satellite, running the tests.
-It is important to notice that these steps (building the rpm's and/or puppet modules, pushing them to Satellite, running the tests etc.) will be done using a Jenkins Pipeline, so it is code written in Groovy and part of the soe-ci git repository. Documentation for the pipeline can be found [here](https://jenkins.io/doc/book/pipeline/). We use a scripted pipeline, not the declarative one.
+You'll create at least two jobs. One will be solely  responsible for polling your SCM. When changes are detected on the SCM, the second job will be triggered. The second job will then take care of building, pushing to Satellite and running the tests.
+It is important to note that these steps (building the rpm's and/or puppet modules, pushing them to Satellite, running the tests etc.) will be done using a Jenkins Pipeline, so it is code written in Groovy and part of the soe-ci git repository. Documentation for the pipeline can be found [here](https://jenkins.io/doc/book/pipeline/). We use a scripted pipeline, not the declarative one.
 
 The configuration options will be explained later on.
 
@@ -147,16 +147,16 @@ Right now a couple of job parameters are used which you need to configure:
 
 | Parameter Name  | Description  |
 |---|---|
-|  SOE_CI_REPO_URL |  the git repository url of your soe-ci project |
-| SOE_CI_BRANCH | the relevant branch which contains the Jenkinsfile and config file to build the RPMs and puppet modules |
+| SOE_CI_REPO_URL |  the git repository url of your soe-ci project |
+| SOE_CI_BRANCH | the branch containing the Jenkinsfile and config file to build the RPMs and puppet modules from |
 | CREDENTIALS_ID_SOE_CI_IN_JENKINS | the credentials id of the user configured in Jenkisn to access the source code of the soe ci project in git |
-| ACME_SOE_REPO_URL | The git repoistory url to checkout the 'acme-soe' project. |
-| ACME_SOE_BRANCH | The branch to checkout of the 'acme-soe' repo. |
-| CREDENTIALS_ID_ACME_SOE_IN_JENKINS | analog to CREDENTIALS_ID_SOE_CI_IN_JENKINS, can be the same, depending on your setup |
-| RHEL_VERSION | this param indirectly configures two things: which mock config to use (the pattern ispattern /etc/mock/<RHEL_VERSION>-x86_64.cfg) and which config file the pipeline uses for environment parameters (pattern is <RHEL_VERSION>-script-env-vars-puppet-only.groovy for a PUPPET_ONLY build and <RHEL_VERSION>-script-env-vars-rpm.groovy for a rpm and puppet module build.)
-| REBUILD_VMS | Whether or not to rebuild the test VMs before running the tests |
+| ACME_SOE_REPO_URL | the git repository url to checkout the 'acme-soe' project from |
+| ACME_SOE_BRANCH | the branch to checkout of the 'acme-soe' repo. |
+| CREDENTIALS_ID_ACME_SOE_IN_JENKINS | analogous to CREDENTIALS_ID_SOE_CI_IN_JENKINS, can be the same, depending on your setup |
+| RHEL_VERSION | this param indirectly configures two things: which mock config to use (the pattern is /etc/mock/<RHEL_VERSION>-x86_64.cfg) and which config file the pipeline uses for environment parameters (pattern is <RHEL_VERSION>-script-env-vars-puppet-only.groovy for a PUPPET_ONLY build and <RHEL_VERSION>-script-env-vars-rpm.groovy for a rpm and puppet module build.)
+| REBUILD_VMS | whether or not to reinstall the test VMs before running the tests |
 | POWER_OFF_VMS_AFTER_BUILD | Whether or not to power off the VMs after the build. The build result (successful / failed) is not taken into consideration. |
-| PUPPET_ONLY | Whether or not **only** puppet modules should be built and pushed. This will reduce the duration of the build significantly, however it ignores RPMs completely.
+| PUPPET_ONLY | Whether or not **only** puppet modules should be built and pushed. This will reduce the duration of the build significantly (provided you update a CV that only contains puppet modules), however it ignores RPMs completely.
 | CLEAN_WORKSPACE | Whether or not to clean the jenkins workspace before the job execution.|
 | VERBOSE | Whether or not to run the executed scripts in a verbose mode. Basically it decides whether run 'bash -x' or just 'bash '|
 
@@ -180,12 +180,12 @@ It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If yo
 
 ### Git Repository
 * Clone the following two git repos:
-    * https://github.com/RedHatEMEA/soe-ci These are the scripts used to by Jenkins to drive CI
-    * https://github.com/RedHatEMEA/acme-soe This is a demo CI environment
+    * https://github.com/RedHatSatellite/soe-ci These are the scripts used to by Jenkins to drive CI
+    * https://github.com/RedHatSatellite/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
 * Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote - you will need to edit both of these.
 * Make sure to set up the files `script-env-vars.groovy  script-env-vars-puppet-only.groovy  script-env-vars-rpm.groovy`
-    * be sure to have different a PUPPET_REPO_ID for the full and puppet-only build.
+    * be sure to have a different PUPPET_REPO_ID for the full and puppet-only build.
 * Maintain your pipeline script `Jenkinsfile` in soe-ci.git
 * Commit and push to git
 
