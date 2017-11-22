@@ -34,18 +34,18 @@ then
   warn "${_CAPSULE_SYNC_COUNT} sync jobs to capsules in progress"
   while [[ ${_CAPSULE_SYNC_COUNT} -gt 0 ]]
   do
-    inform "Will check again in 5 minutes"
-    inform "We have been checking since      ${_CHECKING_SINCE}"
-    sleep 300
-    count_capsule_syncs_in_progress
-    warn "${_CAPSULE_SYNC_COUNT} sync jobs to capsules still running"
-    ((WAIT+=300))
     if [[ ${WAIT} -gt ${MAX_SYNC_WAIT} ]]
     then
 	    err "Capsules seem to still be syncing after ${MAX_SYNC_WAIT} seconds. Exiting."
 	    err "It is most strongly recommended you look into why your capsules are still syncing after such a long wait."
 	    exit 1
     fi
+    inform "Will check again in 5 minutes"
+    inform "We have been checking since ${_CHECKING_SINCE}"
+    sleep 300
+    ((WAIT+=300))
+    count_capsule_syncs_in_progress
+    warn "${_CAPSULE_SYNC_COUNT} sync jobs to capsules still running"
   done
 else
   inform "No sync jobs to capsules in progress"
