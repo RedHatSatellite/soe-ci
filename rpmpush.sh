@@ -8,6 +8,35 @@
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
+if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]] || [[ -z ${YUM_REPO} ]] || [[ -z ${WORKSPACE} ]]
+then
+    err "PUSH_USER, SATELLITE, YUM_REPO or WORKSPACE not set or not found"
+    exit ${WORKSPACE_ERR}
+fi
+
+# get the RPM (src and binary) names found in ${YUM_REPO}
+# and verify that a folder for this is in git.
+# mind you, this explicitly does not differentiate between the RPM versions.
+# the reason is that we want to remove all versions of the RPM.
+# see Issue #102 at https://github.com/RedHatSatellite/soe-ci/issues/102
+inform "checking '${YUM_REPO}' for RPMs no longer in git"
+pushd "${YUM_REPO}"
+    find . -type f -name "*.rpm" | while read I
+    do
+        # get RPM name
+        J=$(rpm -qp --queryformat "%{name}\n" ${I})
+
+        # check if RPM still exists in git
+        if [[ ! -d "${WORKSPACE}/soe/rpms/${J}" ]]
+        then
+            warn "RPM '${I}' found in '${YUM_REPO}' but not in git."
+            warn "Deleting the RPM now."
+            rm --verbose --interactive=never ${I}
+        fi
+    done
+popd
+inform "RPM check completed"
+
 # has anything changed? If yes, then MODIFIED_CONTENT_FILE is not 0 bytes 
 if [[ ! -s "${MODIFIED_RPMS_FILE}" ]]
 then
@@ -21,12 +50,6 @@ then
     exit ${NOARGS}
 fi
 workdir=$1
-
-if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
-then
-    err "PUSH_USER or SATELLITE not set or not found"
-    exit ${WORKSPACE_ERR}
-fi
 
 # refresh the upstream yum repo
 createrepo ${YUM_REPO}
