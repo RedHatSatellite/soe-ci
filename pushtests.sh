@@ -1,12 +1,14 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Push BATS tests to test VMs
 #
 # e.g ${WORKSPACE}/scripts/pushtests.sh 'test'
 #
 
+#set -x
+
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 get_test_vm_list # populate TEST_VM_LIST
 
@@ -99,7 +101,7 @@ do
 done
 
 # execute the tests in parallel on all test servers
-mkdir -p ${WORKSPACE}/test_results
+mkdir -p "${WORKSPACE}/test_results"
 for I in ${TEST_VM_LIST[@]}
 do
     inform "Starting TAPS tests on test server $I"

@@ -6,7 +6,7 @@
 #
 
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then

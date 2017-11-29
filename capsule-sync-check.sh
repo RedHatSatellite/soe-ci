@@ -3,8 +3,10 @@
 # While a Capsule Sync is in progress, we must wait
 # as the System Under Test (SUT) may be behind a Capsule
 
+#set -x
+
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 
 # how long do we wait

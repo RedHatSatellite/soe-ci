@@ -102,16 +102,23 @@ If unset/false, all existing hosts, within the given Host Collection, will be re
         <hudson.model.StringParameterDefinition>
           <name>MOCK_CONFIG</name>
           <description>This will be passed to mock --root
-e.g. mock --root rhel-6-x86_64
+e.g. mock --root rhel-7-x86_64
 needed to ensure we can build RPMs against more then just the default mock chroot.</description>
-          <defaultValue>rhel-6-x86_64</defaultValue>
+          <defaultValue>rhel-7-x86_64</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PUPPET_DONE_SLEEP</name>
+          <description>Number of seconds to wait in puppet-done-test.sh
+if you set up things with puppet that take a while to settle (e.g. NTP), you may want to wait a bit (e.g. 75 seconds
+ is good for ntp to settle)</description>
+          <defaultValue>75</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.3">
+  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@2.2.7">
+      <hudson.plugins.git.GitSCM plugin="git@3.5.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -131,7 +138,7 @@ needed to ensure we can build RPMs against more then just the default mock chroo
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@2.2.7">
+      <hudson.plugins.git.GitSCM plugin="git@3.5.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -157,62 +164,70 @@ needed to ensure we can build RPMs against more then just the default mock chroo
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.SCMTrigger>
-      <spec>* * * * * </spec>
-      <ignorePostCommitHooks>false</ignorePostCommitHooks>
-    </hudson.triggers.SCMTrigger>
-  </triggers>
+  <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
+      <command>#!/bin/bash
+
+echo &quot;#####################################################&quot;
 echo &quot;#                BUILDING RPMS                      #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmbuild.sh ${WORKSPACE}/soe/rpms
+&quot;${WORKSPACE}/scripts/rpmbuild.sh&quot; &quot;${WORKSPACE}/soe/rpms&quot;
 
 echo &quot;#####################################################&quot;
 echo &quot;#                BUILDING PUPPET MODULES            #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/puppetbuild.sh ${WORKSPACE}/soe/puppet
+&quot;${WORKSPACE}/scripts/puppetbuild.sh&quot; &quot;${WORKSPACE}/soe/puppet&quot;
 
 echo &quot;#####################################################&quot;
 echo &quot;#                BUILDING KICKSTARTS                #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts
-</command>
+&quot;${WORKSPACE}/scripts/kickstartbuild.sh&quot; &quot;${WORKSPACE}/soe/kickstarts&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
+      <command>#!/bin/bash
+
+echo &quot;#####################################################&quot;
 echo &quot;#                PUSH RPMS TO SATELLITE             #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/artefacts
+&quot;${WORKSPACE}/scripts/rpmpush.sh&quot; &quot;${WORKSPACE}/artefacts&quot;
+
 echo &quot;#####################################################&quot;
 echo &quot;#         PUSH PUPPET MODULES TO SATELLITE          #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/puppetpush.sh ${WORKSPACE}/artefacts
+&quot;${WORKSPACE}/scripts/puppetpush.sh&quot; &quot;${WORKSPACE}/artefacts&quot;
+
 echo &quot;#####################################################&quot;
 echo &quot;#           PUSH KICKSTARTS TO SATELLITE            #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/kickstartpush.sh ${WORKSPACE}/artefacts
+&quot;${WORKSPACE}/scripts/kickstartpush.sh&quot; &quot;${WORKSPACE}/artefacts&quot;
+
 echo &quot;#####################################################&quot;
 echo &quot;#           REPUBLISH CONTENT VIEW                  #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/publishcv.sh</command>
+&quot;${WORKSPACE}/scripts/publishcv.sh&quot;
+
+echo &quot;#####################################################&quot;
+echo &quot;#           WAIT FOR CAPSULE SYNC                   #&quot;
+echo &quot;#####################################################&quot;
+&quot;${WORKSPACE}/scripts/capsule-sync-check.sh&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
+      <command>#!/bin/bash
+
+echo &quot;#####################################################&quot;
 echo &quot;#                REBUILDING TEST VMS                #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/buildtestvms.sh
-</command>
+&quot;${WORKSPACE}/scripts/buildtestvms.sh&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;#####################################################&quot;
+      <command>#!/bin/bash
+
+echo &quot;#####################################################&quot;
 echo &quot;#            PUSHING TESTS to TEST VMS              #&quot;
 echo &quot;#####################################################&quot;
-/bin/bash -x ${WORKSPACE}/scripts/pushtests.sh
-</command>
+&quot;${WORKSPACE}/scripts/pushtests.sh&quot;</command>
     </hudson.tasks.Shell>
     <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder plugin="conditional-buildstep@1.3.6">
       <condition class="org.jenkins_ci.plugins.run_condition.core.StatusCondition" plugin="run-condition@1.0">
@@ -230,17 +245,23 @@ echo &quot;#####################################################&quot;
         </bestResult>
       </condition>
       <buildStep class="hudson.tasks.Shell">
-        <command>echo &quot;#####################################################&quot;
-  echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
-  echo &quot;#####################################################&quot;
-  /bin/bash -x ${WORKSPACE}/scripts/cleanup.sh
-  </command>
+        <command>#!/bin/bash
+
+echo &quot;#####################################################&quot;
+echo &quot;#               POWER OFF TEST VMs                  #&quot;
+echo &quot;#####################################################&quot;
+&quot;${WORKSPACE}/scripts/powerofftestvms.sh&quot;
+
+echo &quot;#####################################################&quot;
+echo &quot;#          CLEAN-UP AFTER SUCCESS BUILD             #&quot;
+echo &quot;#####################################################&quot;
+&quot;${WORKSPACE}/scripts/cleanup.sh&quot;</command>
       </buildStep>
       <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@1.0"/>
     </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
   </builders>
   <publishers>
-    <org.tap4j.plugin.TapPublisher plugin="tap@1.20">
+    <org.tap4j.plugin.TapPublisher plugin="tap@2.1">
       <testResults>test_results/*.tap</testResults>
       <failIfNoResults>false</failIfNoResults>
       <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
@@ -252,7 +273,16 @@ echo &quot;#####################################################&quot;
       <validateNumberOfTests>false</validateNumberOfTests>
       <planRequired>true</planRequired>
       <verbose>true</verbose>
+      <showOnlyFailures>false</showOnlyFailures>
+      <stripSingleParents>false</stripSingleParents>
+      <flattenTapResult>false</flattenTapResult>
+      <skipIfBuildNotOk>false</skipIfBuildNotOk>
     </org.tap4j.plugin.TapPublisher>
+    <hudson.tasks.Mailer plugin="mailer@1.20">
+      <recipients>pcfe@pcfe.net</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
   </publishers>
   <buildWrappers/>
 </project>

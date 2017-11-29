@@ -5,8 +5,8 @@
 # e.g. ${WORKSPACE}/scripts/r10kdeploy.sh
 #
  
-. $(dirname "${0}")/common.sh
- 
+source scripts/common.sh
+
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]] || [[ -z ${R10K_USER} ]]
 then
     err "PUSH_USER, R10K_USER or SATELLITE not set or not found"

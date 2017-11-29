@@ -5,8 +5,10 @@
 # e.g. ${WORKSPACE}/scripts/rpmpush.sh ${WORKSPACE}/soe/artefacts/
 #
 
+#set -x
+
 # Load common parameter variables
-. $(dirname "${0}")/common.sh
+source scripts/common.sh
 
 # has anything changed? If yes, then MODIFIED_CONTENT_FILE is not 0 bytes 
 if [[ ! -s "${MODIFIED_RPMS_FILE}" ]]
@@ -15,12 +17,26 @@ then
     exit 0
 fi
 
-if [[ -z "$1" ]] || [[ ! -d "$1" ]]
+printf -v escaped_1 %q "${1}"
+
+if [[ -z ${escaped_1} ]]
 then
     usage "$0 <artefacts directory>"
+    warn "the test zero length failed for ${escaped_1}"
+    warn "you used $0 $@"
     exit ${NOARGS}
 fi
+
+if [[ ! -d "${1}" ]]
+then
+    usage "$0 <artefacts directory>"
+    warn "the test directory exists failed for ${1}"
+    warn "you used $0 $@"
+    exit ${NOARGS}
+fi
+
 workdir=$1
+printf -v escaped_workdir %q "${1}"
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
