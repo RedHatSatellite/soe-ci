@@ -19,65 +19,90 @@ node {
   rhelVersionSpecificPuppetOnlyConfigFile = "${SCRIPTS_DIR}/${params.RHEL_VERSION}" + RHEL_VERSION_SPECIFIC_PUPPEPT_ONLY_CONFIG_FILE_SUFFIX
   specificConfigFile = params.PUPPET_ONLY == true ? rhelVersionSpecificPuppetOnlyConfigFile : rhelVersionSpecificConfigFile
 
-  try {
+  isInErrorState = false
 
-    if (params.CLEAN_WORKSPACE == true) {
-      deleteDir()
-    }
-
-    stage('Checkout from Git') {
-      dir('scripts') {
-        git credentialsId: "${params.CREDENTIALS_ID_SOE_CI_IN_JENKINS}", branch: "${params.SOE_CI_BRANCH}", poll: false, url: "${params.SOE_CI_REPO_URL}"
-      }
-      dir('soe') {
-        git credentialsId: "${params.CREDENTIALS_ID_ACME_SOE_IN_JENKINS}", branch:"${params.ACME_SOE_BRANCH}", poll: false, url: "${params.ACME_SOE_REPO_URL}"
-      }
-    }
-
-    stage('check that config files exist') {
-      checkThatConfigFilesExist()
-    }
-
-    environmentVariables()
-
-    stage('build') {
-      executeScript("${SCRIPTS_DIR}/rpmbuild.sh ${WORKSPACE}/soe/rpms", true)
-      executeScript("${SCRIPTS_DIR}/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts", true)
-      executeScript("${SCRIPTS_DIR}/puppetbuild.sh ${WORKSPACE}/soe/puppet", false)
-    }
-
-    stage('push to Satellite'){
-      executeScript("${SCRIPTS_DIR}/rpmpush.sh ${WORKSPACE}/artefacts", true)
-      executeScript("${SCRIPTS_DIR}/puppetpush.sh ${WORKSPACE}/artefacts", false)
-      executeScript("${SCRIPTS_DIR}/kickstartpush.sh ${WORKSPACE}/artefacts", true)
-    }
-    stage('publish and promote CV') {
-      executeScript("${SCRIPTS_DIR}/publishcv.sh", false)
-      executeScript("${SCRIPTS_DIR}/capsule-sync-check.sh", false)
-    }
-    stage('prepare VMs') {
-      if (params.REBUILD_VMS == true) {
-        executeScript("${SCRIPTS_DIR}/buildtestvms.sh")
-      } else {
-        executeScript("${SCRIPTS_DIR}/starttestvms.sh")
-      }
-    }
-    stage('run tests') {
-      executeScript("${SCRIPTS_DIR}/pushtests.sh")
-      step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
-    }
-  } finally {
-      stage('poweroff VMs') {
-        if (params.POWER_OFF_VMS_AFTER_BUILD == true) {
-          executeScript("${SCRIPTS_DIR}/powerofftestvms.sh")
-        } else {
-          println "test VMs are not shut down as per passed configuration"
-        }
-      }
-      stage('cleanup') {
-        executeScript("${SCRIPTS_DIR}/cleanup.sh")
-      }
+  if (params.CLEAN_WORKSPACE == true) {
+    deleteDir()
   }
+
+  def stageCheckout = {
+    dir('scripts') {
+      git credentialsId: "${params.CREDENTIALS_ID_SOE_CI_IN_JENKINS}", branch: "${params.SOE_CI_BRANCH}", poll: false, url: "${params.SOE_CI_REPO_URL}"
+    }
+    dir('soe') {
+      git credentialsId: "${params.CREDENTIALS_ID_ACME_SOE_IN_JENKINS}", branch:"${params.ACME_SOE_BRANCH}", poll: false, url: "${params.ACME_SOE_REPO_URL}"
+    }
+  }
+  executeStage(stageCheckout, 'Checkout from Git')
+  
+  def stageLoadConfig = { 
+    checkThatConfigFilesExist()
+    environmentVariables()
+  }
+  executeStage(stageLoadConfig, 'check that config files exist')
+
+  def stageBuild = {
+    executeScript("${SCRIPTS_DIR}/rpmbuild.sh ${WORKSPACE}/soe/rpms", true)
+    executeScript("${SCRIPTS_DIR}/kickstartbuild.sh ${WORKSPACE}/soe/kickstarts", true)
+    executeScript("${SCRIPTS_DIR}/puppetbuild.sh ${WORKSPACE}/soe/puppet", false)
+  }
+  executeStage(stageBuild, 'build')
+
+  def stagePushToSat = {
+    executeScript("${SCRIPTS_DIR}/rpmpush.sh ${WORKSPACE}/artefacts", true)
+    executeScript("${SCRIPTS_DIR}/puppetpush.sh ${WORKSPACE}/artefacts", false)
+    executeScript("${SCRIPTS_DIR}/kickstartpush.sh ${WORKSPACE}/artefacts", true)
+  }
+  executeStage(stagePushToSat, 'push to Satellite')
+
+  def stagePubAndPromote = {
+    executeScript("${SCRIPTS_DIR}/publishcv.sh", false)
+    executeScript("${SCRIPTS_DIR}/capsule-sync-check.sh", false)
+  }
+  executeStage(stagePubAndPromote, 'publish and promote CV')
+
+  def stagePrepVms = {
+    if (params.REBUILD_VMS == true) {
+      executeScript("${SCRIPTS_DIR}/buildtestvms.sh")
+    } else {
+      executeScript("${SCRIPTS_DIR}/starttestvms.sh")
+    }
+  }
+  executeStage(stagePrepVms, 'prepare VMs')
+
+  def stageRunTests = {
+    executeScript("${SCRIPTS_DIR}/pushtests.sh")
+    step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
+  }
+  executeStage(stageRunTests, 'run tests')
+   
+  def stagePowerOff = {
+    if (params.POWER_OFF_VMS_AFTER_BUILD == true) {
+      executeScript("${SCRIPTS_DIR}/powerofftestvms.sh")
+    } else {
+      println "test VMs are not shut down as per passed configuration"
+    }
+  }
+  executeStage(stagePowerOff, 'pwoer off VMs')
+
+  def stageCleanup = {
+    executeScript("${SCRIPTS_DIR}/cleanup.sh")
+  }
+  executeStage(stageCleanup, 'cleanup')
+}
+
+def executeStage(Closure closure, String stageName) {
+    stage(stageName) {
+    if ( isInErrorState == false) {
+      try {
+        closure()
+      } catch(e) {
+        isInErrorState = true
+        error(e.getMessage())
+        currentBuild.result = 'FAILURE'
+      }
+    }
+  } 
 }
 
 /**
