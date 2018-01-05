@@ -83,7 +83,7 @@ node {
       println "test VMs are not shut down as per passed configuration"
     }
   }
-  executeStage(stagePowerOff, 'pwoer off VMs')
+  executeStage(stagePowerOff, 'power off VMs')
 
   def stageCleanup = {
     executeScript("${SCRIPTS_DIR}/cleanup.sh")
