@@ -68,13 +68,10 @@ do
     if [[ ${_STATUS} == 'On' ]]
     then
         # forcefully poweroff the SUT
-	# note that until Bug 1417976 is fixed this resets 
-	# and thus the start command needs to be skipped
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host stop --force --id $I"
-        #sleep 10
-        #ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        #    "hammer host start --id $I"
+        ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "hammer host start --id $I"
     elif [[ ${_STATUS} == 'Off' ]]
     then
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
