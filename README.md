@@ -5,9 +5,9 @@ Continuous Integration Scripts for Satellite 6
 * Email: <elavarde@redhat.com>
 * Consultant: Patrick C. F. Ernzer
 * Email: <pcfe@redhat.com>
-* Date: February to November 2016
-* Revision: 0.3
-* Satellite 6.2 is now a minimum requirement, 6.1 will not work.
+* Date: February 2016 to Februaru 2018
+* Revision: 0.3.1
+* Satellite 6.3 is now a minimum requirement.
 
 - - -
 
@@ -54,7 +54,7 @@ NB I have SELinux enabled on the Jenkins server and it poses no problems.
 
 * Install a standard RHEL 7 server with a minimum of 4GB RAM, 50GB availabile in `/var/lib/jenkins` and 10GB available in `/var/lib/mock` if you intend to do non CI triggered mock builds (highly recommended for debugging). It's fine to use a VM for this.
 * verify with `timedatectl` that your timezone is set correctly (for correct timestamps in Jenkins).
-* Register the server to RHN RHEL7 base and RHEL7 rhel-7-server-satellite-tools repos. You need the Satellite Tools repo for puppet.
+* Register the server to rhel-7-server-rpms and rhel-7-server-satellite-tools-6.3-rpms repos. You need the Satellite Tools repo for puppet.
 * Configure the server for access to the [EPEL](https://fedoraproject.org/wiki/EPEL) and [Jenkins](http://pkg.jenkins-ci.org/redhat/) repos.
     * note that for EPEL 7, in addition to the 'optional' repository (rhel-7-server-optional-rpms), you also need to enable the 'extras' repository (rhel-7-server-extras-rpms).
 * Install `httpd`, `mock`, `createrepo`, `git`, `nc` and `puppet` on the system. All but mock are available from the standard RHEL repos so should just install with yum. mock is available from EPEL.
@@ -107,7 +107,7 @@ NB I have SELinux enabled on the Jenkins server and it poses no problems.
 * Edit the build plan on your Jenkins instance so that the two SCM checkouts point (one for acme-soe, the other for soe-ci) point to your private git remote - you will need to edit both of these.
 
 ### Satellite 6
-* Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.0/html/Installation_Guide/index.html).
+* Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.3/html/Installation_Guide/index.html).
 * Enable the following repos: RHEL 7 Server Kickstart 7Server, RHEL 7 Server RPMs 7Server, RHEL 7 Server - RH Common RPMs 7 Server
 * Create a sync plan that does a daily sync of the RHEL product
 * Do an initial sync
@@ -120,6 +120,7 @@ NB I have SELinux enabled on the Jenkins server and it poses no problems.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
 * Create a `jenkins` user on the satellite.
 * Configure hammer for passwordless usage by creating a `~jenkins/.hammer/cli_config.yml` file. [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
+    * ensure that your `cli_config.yml` points at your FQDN (e.g. `:host: 'https://satellite.sattest.example.com/'`), not `:host: 'https://localhost'` as SSL certificate check will fail in the localhost case.
 * Copy over the public key of the `jenkins` user on the Jenkins server to the `jenkins` user on the satellite and ensure that `jenkins` on the Jenkins server can do passwordless `ssh` to the satellite.
 * Configure a Compute Resource on the satellite - I use libvirt, but most people are using VMWare or RHEV. This will be used to deploy test machines.
 
