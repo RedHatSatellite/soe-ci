@@ -55,7 +55,7 @@ do
     # Check the host's entitlements
     inform "Checking entitlements for test server $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer content-host info --name ${I} --organization \"${ORG}\""
+        "hammer host info --name ${I}"
 
     inform "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
