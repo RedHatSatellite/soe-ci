@@ -163,14 +163,14 @@ Right now a couple of job parameters are used which you need to configure:
 ##### Create the jobs
 
 ##### Create a Job which runs the pipeline
-* Create a directory /var/lib/jenkins/jobs/<job-name> (e.g. *soe-el7*) and copy in the [config-jenkinsfile.xml](config-jenkinsfile.xml) file.
+* Create a directory in /var/lib/jenkins/jobs/<job-name> (e.g. *soe-el7*) and copy in the [config-jenkinsfile.xml](config-jenkinsfile.xml) file.
 * Afterwards, rename the file to "config.xml". Make sure the jenkins user owns the directory and files.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
   * Make sure that in the "Pipeline" section of the job configuration the "Lightweight checkout" is ticked and that the value for "Script Path" points to the "Jenkinsfile" in your repository.
 
 ##### Create a job which polls the SCMs and then triggers the previously created job
-* Create the directory /var/lib/jenkins/jobs/<job-name> (e.g. *scm-poll-for-soe-el7*) and copy in the [config.xml](config.xml) file. Make sure the jenkins user is the owner of both.
+* Create the directory in /var/lib/jenkins/jobs/<job-name> (e.g. *scm-poll-for-soe-el7*) and copy in the [config.xml](config.xml) file. Make sure the jenkins user is the owner of both.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
 
