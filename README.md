@@ -174,7 +174,7 @@ Right now a couple of job parameters are used which you need to configure:
 
 #### Create a job which polls the SCMs and then triggers the previously created job
 
-* Create a directory matching the job name in /var/lib/jenkins/jobs (e.g.  (e.g. /var/lib/jenkins/jobs/scm-poll-for-soe-el7) and copy the [config.xml](config.xml) file into it as /var/lib/jenkins/jobs/&lt;job-name&gt;/config.xml.
+* Create a directory matching the job name in /var/lib/jenkins/jobs (e.g.  (e.g. /var/lib/jenkins/jobs/scm-poll-for-soe-el7) and copy the [config.xml](config.xml) file into it. Make sure the jenkins user is the owner of both.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
 
