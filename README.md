@@ -25,7 +25,10 @@ Continuous Integration Scripts for Satellite 6
 * Date: 2014-11-20
 * Revision: 0.1
 
-## Table of Contents
+Table of Contents
+==
+
+* [Standard Operating Environment Overview](#standard-operating-environment-overview)
 * [Introduction](#introduction)
 * [Setup](#setup)
   * [Jenkins Server](#jenkins-server)
@@ -43,14 +46,14 @@ Continuous Integration Scripts for Satellite 6
 * [Getting Started](#getting-started)
 * [COMING SOON](#coming-soon)
 
-## Standard Operating Environment Overview
+# Standard Operating Environment Overview
 It is extremely helpful if you read the following blog posts, that explain the concepts behind this repo, before trying to implement.
 
 * [Part I: Concepts and Structures](http://www.opensourcearchitects.org/index.php/2016/10/31/standard-operating-environment-part-i-concepts-and-structures/)
 * [Part II: Workflows in Detail](http://www.opensourcearchitects.org/index.php/2016/11/22/standard-operating-environment-part-ii-workflows-in-detail/)
 * [Part III: A Reference Implementation](http://www.opensourcearchitects.org/index.php/2017/06/01/standard-operating-environment-part-iii-a-reference-implementation/)
 
-## Introduction
+# Introduction
 Continuous Integration for Infrastructure (CII) is a process by which the Operating System build ("build") component of a Standard Operating Environment (SOE) can be rapidly developed, tested and deployed.
 
 A build is composed of the following components:
@@ -70,14 +73,14 @@ The CII system consists of the following components:
 
 The architecture is shown in [this YeD diagram](https://github.com/RedHatEMEA/soe-ci/blob/master/Engineering%20Platform.graphml).
 
-## Setup
+# Setup
 The following steps should help you get started with CII.
 
-### Jenkins Server
+## Jenkins Server
 
 NB I have SELinux enabled on the Jenkins server and it poses no problems.
 
-#### Installation
+### Installation
 
 * Install a standard RHEL 7 server with a minimum of 4GB RAM, 50GB availabile in `/var/lib/jenkins` and 10GB available in `/var/lib/mock` if you intend to do non CI triggered mock builds (highly recommended for debugging). It's fine to use a VM for this.
 * verify with `timedatectl` that your timezone is set correctly (for correct timestamps in Jenkins).
@@ -128,9 +131,9 @@ NB I have SELinux enabled on the Jenkins server and it poses no problems.
     * The pipeline handles both full builds and puppet-only via variables, so set them up both.
 * `su` to the `jenkins` user (`su jenkins -s /bin/bash`) and use `ssh-keygen` to create an ssh keypair. These will be used for authentication to both the git repository, and to the satellite server.
 
-#### Jenkins Jobs
+### Jenkins Jobs
 
-##### Overview
+#### Overview
 
 First of all, let's have a look at the bigger picture here.
 You'll create at least two jobs. One will be solely  responsible for polling your SCM. When changes are detected on the SCM, the second job will be triggered. The second job will then take care of building, pushing to Satellite and running the tests.
@@ -140,7 +143,7 @@ The configuration options will be explained later on.
 
 In general you might want to have multiple of these job pairs. E.g. for EL6 and EL7, building only puppet modules or the "full" build including RPMs.
 
-##### Job parameters and what they do
+#### Job parameters and what they do
 
 
 Right now a couple of job parameters are used which you need to configure:
@@ -160,26 +163,28 @@ Right now a couple of job parameters are used which you need to configure:
 | CLEAN_WORKSPACE | Whether or not to clean the jenkins workspace before the job execution.|
 | VERBOSE | Whether or not to run the executed scripts in a verbose mode. Basically it decides whether run 'bash -x' or just 'bash '|
 
-##### Create the jobs
+### Create the jobs
 
-##### Create a Job which runs the pipeline
-* Create a directory in /var/lib/jenkins/jobs/<job-name> (e.g. *soe-el7*) and copy in the [config-jenkinsfile.xml](config-jenkinsfile.xml) file.
-* Afterwards, rename the file to "config.xml". Make sure the jenkins user owns the directory and files.
+#### Create a Job which runs the pipeline
+
+* Create a directory matching the job name in /var/lib/jenkins/jobs (e.g.  (e.g. /var/lib/jenkins/jobs/soe-el7) and copy the [config-jenkinsfile.xml](config-jenkinsfile.xml) file into it as /var/lib/jenkins/jobs/&lt;job-name&gt;/config.xml. Make sure the jenkins user is the owner of both.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
   * Make sure that in the "Pipeline" section of the job configuration the "Lightweight checkout" is ticked and that the value for "Script Path" points to the "Jenkinsfile" in your repository.
 
-##### Create a job which polls the SCMs and then triggers the previously created job
-* Create the directory in /var/lib/jenkins/jobs/<job-name> (e.g. *scm-poll-for-soe-el7*) and copy in the [config.xml](config.xml) file. Make sure the jenkins user is the owner of both.
+#### Create a job which polls the SCMs and then triggers the previously created job
+
+* Create a directory matching the job name in /var/lib/jenkins/jobs (e.g.  (e.g. /var/lib/jenkins/jobs/scm-poll-for-soe-el7) and copy the [config.xml](config.xml) file into it as /var/lib/jenkins/jobs/&lt;job-name&gt;/config.xml.
 * Reload the configuration from disk using 'Manage Jenkins -> Reload Configuration from Disk'.
 * Check that the build plan is visible and correct via the Jenkins UI, you will surely need to adapt the parameter values to your environment.
 
-#### How do I change the pipeline
+### How do I change the pipeline
 It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If you want to test your changes first before pushing multiple commits to the repository, you can simply create a new job, which is a copy of your "second" job (remember, there are two jobs, one which pulls and one which builds), and change in the "Pipeline" section the "Defintion" from "Pipeline Script from SCM" to "Pipeline Script". Copy and paste your pipeline in the box (it's a groovy sandbox), and you're good to go. Remember this is for testing only. Once you're done, push your changes accordingly and delete the job you created for testing purposes.
 
+## Git Repository
 
-### Git Repository
 * Clone the following two git repos:
+
     * https://github.com/RedHatSatellite/soe-ci These are the scripts used to by Jenkins to drive CI
     * https://github.com/RedHatSatellite/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
@@ -189,7 +194,8 @@ It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If yo
 * Maintain your pipeline script `Jenkinsfile` in soe-ci.git
 * Commit and push to git
 
-### Satellite 6
+## Satellite 6
+
 * Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.0/html/Installation_Guide/index.html).
 * Enable the following repos: RHEL 7 Server Kickstart 7Server, RHEL 7 Server RPMs 7Server, RHEL 7 Server - RH Common RPMs 7 Server
 * Create a sync plan that does a daily sync of the RHEL product
@@ -208,12 +214,14 @@ It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If yo
 * Copy over the public key of the `jenkins` user on the Jenkins server to the `jenkins` user on the satellite and ensure that `jenkins` on the Jenkins server can do passwordless `ssh` to the satellite.
 * Configure a Compute Resource on the satellite - I use libvirt, but most people are using VMWare or RHEV. This will be used to deploy test machines.
 
-### Bootstrapping
+## Bootstrapping
 In order to create a Content View on the satellite, you need some initial content. That can be generated by Jenkins.
 
 Now manually trigger both
+
 * a normal build
 * a puppet-only build
+
 This will fail, however it will create some content in the output directories by building the demo RPMs and Puppet modules. Check that these are available then do the following tasks:
 
 * On the satellite, do a manual sync of your ACME SOE product. Check that it syncs correctly and you have got the RPMs and puppet modules that Jenkins built for you.
@@ -228,10 +236,11 @@ This will fail, however it will create some content in the output directories by
 
 FIXME: add instructions on HC
 
-## Getting Started
+# Getting Started
 At this point, you should be good to go. In fact Jenkins may have already kicked off a build for you when you pushed to github.
 
 Develop your build in your checkout of acme-soe. Software that you want packaging goes in 'rpms', puppet modules in 'puppet' and BATS tests in 'tests'. You MUST update versions (in specfiles and metadata.json files) whenever you make a change, otherwise satellite6 will not pick up that you have new versions, even though Jenkins will have repackaged them.
 
-## COMING SOON
+# COMING SOON
+
 * Desperately missing a feature? Found a bug? Open a ticket on https://github.com/RedHatSatellite/soe-ci/issues
