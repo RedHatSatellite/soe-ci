@@ -27,7 +27,7 @@ fi
 # rebuild test VMs
 for I in "${TEST_VM_LIST[@]}"
 do
-    info "Making sure VM ID $I is on"
+    inform "Making sure VM ID $I is on"
 
     _PROBED_STATUS=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
 
@@ -64,10 +64,10 @@ do
 
     if [[ ${_STATUS} == 'On' ]]
     then
-        info "Host $I is already on."
+        inform "Host $I is already on."
     elif [[ ${_STATUS} == 'Off' ]]
     then
-        info "Host $I is already off, switching it on."
+        inform "Host $I is already off, switching it on."
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
             "hammer host start --id $I"
     else
