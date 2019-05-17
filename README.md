@@ -17,6 +17,8 @@ Continuous Integration Scripts for Satellite 6
 * Date: February to November 2016
 * Revision: 0.3
 * Satellite 6.2 is now a minimum requirement, 6.1 will not work.
+* Satellite 6.3, 6.4 and 6.5 have been tested.
+* as a general rule the latest version of Satellite is the one I develop against.
 
 - - -
 
