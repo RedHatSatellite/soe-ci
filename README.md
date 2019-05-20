@@ -212,7 +212,7 @@ It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If yo
     * see [here](https://bugzilla.redhat.com/show_bug.cgi?id=1132980#c22) or [here](https://access.redhat.com/solutions/2026163) for a workaround until this is fixed.
 * Take a note of the repo IDs for the Puppet and RPMs repos. You can find these by hovering over the repository names in the Products view on the Repositories tab. The digits at the end of the URL are the repo IDs.
 * Create a `jenkins` user on the satellite.
-* Configure hammer for passwordless usage by creating a `~jenkins/.hammer/cli.modules.d/foreman.yml` file (older Satellite versions use `~jenkins/.hammer/cli_config.yml`). [More details here](http://blog.theforeman.org/2013/11/hammer-cli-for-foreman-part-i-setup.html).
+* Configure hammer for passwordless usage by creating a `~jenkins/.hammer/cli.modules.d/foreman.yml` file (older Satellite versions use `~jenkins/.hammer/cli_config.yml`). [More details here](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.5/html/hammer_cli_guide/chap-cli_guide-introduction_to_hammer#sect-CLI_Guide-Authentication-Hammer_Configuration_File).
 * Copy over the public key of the `jenkins` user on the Jenkins server to the `jenkins` user on the satellite and ensure that `jenkins` on the Jenkins server can do passwordless `ssh` to the satellite.
 * Configure a Compute Resource on the satellite - I use libvirt, but most people are using VMWare or RHEV. This will be used to deploy test machines.
 
