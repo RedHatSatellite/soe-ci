@@ -198,7 +198,7 @@ It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If yo
 
 ## Satellite 6
 
-* Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/site/documentation/en-US/Red_Hat_Satellite/6.0/html/Installation_Guide/index.html).
+* Install and register a Red Hat Satellite 6 as per the [instructions](https://access.redhat.com/documentation/en-us/red_hat_satellite/6.5/html/installing_satellite_server_from_a_connected_network/).
 * Enable the following repos: RHEL 7 Server Kickstart 7Server, RHEL 7 Server RPMs 7Server, RHEL 7 Server - RH Common RPMs 7 Server
 * Create a sync plan that does a daily sync of the RHEL product
 * Do an initial sync
