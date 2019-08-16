@@ -55,7 +55,7 @@ do
     # Check the host's entitlements
     inform "Checking entitlements for test server $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer content-host info --name ${I} --organization \"${ORG}\""
+        "hammer host info --name ${I}"
 
     inform "Setting up ssh keys for test server $I"
     sed -i.bak "/^$I[, ]/d" ${KNOWN_HOSTS} # remove test server from the file
@@ -80,9 +80,13 @@ do
     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} \
         ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
 
+    # run puppet once, this will skip if puppet already running, so no need for if clause
+    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
+        "puppet agent -t"
+
     # wait for puppet to finish
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \
-        "/root/puppet-done-test.sh"
+        "/root/puppet-done-test.sh -s ${PUPPET_DONE_SLEEP}"
 
     inform "Installing bats and rsync on test server $I"
     if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I \

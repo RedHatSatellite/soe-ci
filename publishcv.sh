@@ -126,7 +126,7 @@ then
         inform "Promoting version ${ver_id} of ${cv} to LCE ${TESTVM_ENV}"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-view version promote --content-view \"${cv}\" --organization \"${ORG}\" \
-        --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${ver_id}"
+        --to-lifecycle-environment-id \"${TESTVM_ENV}\" --force --id ${ver_id}"
     done
 
     # we also promote the latest version of each CCV
@@ -137,6 +137,6 @@ then
         inform "Promoting version ${ccv_ver} of CCV ID ${ccv_id} to LCE ${TESTVM_ENV}"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-view version promote --content-view-id \"${ccv_id}\" --organization \"${ORG}\" \
-        --to-lifecycle-environment-id \"${TESTVM_ENV}\" --id ${ccv_ver}"
+        --to-lifecycle-environment-id \"${TESTVM_ENV}\" --force --id ${ccv_ver}"
     done
 fi
