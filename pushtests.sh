@@ -53,7 +53,7 @@ export TEST_ROOT
 for I in ${TEST_VM_LIST[@]}
 do
     # Check the host's entitlements
-    inform "Displaying entitlements for test server $I"
+    inform "Checking entitlements for test server $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host info --name ${I}"
 

@@ -18,7 +18,7 @@ Continuous Integration Scripts for Satellite 6
 * Revision: 0.3
 * Satellite 6.2 is now a minimum requirement, 6.1 will not work.
 * Satellite 6.3, 6.4 and 6.5 have been tested.
-* as a general rule the latest version of Satellite is the one I develop against.
+* as a general rule the latest version of Satellite is the one Patrick develops against.
 
 - - -
 
@@ -186,7 +186,6 @@ It's simple. It's written in [Groovy](http://groovy-lang.org/syntax.html). If yo
 ## Git Repository
 
 * Clone the following two git repos:
-
     * https://github.com/RedHatSatellite/soe-ci These are the scripts used to by Jenkins to drive CI
     * https://github.com/RedHatSatellite/acme-soe This is a demo CI environment
 * Push these to a private git remote (or branch/fork on github).
