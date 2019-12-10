@@ -38,7 +38,7 @@ do
 
     inform "Recreating VM ID $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host create
+        "hammer host create \
 
 hammer host create \
 --name "kvm-test2" \
@@ -99,6 +99,10 @@ do
         then
             tell "host $I no longer in build mode."
             unset vmcopy[$I]
+            # reboot the box here so that new kernel is active
+            # this is only necessay on image based installs
+            tell "rebooting host $I since it applied errata as part of cloud-init and we want latest kernel and glibc active"
+            hammer host reboot --name $I
         else
             tell "host $I is still in build mode."
         fi
