@@ -30,8 +30,19 @@ fi
 ### also disabled for now
 exit 1
 
+# for each host; dump Org, Loc and HG in a file, process that
+
 for I in "${TEST_VM_LIST[@]}"
 do
+    SUT_TMP_INFOFILE=$(mktemp)
+    ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+        "hammer host info --id $I" | awk -F '[[:space:]][[:space:]]+' '$1~/^(Name|Organi[sz]ation|Host Group|Location)/ {print $1,$2}' > ${SUT_TMP_INFOFILE}
+    SUT_NAME=$(awk -F ': ' '$1~/^Name/ {print $2}' ${SUT_TMP_INFOFILE})
+    SUT_ORG=$(awk -F ': ' '$1~/^Organi[sz]ation/ {print $2}' ${SUT_TMP_INFOFILE})
+    SUT_HG_TITLE=$(awk -F ': ' '$1~/^Host Group/ {print $2}' ${SUT_TMP_INFOFILE})
+    SUT_LOC=$(awk -F ': ' '$1~/^Location/ {print $2}' ${SUT_TMP_INFOFILE})
+    rm -I ${SUT_TMP_INFOFILE}
+
     inform "Deleting VM ID $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host delete --id $I"
@@ -39,7 +50,19 @@ do
     inform "Recreating VM ID $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer host create \
+         --name \"${SUT_NAME}\" \
+         --organization \"${SUT_ORG}\" \
+         --location \"${SUT_LOC}\" \
+         --hostgroup-title \"${SUT_HG_TITLE}\" \
+         --provision-method image \
+         --enabled true \
+         --managed true \
+         --compute-attributes=\"start=1\""
 
+# do use 
+# --hostgroup-title "Test Servers/Jenkins pipeline SOE-CI/image-based"
+# because that I can get from a hammer host info output
+# hammer host info --name sattestclient05.sattest.pcfe.net|grep -e "^Organi[sz]ation" -e "^Host Group" -e "^Location"
 hammer host create \
 --name "kvm-test2" \
 --organization "Sat Test" \
