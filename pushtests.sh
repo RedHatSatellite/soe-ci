@@ -76,6 +76,11 @@ do
     inform "Listing repos on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "subscription-manager repos"
 
+    # force upload of package list to Satellite
+    # without this an image-based install shows up as katello-agent not installed in Satellite 6.5.3
+    # see https://access.redhat.com/solutions/1385683
+    ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "katello-package-upload --force"
+
     # copy puppet-done-test.sh to SUT
     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} \
         ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
