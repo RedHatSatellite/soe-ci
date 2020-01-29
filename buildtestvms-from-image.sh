@@ -24,12 +24,6 @@ if [ $(echo ${#TEST_VM_LIST[@]}) -eq 0 ]; then
   err "No test VMs configured in Satellite"
 fi
 
-# rebuild test VMs
-# while testing, I disabled _Destroy associated VM on host delete_
-
-### also disabled for now
-exit 1
-
 # for each host; dump Org, Loc and HG in a file, process that
 
 for I in "${TEST_VM_LIST[@]}"
