@@ -2,7 +2,7 @@
 
 # Instruct Foreman to rebuild the test VMs
 #
-# e.g ${WORKSPACE}/scripts/buildtestvms.sh 'test'
+# e.g ${WORKSPACE}/scripts/buildtestvms-from-image.sh 'test'
 #
 # this will tell Foreman to rebuild all machines in hostgroup TESTVM_HOSTGROUP
 
@@ -65,7 +65,7 @@ declare -A vmcopy # declare an associative array to copy our VM array into
 for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 
 # the below test from the kickstart based installs will also work for image based installs.
-# the stayus of Build: still changes
+# the status of Build: still changes
 #[root@satellite ~]# hammer host info --name kvm-test2.sattest.pcfe.net | grep -e "Managed" -e "Enabled" -e "Build"
 #Managed:                  yes
 #    Build Status:  Pending installation
@@ -76,11 +76,12 @@ for I in "${TEST_VM_LIST[@]}"; do vmcopy[$I]=$I; done
 #    Build Status:  Installed
 #    Build:                  no
 #    Enabled:    yes
-
+#
 # But potentially also check for
 #  Build Status:  Pending installation
 # changing to
 #  Build Status:  Installed
+
 WAIT=0
 while [[ ${#vmcopy[@]} -gt 0 ]]
 do

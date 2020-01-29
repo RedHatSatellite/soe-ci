@@ -61,7 +61,10 @@ node {
   }
   executeStage(stagePubAndPromote, 'publish and promote CV')
 
-// hardcode for testing, add def later
+/*
+* if you do kickstart installs (the default), then execute buildtestvms.sh
+* if you do image-based installs, then execute buildtestvms-from-image.sh instead
+*/
   def stagePrepVms = {
     if (params.REBUILD_VMS == true) {
       executeScript("${SCRIPTS_DIR}/buildtestvms-from-image.sh")
