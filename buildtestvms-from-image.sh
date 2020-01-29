@@ -58,28 +58,11 @@ do
          --enabled true \
          --managed true \
          --compute-attributes=\"start=1\""
-
-# do use 
-# --hostgroup-title "Test Servers/Jenkins pipeline SOE-CI/image-based"
-# because that I can get from a hammer host info output
-# hammer host info --name sattestclient05.sattest.pcfe.net|grep -e "^Organi[sz]ation" -e "^Host Group" -e "^Location"
-hammer host create \
---name "kvm-test2" \
---organization "Sat Test" \
---location "Bergmannstraße" \
---hostgroup "image-based" \
---provision-method image \
---enabled true \
---managed true \
---compute-attributes="start=1"
-
-
-
 done
 
 
 # we need to wait until all the test machines have been rebuilt by foreman
-# this check was previously only in pushtests, but when using pipelines 
+# this check was previously only in pushtests, but when using pipelines
 # it's more sensible to wait here while the machines are in build mode
 # the ping and ssh checks must remain in pushtests.sh
 # as a pupet only build will not call this script
