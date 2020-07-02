@@ -34,8 +34,8 @@ node {
     }
   }
   executeStage(stageCheckout, 'Checkout from Git')
-  
-  def stageLoadConfig = { 
+
+  def stageLoadConfig = {
     checkThatConfigFilesExist()
     environmentVariables()
   }
@@ -61,9 +61,13 @@ node {
   }
   executeStage(stagePubAndPromote, 'publish and promote CV')
 
+/*
+* if you do kickstart installs (the default), then execute buildtestvms.sh
+* if you do image-based installs, then execute buildtestvms-from-image.sh instead
+*/
   def stagePrepVms = {
     if (params.REBUILD_VMS == true) {
-      executeScript("${SCRIPTS_DIR}/buildtestvms.sh")
+      executeScript("${SCRIPTS_DIR}/buildtestvms-from-image.sh")
     } else {
       executeScript("${SCRIPTS_DIR}/starttestvms.sh")
     }
@@ -75,7 +79,7 @@ node {
     step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
   }
   executeStage(stageRunTests, 'run tests')
-   
+
   def stagePowerOff = {
     if (params.POWER_OFF_VMS_AFTER_BUILD == true) {
       executeScript("${SCRIPTS_DIR}/powerofftestvms.sh")
@@ -102,7 +106,7 @@ def executeStage(Closure closure, String stageName) {
         currentBuild.result = 'FAILURE'
       }
     }
-  } 
+  }
 }
 
 /**
@@ -113,7 +117,7 @@ def executeStage(Closure closure, String stageName) {
 def checkThatConfigFilesExist() {
   filesMissing = false
   errorMessage = "The following config files are missing:"
-  [GENERAL_CONFIG_FILE, specificConfigFile].each { fileName -> 
+  [GENERAL_CONFIG_FILE, specificConfigFile].each { fileName ->
     if (fileExists("${fileName}") == false) {
       filesMissing = true
       errorMessage = errorMessage + " ${fileName}"
@@ -125,7 +129,7 @@ def checkThatConfigFilesExist() {
 }
 
 def environmentVariables() {
-  [GENERAL_CONFIG_FILE, specificConfigFile].each { fileName -> 
+  [GENERAL_CONFIG_FILE, specificConfigFile].each { fileName ->
     load "${fileName}"
   }
 }
