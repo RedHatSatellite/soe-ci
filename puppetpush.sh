@@ -8,6 +8,14 @@
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
+### disable for a quick test
+### pcfe, 2020-08-27
+
+inform "temporarily disabled"
+exit 0
+
+###
+
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
     err "PUSH_USER or SATELLITE not set or not found"
