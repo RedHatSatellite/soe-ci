@@ -5,6 +5,9 @@
 # e.g. ${WORKSPACE}/scripts/puppetpush.sh
 #
 
+# Load common parameter variables
+. $(dirname "${0}")/common.sh
+
 ### disable for a quick test
 ### pcfe, 2020-08-27
 
@@ -12,9 +15,6 @@ inform "temporarily disabled"
 exit 0
 
 ###
-
-# Load common parameter variables
-. $(dirname "${0}")/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
 then
