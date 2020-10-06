@@ -64,3 +64,28 @@ function get_test_vm_list() {
 		fi
 	done
 }
+
+# and the same again, but for GOLDEN_VM_LIST
+function get_golden_vm_list() {
+	local K=0
+	for I in $(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+		"hammer host-collection hosts --organization \"${ORG}\" \
+			--name \"$GOLDENVM_HOSTCOLLECTION\" \
+		| tail -n +4 | cut -f2 -d \"|\" | head -n -1")
+	do
+		# If CONDITIONAL_VM_BUILD is 'true', only keep VMs commented
+		# with modified #content# as listed in $MODIFIED_CONTENT_FILE
+		# If the file is empty or doesn't exist, we test everything
+		# as it hints at a script change.
+		if [[ "${CONDITIONAL_VM_BUILD}" != 'true' ]] || \
+			[[ ! -s "${MODIFIED_CONTENT_FILE}" ]] || \
+			ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+			"hammer --output yaml host info --name \"${I}\"" \
+				| grep "^Comment:" \
+				| grep -Fqf "${MODIFIED_CONTENT_FILE}"
+		then
+			GOLDEN_VM_LIST[$K]=$I
+			((K+=1))
+		fi
+	done
+}
