@@ -94,7 +94,11 @@ node {
     executeScript("${SCRIPTS_DIR}/promote2goldenlce.sh")
     executeScript("${SCRIPTS_DIR}/capsule-sync-check.sh")
   }
+<<<<<<< HEAD
   executeStage(stagePromote2GoldenLCE, 'promote CV to golden')
+=======
+  executeStage(stagePromote2GoldenLCE, 'publish and promote CV')
+>>>>>>> 8ea8585... WIP, add script to promote to golden LCE
 
   def stagePrepGoldenVms = {
     executeScript("${SCRIPTS_DIR}/buildgoldenvms.sh")
