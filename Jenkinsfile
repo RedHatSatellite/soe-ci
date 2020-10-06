@@ -85,6 +85,15 @@ node {
   }
   executeStage(stagePowerOffTestVMs, 'power off test VMs')
 
+// need a promote step to GOLDENVM_ENV here
+
+  def stagePrepGoldenVms = {
+    executeScript("${SCRIPTS_DIR}/buildgoldenvms.sh")
+    executeScript("${SCRIPTS_DIR}/wait4goldenvmsup.sh")
+    executeScript("${SCRIPTS_DIR}/shutdowngoldenvms.sh")
+  }
+  executeStage(stagePrepTestVms, 'prepare golden VMs')
+
   def stageCleanup = {
     executeScript("${SCRIPTS_DIR}/cleanup.sh")
   }
