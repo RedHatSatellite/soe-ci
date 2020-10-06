@@ -63,6 +63,7 @@ do
         echo "can not parse power status, please review $0"
     esac
 
+    # n.b. kickstart can either reboot or power down at the end, so we must handle both cases
     if [[ ${_STATUS} == 'On' ]]
     then
         inform "Shutting down VM ID $I"
