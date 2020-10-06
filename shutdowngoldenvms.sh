@@ -64,6 +64,8 @@ do
     esac
 
     # n.b. kickstart can either reboot or power down at the end, so we must handle both cases
+    # also, since we do not pushtests.sh aginst the golden VMs,
+    # ensure it's up before attempting clean shutdown
     if [[ ${_STATUS} == 'On' ]]
     then
         inform "Shutting down VM ID $I"
