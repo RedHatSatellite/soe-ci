@@ -61,14 +61,14 @@ node {
   }
   executeStage(stagePubAndPromote, 'publish and promote CV')
 
-  def stagePrepVms = {
+  def stagePrepTestVms = {
     if (params.REBUILD_VMS == true) {
       executeScript("${SCRIPTS_DIR}/buildtestvms.sh")
     } else {
       executeScript("${SCRIPTS_DIR}/starttestvms.sh")
     }
   }
-  executeStage(stagePrepVms, 'prepare VMs')
+  executeStage(stagePrepTestVms, 'prepare test VMs')
 
   def stageRunTests = {
     executeScript("${SCRIPTS_DIR}/pushtests.sh")
@@ -76,14 +76,14 @@ node {
   }
   executeStage(stageRunTests, 'run tests')
    
-  def stagePowerOff = {
+  def stagePowerOffTestVMs = {
     if (params.POWER_OFF_VMS_AFTER_BUILD == true) {
       executeScript("${SCRIPTS_DIR}/powerofftestvms.sh")
     } else {
       println "test VMs are not shut down as per passed configuration"
     }
   }
-  executeStage(stagePowerOff, 'power off VMs')
+  executeStage(stagePowerOffTestVMs, 'power off test VMs')
 
   def stageCleanup = {
     executeScript("${SCRIPTS_DIR}/cleanup.sh")
