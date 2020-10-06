@@ -1,6 +1,7 @@
 env.REPO_ID="3825"
 env.PUPPET_REPO_ID="9"
 env.TESTVM_HOSTCOLLECTION="hc-soe-el8-test"
+env.GOLDENVM_HOSTCOLLECTION="hc-soe-el8-golden"
 env.PUPPET_REPO="/var/www/html/pub/soe-puppet-only"
 env.CV="cv-puppet-only"
 env.CV_PASSIVE_LIST=""
