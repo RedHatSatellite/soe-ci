@@ -17,7 +17,7 @@ then
     exit ${WORKSPACE_ERR}
 fi
 
-get_goden_vm_list # populate GOLDEN_VM_LIST
+get_golden_vm_list # populate GOLDEN_VM_LIST
 
 # TODO: Error out if no test VM's are available.
 if [ $(echo ${#GOLDEN_VM_LIST[@]}) -eq 0 ]; then
