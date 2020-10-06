@@ -19,9 +19,9 @@ fi
 
 get_test_vm_list # populate TEST_VM_LIST
 
-# TODO: Error out if no test VM's are available.
 if [ $(echo ${#TEST_VM_LIST[@]}) -eq 0 ]; then
   err "No test VMs configured in Satellite"
+  exit 1
 fi
 
 # shutdown test VMs
