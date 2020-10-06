@@ -94,14 +94,14 @@ node {
     executeScript("${SCRIPTS_DIR}/promote2goldenlce.sh")
     executeScript("${SCRIPTS_DIR}/capsule-sync-check.sh")
   }
-  executeStage(stagePromote2GoldenLCE, 'publish and promote CV')
+  executeStage(stagePromote2GoldenLCE, 'promote CV to golden')
 
   def stagePrepGoldenVms = {
     executeScript("${SCRIPTS_DIR}/buildgoldenvms.sh")
     executeScript("${SCRIPTS_DIR}/wait4goldenvmsup.sh")
     executeScript("${SCRIPTS_DIR}/shutdowngoldenvms.sh")
   }
-  executeStage(stagePrepTestVms, 'prepare golden VMs')
+  executeStage(stagePrepGoldenVms, 'prepare golden VMs')
 
   def stageCleanup = {
     executeScript("${SCRIPTS_DIR}/cleanup.sh")
