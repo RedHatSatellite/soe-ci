@@ -121,5 +121,5 @@ do
     fi
 done
 
-inform "a host that exited build mode may still be shutting down, so the script needs to sleep say 3 minutes"
+inform "A host that exited build mode is given 3 minutes to finish anaconda ceanly"
 sleep 180
