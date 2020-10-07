@@ -123,7 +123,7 @@ then
         cv=${CV_LIST[$i]}
         ver_id=${VER_ID_LIST[$i]}
 
-        inform "Promoting version ${ver_id} of ${cv} to LCE ${TESTVM_ENV}"
+        inform "Promoting version ID ${ver_id} of ${cv} to LCE ${TESTVM_ENV}"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
         "hammer content-view version promote --content-view \"${cv}\" --organization \"${ORG}\" \
         --to-lifecycle-environment-id \"${TESTVM_ENV}\" --force --id ${ver_id}"
