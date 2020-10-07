@@ -72,7 +72,11 @@ node {
 
   def stageRunTests = {
     executeScript("${SCRIPTS_DIR}/pushtests.sh")
-    step([$class: "TapPublisher", testResults: "test_results/*.tap", failedTestsMarkBuildAsFailure: true, ])
+    step([$class: "TapPublisher", testResults: "test_results/*.tap", failedTestsMarkBuildAsFailure: true ])
+    if (currentBuild.result == 'FAILURE') {
+      isInErrorState = true
+      error('There were test failures')
+    }
   }
   executeStage(stageRunTests, 'run tests')
    
