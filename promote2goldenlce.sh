@@ -26,6 +26,16 @@ do
 done
 IFS="${oldIFS}"
 
+# Get a list of all CV version IDs
+for cv in "${CV_LIST[@]}"
+do
+    # get the latest version of each CV, add it to the array
+    inform "Get the latest version of CV ${cv}"
+    VER_ID_LIST+=( "$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+	"hammer content-view info --name \"${cv}\" --organization \"${ORG}\" \
+	| sed -n \"/Versions:/,/Components:/p\" | grep \"ID:\" | tr -d ' ' | cut -f2 -d ':' | sort -n | tail -n 1")" )
+done
+
 if [[ -n ${GOLDENVM_ENV} ]]
 then
     for (( i = 0; i < ${#CV_LIST[@]}; i++ ))
