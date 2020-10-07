@@ -121,3 +121,5 @@ do
     fi
 done
 
+inform "A host that exited build mode is given 3 minutes to finish anaconda ceanly"
+sleep 180
