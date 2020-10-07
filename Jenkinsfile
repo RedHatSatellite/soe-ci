@@ -72,7 +72,7 @@ node {
 
   def stageRunTests = {
     executeScript("${SCRIPTS_DIR}/pushtests.sh")
-    step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
+    step([$class: "TapPublisher", testResults: "test_results/*.tap", failedTestsMarkBuildAsFailure: true, ])
   }
   executeStage(stageRunTests, 'run tests')
    
