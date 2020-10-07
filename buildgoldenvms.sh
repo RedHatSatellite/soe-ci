@@ -121,3 +121,5 @@ do
     fi
 done
 
+inform "a host that exited build mode may still be shutting down, so the script needs to sleep say 3 minutes"
+sleep 180
