@@ -103,6 +103,8 @@ node {
   }
   executeStage(stagePrepGoldenVms, 'prepare golden VMs')
 
+  // where do we run virt-sysprep (1) after this is successful? Ideally on the machine doing qemu-img convert
+
   def stageCleanup = {
     executeScript("${SCRIPTS_DIR}/cleanup.sh")
   }
