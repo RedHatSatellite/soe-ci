@@ -1,6 +1,6 @@
 //this is for RHEL8 only as we build packages and shove them in a RHEL8 only yum repo
 env.REPO_ID="3825"
-env.PUPPET_REPO_ID="8"
+//env.PUPPET_REPO_ID="8"
 env.TESTVM_HOSTCOLLECTION="hc-soe-el8-test"
 env.GOLDENVM_HOSTCOLLECTION="hc-soe-el8-golden"
 env.YUM_REPO="/var/www/html/pub/soe-repo/rhel8"
