@@ -19,12 +19,12 @@ fi
 
 get_golden_vm_list # populate GOLDEN_VM_LIST
 
-# TODO: Error out if no test VM's are available.
+# TODO: Error out if no golden VM's are available.
 if [ $(echo ${#GOLDEN_VM_LIST[@]}) -eq 0 ]; then
-  err "No test VMs configured in Satellite"
+  err "No golden VMs configured in Satellite"
 fi
 
-# rebuild test VMs
+# rebuild golden VMs
 for I in "${GOLDEN_VM_LIST[@]}"
 do
     inform "Rebuilding VM ID $I"
@@ -83,7 +83,7 @@ do
 done
 
 
-# we need to wait until all the test machines have been rebuilt by foreman
+# we need to wait until all the golden machines have been rebuilt by foreman
 # this check was previously only in pushtests, but when using pipelines 
 # it's more sensible to wait here while the machines are in build mode
 # the ping and ssh checks must remain in pushtests.sh
