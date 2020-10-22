@@ -29,9 +29,9 @@ for I in "${GOLDEN_VM_LIST[@]}"
 do
     inform "Rebuilding VM ID $I"
     ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-        "hammer host update --id $I --build yes"
+        "hammer host update --name $I --build yes"
 
-    _PROBED_STATUS=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
+    _PROBED_STATUS=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --name $I" | grep Power | cut -f2 -d: | tr -d ' ')
 
     # different hypervisors report power status with different words. parse and get a single word per status
     # KVM uses running / shutoff
@@ -69,13 +69,13 @@ do
     then
         # forcefully poweroff the SUT
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "hammer host stop --force --id $I"
+            "hammer host stop --force --name $I"
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "hammer host start --id $I"
+            "hammer host start --name $I"
     elif [[ ${_STATUS} == 'Off' ]]
     then
         ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "hammer host start --id $I"
+            "hammer host start --name $I"
     else
         err "Host $I is neither running nor shutoff. No action possible!"
         exit 1
