@@ -62,7 +62,7 @@ do
         _STATUS=Off
         ;;
       *)
-        echo "can not parse power status, please review $0"
+        echo "can not parse power status, please review $0 for status ${_PROBED_STATUS}"
     esac
 
     if [[ ${_STATUS} == 'On' ]]
