@@ -61,29 +61,53 @@ node {
   }
   executeStage(stagePubAndPromote, 'publish and promote CV')
 
-  def stagePrepVms = {
+  def stagePrepTestVms = {
     if (params.REBUILD_VMS == true) {
       executeScript("${SCRIPTS_DIR}/buildtestvms.sh")
     } else {
       executeScript("${SCRIPTS_DIR}/starttestvms.sh")
     }
   }
-  executeStage(stagePrepVms, 'prepare VMs')
+  executeStage(stagePrepTestVms, 'prepare test VMs')
 
   def stageRunTests = {
     executeScript("${SCRIPTS_DIR}/pushtests.sh")
-    step([$class: "TapPublisher", testResults: "test_results/*.tap", ])
+    step([$class: "TapPublisher", testResults: "test_results/*.tap", failedTestsMarkBuildAsFailure: true ])
+    if (currentBuild.result == 'FAILURE') {
+      isInErrorState = true
+      error('There were test failures')
+    }
   }
   executeStage(stageRunTests, 'run tests')
    
-  def stagePowerOff = {
+  def stagePowerOffTestVMs = {
     if (params.POWER_OFF_VMS_AFTER_BUILD == true) {
       executeScript("${SCRIPTS_DIR}/powerofftestvms.sh")
     } else {
       println "test VMs are not shut down as per passed configuration"
     }
   }
-  executeStage(stagePowerOff, 'power off VMs')
+  executeStage(stagePowerOffTestVMs, 'power off test VMs')
+
+/*
+* promote to GOLDENVM_ENV here or do we do both test and golden VMs from same LCE?
+* the latter is actually fine as long as the pipeline exits on failure at one of the previous steps
+* the former gives us a nicer separation (so (C)CVs in the LCE can be used for other tasks that want only a version where automated testing passed)
+*/
+  def stagePromote2GoldenLCE = {
+    executeScript("${SCRIPTS_DIR}/promote2goldenlce.sh")
+    executeScript("${SCRIPTS_DIR}/capsule-sync-check.sh")
+  }
+  executeStage(stagePromote2GoldenLCE, 'promote CV to golden')
+
+  def stagePrepGoldenVms = {
+    executeScript("${SCRIPTS_DIR}/buildgoldenvms.sh")
+    executeScript("${SCRIPTS_DIR}/wait4goldenvmsup.sh")
+    executeScript("${SCRIPTS_DIR}/shutdowngoldenvms.sh")
+  }
+  executeStage(stagePrepGoldenVms, 'prepare golden VMs')
+
+  // where do we run virt-sysprep (1) after this is successful? Ideally on the machine doing qemu-img convert
 
   def stageCleanup = {
     executeScript("${SCRIPTS_DIR}/cleanup.sh")

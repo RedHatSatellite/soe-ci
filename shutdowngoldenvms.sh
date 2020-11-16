@@ -1,31 +1,31 @@
 #!/bin/bash
 
-# power off the test VMs
+# power off the golden VMs
 # hammer (without the --force flag) will attempt a clean shutdown
 #
-# e.g ${WORKSPACE}/scripts/powerofftestvms.sh 'test'
+# e.g ${WORKSPACE}/scripts/poweroffgoldenvms.sh 'test'
 #
 
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]  || [[ -z ${RSA_ID} ]] \
-   || [[ -z ${ORG} ]] || [[ -z ${TESTVM_HOSTCOLLECTION} ]]
+   || [[ -z ${ORG} ]] || [[ -z ${GOLDENVM_HOSTCOLLECTION} ]]
 then
     err "Environment variable PUSH_USER, SATELLITE, RSA_ID, ORG " \
-        "or TESTVM_HOSTCOLLECTION not set or not found."
+        "or GOLDENVM_HOSTCOLLECTION not set or not found."
     exit ${WORKSPACE_ERR}
 fi
 
-get_test_vm_list # populate TEST_VM_LIST
+get_golden_vm_list # populate GOLDEN_VM_LIST
 
-if [ $(echo ${#TEST_VM_LIST[@]}) -eq 0 ]; then
-  err "No test VMs configured in Satellite"
+if [ $(echo ${#GOLDEN_VM_LIST[@]}) -eq 0 ]; then
+  err "No golden VMs configured in Satellite"
   exit 1
 fi
 
-# shutdown test VMs
-for I in "${TEST_VM_LIST[@]}"
+# shutdown golden VMs
+for I in "${GOLDEN_VM_LIST[@]}"
 do
     inform "Checking status of VM ID $I"
 
@@ -63,6 +63,9 @@ do
         echo "can not parse power status, please review $0"
     esac
 
+    # n.b. kickstart can either reboot or power down at the end, so we must handle both cases
+    # also, since we do not pushtests.sh aginst the golden VMs,
+    # ensure it's up before attempting clean shutdown
     if [[ ${_STATUS} == 'On' ]]
     then
         inform "Shutting down VM ID $I"
@@ -73,8 +76,6 @@ do
         inform "VM ID $I seems off already, no action done."
     else
         err "Host $I is neither running nor shutoff. No action possible!"
-        # exit 0 while testingi for issue  #50,
-        # allows for manual rebooting of the test VM(s)
-        exit 0
+        exit 1
     fi
 done

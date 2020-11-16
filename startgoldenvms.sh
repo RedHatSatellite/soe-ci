@@ -1,40 +1,39 @@
 #!/bin/bash
 
-# power off the test VMs
-# hammer (without the --force flag) will attempt a clean shutdown
+# Instruct Foreman to start the golden VMs (just in case they are off)
 #
-# e.g ${WORKSPACE}/scripts/powerofftestvms.sh 'test'
+# e.g ${WORKSPACE}/scripts/startgoldenvms.sh 'test'
 #
+# this will tell Foreman to start all machines in hostgroup GOLDENVM_HOSTGROUP
 
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
 if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]  || [[ -z ${RSA_ID} ]] \
-   || [[ -z ${ORG} ]] || [[ -z ${TESTVM_HOSTCOLLECTION} ]]
+   || [[ -z ${ORG} ]] || [[ -z ${GOLDENVM_HOSTCOLLECTION} ]]
 then
     err "Environment variable PUSH_USER, SATELLITE, RSA_ID, ORG " \
-        "or TESTVM_HOSTCOLLECTION not set or not found."
+        "or GOLDENVM_HOSTCOLLECTION not set or not found."
     exit ${WORKSPACE_ERR}
 fi
 
-get_test_vm_list # populate TEST_VM_LIST
+get_golden_vm_list # populate GOLDEN_VM_LIST
 
-if [ $(echo ${#TEST_VM_LIST[@]}) -eq 0 ]; then
-  err "No test VMs configured in Satellite"
+if [ $(echo ${#GOLDEN_VM_LIST[@]}) -eq 0 ]; then
+  err "No golden VMs configured in Satellite"
   exit 1
 fi
 
-# shutdown test VMs
-for I in "${TEST_VM_LIST[@]}"
+# rebuild golden VMs
+for I in "${GOLDEN_VM_LIST[@]}"
 do
-    inform "Checking status of VM ID $I"
+    inform "Making sure VM ID $I is on"
 
     _PROBED_STATUS=$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} "hammer host status --id $I" | grep Power | cut -f2 -d: | tr -d ' ')
 
     # different hypervisors report power status with different words. parse and get a single word per status
     # KVM uses running / shutoff
     # VMware uses poweredOn / poweredOff
-    # libvirt uses running / off
     # add other hypervisors as you come across them and please submit to https://github.com/RedHatEMEA/soe-ci
 
     case "${_PROBED_STATUS}" in
@@ -65,16 +64,14 @@ do
 
     if [[ ${_STATUS} == 'On' ]]
     then
-        inform "Shutting down VM ID $I"
-        ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
-            "hammer host stop --id $I"
+        inform "Host $I is already on."
     elif [[ ${_STATUS} == 'Off' ]]
     then
-        inform "VM ID $I seems off already, no action done."
+        inform "Host $I is already off, switching it on."
+        ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
+            "hammer host start --id $I"
     else
         err "Host $I is neither running nor shutoff. No action possible!"
-        # exit 0 while testingi for issue  #50,
-        # allows for manual rebooting of the test VM(s)
-        exit 0
+        exit 1
     fi
 done
