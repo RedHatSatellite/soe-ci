@@ -8,13 +8,33 @@
 # Load common parameter variables
 . $(dirname "${0}")/common.sh
 
-if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]]
+if [[ -z ${PUSH_USER} ]] || [[ -z ${SATELLITE} ]] || [[ -z ${PUPPET_REPO} ]] || [[ -z ${WORKSPACE} ]]
 then
-    err "PUSH_USER or SATELLITE not set or not found"
+    err "PUSH_USER, SATELLITE, PUPPET_REPO or WORKSPACE not set or not found"
     exit ${WORKSPACE_ERR}
 fi
 
-# has anything changed? If yes, then MODIFIED_CONTENT_FILE is not 0 bytes 
+# get the puppet module names found in ${PUPPET_REPO}"
+# and verify that a folder for this is in git.
+# mind you, this explicitly does not differentiate between the module versions.
+# the reason is that we want to remove all versions of the module.
+# see Issue #83 at https://github.com/RedHatSatellite/soe-ci/issues/83
+inform "checking '${PUPPET_REPO}' for modules no longer in git"
+pushd "${PUPPET_REPO}"
+    for I in $(ls -1 *.tar.gz | awk --field-separator '-' '{print $2}' | sort -u)
+    do
+        # check if puppet module $I still exists in git
+        if [[ ! -d "${WORKSPACE}/soe/puppet/${I}" ]]
+        then
+            warn "puppet module '${I}' found in '${PUPPET_REPO}' but not in git."
+            warn "Cleaning ${PUPPET_REPO}"
+            rm --verbose --interactive=never *-${I}-*.tar.gz
+        fi
+    done
+popd
+inform "puppet module check completed"
+
+# has anything changed? If yes, then MODIFIED_CONTENT_FILE is not 0 bytes
 if [[ ! -s "${MODIFIED_PUPPET_FILE}" ]]
 then
     echo "No entries in ${MODIFIED_PUPPET_FILE} no need to continue with $0"
