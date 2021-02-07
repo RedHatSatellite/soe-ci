@@ -75,7 +75,7 @@ do
     # if the repolist does not contain whet you expect, switch off auto-attach on the used activation-key
     inform "Listing repos on test server $I"
     ssh -o StrictHostKeyChecking=no -i ${RSA_ID} root@$I "subscription-manager repos"
-    
+
     # copy puppet-done-test.sh to SUT
     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${RSA_ID} \
         ${WORKSPACE}/scripts/puppet-done-test.sh root@$I:
