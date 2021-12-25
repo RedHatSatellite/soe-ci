@@ -41,7 +41,7 @@ do
     inform "Get the latest version of CV ${cv}"
     VER_ID_LIST+=( "$(ssh -q -l ${PUSH_USER} -i ${RSA_ID} ${SATELLITE} \
 	"hammer content-view info --name \"${cv}\" --organization \"${ORG}\" \
-	| sed -n \"/Versions:/,/Components:/p\" | grep \"ID:\" | tr -d ' ' | cut -f2 -d ':' | sort -n | tail -n 1")" )
+	| sed -n \"/Versions:/,/Components:/p\" | grep \"Id:\" | tr -d ' ' | cut -f2 -d ':' | sort -n | tail -n 1")" )
 done
 
 # sleep after publishing content view to give chance for locks to get cleared up
